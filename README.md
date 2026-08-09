@@ -80,6 +80,9 @@ python3 tools/gen_run_preludes.py
   파일시스템에 심고 numpy·matplotlib 을 함께 내려받는다.
 - **이어지는 예제**: 앞 블록의 변수를 쓰는 코드는 `run-preludes.json` 에 준비 코드를
   담아 둔다(`gen_run_preludes.py` 생성). **코드를 고치면 해시가 바뀌므로 다시 돌려야 한다.**
+  `book.js` 는 준비 코드를 `pre + code` 로 **구분자 없이** 이어 붙이므로 준비 코드는
+  반드시 빈 줄로 끝나야 한다. 생성기가 그렇게 만들고, 끝에서 실제로 이어 붙여
+  문법이 성립하는지 자체 점검한다.
 - `interactive=True` 로 대화형(plotly) 그림을 그리는 예제는 이 실행기에서 띄울 수 없어
   `concept-codes.json` 에 올려 '설명을 돕는 개념 코드' 안내만 표시한다.
 

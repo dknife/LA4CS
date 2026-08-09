@@ -65,6 +65,18 @@ def source_files():
     return [f for f in files if f.exists()]
 
 
+def not_runnable(body: str) -> bool:
+    """이 실행기에서 돌릴 수 없는 코드인가?
+
+    대화형(plotly) 그림, 주피터 매직(%%writefile), 코랩 전용 코드.
+    준비 코드에 섞이면 뒤따르는 블록까지 문법 오류가 나므로 함께 걸러 낸다.
+    """
+    return ("tuvis" in body or "plotly" in body
+            or "interactive=True" in body
+            or body.lstrip().startswith("%%")
+            or "google.colab" in body)
+
+
 def main():
     preludes = {}
     concepts = []
@@ -75,14 +87,16 @@ def main():
         n_blocks += len(blocks)
         for i, code in enumerate(blocks):
             body = code.strip("\n")
-            if ("tuvis" in body or "plotly" in body
-                    or "interactive=True" in body):
-                # 대화형(plotly) 그림은 이 실행기에서 띄울 수 없다
+            if not_runnable(body):
                 concepts.append(code_key(body))
                 continue
-            if i == 0:
+            earlier = [b.strip("\n") for b in blocks[:i]
+                       if not not_runnable(b.strip("\n"))]
+            if not earlier:
                 continue
-            prev = "\n\n".join(b.strip("\n") for b in blocks[:i])
+            # book.js 는 `pre + code` 로 그냥 이어 붙인다. 끝에 빈 줄을 두지 않으면
+            # 앞 블록의 마지막 줄과 이 블록의 첫 줄이 한 줄로 붙어 SyntaxError 가 난다.
+            prev = "\n\n".join(earlier) + "\n\n"
             # 앞 블록이 정의한 이름을 쓰지 않는 블록에는 준비 코드가 필요 없다.
             # 판단이 어려우므로 앞 블록을 모두 붙인다(원고 검증과 같은 방식).
             preludes[code_key(body)] = prev
@@ -94,7 +108,24 @@ def main():
         encoding="utf-8")
     print(f"코드 블록 {n_blocks}개")
     print(f"run-preludes.json  : {len(preludes)}개")
-    print(f"concept-codes.json : {len(set(concepts))}개 (plotly 예제)")
+    print(f"concept-codes.json : {len(set(concepts))}개 (실행 대상 아님)")
+
+    # 자체 점검 — book.js 는 `pre + code` 로 그냥 이어 붙인다.
+    # 실제로 그렇게 붙여 문법이 성립하는지 확인한다.
+    bad = 0
+    for f in source_files():
+        for i, code in enumerate(PYCODE.findall(f.read_text(encoding="utf-8"))):
+            body = code.strip("\n")
+            k = code_key(body)
+            if k in set(concepts):
+                continue
+            joined = preludes.get(k, "") + body
+            try:
+                compile(joined, "<web>", "exec")
+            except SyntaxError as e:
+                bad += 1
+                print(f"  !! 문법 오류 {f.name} 블록 {i + 1}: {e}")
+    print("자체 점검 :", "통과" if bad == 0 else f"{bad}건 실패")
 
 
 if __name__ == "__main__":
