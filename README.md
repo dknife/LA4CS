@@ -59,6 +59,9 @@ python3 tools/tex2html.py
 
 # 3) 이어지는 예제의 준비 코드 + 실행 불가 코드 표시
 python3 tools/gen_run_preludes.py
+
+# 4) 웹에서 실행되는 그대로 전부 돌려 확인 (실패 0이어야 한다)
+cd docs/book && python3 ../../tools/check_web_run.py && cd ../..
 ```
 
 **원고를 고쳐도 자동으로 빌드·푸시하지 않는다.** 필요할 때 위 두 명령을 직접 돌린다.
