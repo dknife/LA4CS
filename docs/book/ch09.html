@@ -662,6 +662,36 @@ tests = {
 for name, (M, expected) in tests.items():
     got = np.sort_complex(np.linalg.eig(M)[0])
     print(f'{name:8s}: {np.allclose(got, np.sort_complex(expected))}')</code></pre></li>
+<li><strong>고유벡터를 3차원에서 확인하자.</strong> 고유벡터의 정의는 "변환해도 방향이 그대로"였다. 3차원에서 고유벡터 하나와 고유벡터가 아닌 벡터 하나를 나란히 변환해 보면 그 차이가 뚜렷하다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[2.0, 0.0, 0.0],
+              [0.0, 1.5, 0.5],
+              [0.0, 0.5, 1.5]])
+w, V = np.linalg.eigh(A)
+u = V[:, -1]                          # 가장 큰 고유값의 고유벡터
+x = np.array([1.0, 0.2, 1.4])         # 고유벡터가 아닌 벡터
+
+fig, ax = new_axes3d(xlim=(-0.5, 2.5), ylim=(-0.5, 2.5), zlim=(-0.5, 2.5))
+draw_line(ax, np.zeros(3), 2.4 * u, kind='segment',
+          color='lightgray', linestyle='--')
+draw_vector(ax, u, color='lightcoral', label='u')
+draw_vector(ax, A @ u, color='crimson', label='A u')
+draw_vector(ax, x, color='lightsteelblue', label='x')
+draw_vector(ax, A @ x, color='royalblue', label='A x')
+ax.view_init(elev=16, azim=-62)
+plt.show()
+
+print('고유값                :', np.round(w, 4))
+print('A u = lambda u 인가?  :', np.allclose(A @ u, w[-1] * u))
+print('A x 가 x 와 같은 방향? :', np.allclose(np.cross(A @ x, x), 0))</code></pre>
+<pre class="pyout">고유값                : [1. 2. 2.]
+A u = lambda u 인가?  : True
+A x 가 x 와 같은 방향? : False</pre>
+<div class="center"><img class="shot" src="img/ch09/ch09_img01.png" alt="figure"></div>
+<p>붉은 쌍을 보라. \(\vv{u}\)와 \(\mm{A}\vv{u}\)가 같은 점선 위에 놓여 있다. 길이만 \(\lambda\)배 늘었을 뿐 방향은 그대로다. 반면 파란 쌍은 화살표가 옆으로 틀어졌다. <strong>이 한 장의 그림이 고유벡터의 정의 그 자체</strong>다.</li>
 </ol></p></div></p>
 <details class="box summary" id="summary"><summary class="box-head">9장 요약</summary><div class="sum-body"><ul>
 <li>\(\mm{A}\vv{v} = \lambda\vv{v}\)(\(\vv{v} \neq \zerovec\))을 만족하는 \(\lambda\)를 <strong>고유값</strong>, \(\vv{v}\)를 <strong>고유벡터</strong>라 한다. 고유벡터는 그 변환을 겪고도 <strong>방향이 변하지 않는</strong> 벡터다.</li>

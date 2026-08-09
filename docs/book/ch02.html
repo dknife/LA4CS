@@ -228,9 +228,9 @@ t_np = time.time() - start
 print(f'Python list : {t_py:.3f} sec')
 print(f'NumPy array : {t_np:.3f} sec')
 print(f'Speedup     : {t_py / t_np:.1f}x')</code></pre>
-<p><pre class="pyout">Python list : 0.623 sec
-NumPy array : 0.027 sec
-Speedup     : 23.0x</pre>
+<p><pre class="pyout">Python list : 0.624 sec
+NumPy array : 0.046 sec
+Speedup     : 13.6x</pre>
 <div class="listing-caption">코드 2.5: 벡터화 연산과 파이썬 반복문의 속도 비교</div></p>
 <p>수십 배의 차이다. 이 차이는 데이터가 커질수록 더 벌어진다. 딥러닝 모델의 학습이 현실적인 시간 안에 끝나는 것은 이런 벡터화가 밑바닥에서 받쳐 주기 때문이다.</p>
 <div class="box keypoint"><span class="chip">요점</span><p>넘파이를 쓸 때 <strong>반복문이 보이면 의심하라.</strong> 대부분의 원소별 반복은 벡터화 연산 한 줄로 바꿀 수 있으며, 그렇게 바꾸면 코드가 짧아지는 동시에 수십 배 빨라진다.</p></div>
@@ -667,7 +667,7 @@ print(f'speedup   : {t1 / t2:.1f}x')
 print('같은 결과인가 :', np.allclose(y1, y2))</code></pre>
 <pre class="pyout">loop      : 0.061 sec
 vectorized: 0.004 sec
-speedup   : 15.6x
+speedup   : 15.1x
 같은 결과인가 : True</pre>
 <p>마지막 줄의 <code>np.allclose()</code>는 두 배열이 오차 범위 안에서 같은지 확인하는 함수다. 부동소수점 계산에서 <code>==</code> 대신 반드시 써야 하는 함수이므로 기억해 두자.</li>
 <li><strong>대각 성분만 남기고 지워 보자.</strong> \(6 \times 6\) 무작위 행렬에서 대각 성분을 제외한 모든 값을 0으로 만드시오. 반복문 없이 처리하는 방법을 찾아보시오.</p>

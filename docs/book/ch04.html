@@ -664,6 +664,31 @@ triangle 1: normal=[1. 0. 0.], area=0.500
 triangle 2: normal=[0.577 0.577 0.577], area=0.866
 triangle 3: normal=[0. 0. 1.], area=0.500</pre>
 <p>3번 삼각형의 법선이 \((0.577, 0.577, 0.577)\)인 것은 세 축에 대해 똑같이 기울어진 면이기 때문이다. \(0.577 \approx 1/\sqrt{3}\)임을 확인해 보자.</li>
+<li><strong>외적을 3차원에서 확인하자.</strong> 외적 \(\vv{a}\times\vv{b}\)가 정말 두 벡터에 수직인지, 그 크기가 평행사변형의 넓이인지는 3차원 그림으로 보아야 실감이 난다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+a = np.array([2., 0.5, 0.])
+b = np.array([0.5, 2., 0.])
+n = np.cross(a, b)
+
+fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 3), zlim=(0, 4.5))
+draw_polygon(ax, np.array([np.zeros(3), a, a + b, b]), alpha=0.4)
+draw_vector(ax, a, color='crimson', label='a')
+draw_vector(ax, b, color='seagreen', label='b')
+draw_vector(ax, n, color='royalblue', label='a x b')
+ax.view_init(elev=18, azim=28)
+plt.show()
+
+print('a 와 수직 :', np.isclose(n @ a, 0))
+print('b 와 수직 :', np.isclose(n @ b, 0))
+print('넓이      :', np.linalg.norm(n))</code></pre>
+<pre class="pyout">a 와 수직 : True
+b 와 수직 : True
+넓이      : 3.75</pre>
+<div class="center"><img class="shot" src="img/ch04/ch04_img01.png" alt="figure"></div>
+<p>두 벡터가 만드는 평행사변형(노란 면)에 파란 화살표가 못처럼 꽂혀 있다. <code>interactive=True</code>를 붙여 돌려 보면 어느 각도에서 보아도 수직임을 알 수 있다. \(\vv{b}\)와 \(\vv{a}\)의 순서를 바꿔 실행하면 화살표가 아래로 뒤집히는 것도 확인해 보자.</li>
 </ol></p></div></p>
 <details class="box summary" id="summary"><summary class="box-head">4장 요약</summary><div class="sum-body"><ul>
 <li>벡터의 <strong>덧셈과 뺄셈</strong>은 대응하는 성분끼리 이루어지며, 각 축에서 독립적으로 계산된다. 차원이 다른 벡터끼리는 정의되지 않는다.</li>

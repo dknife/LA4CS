@@ -730,6 +730,36 @@ print('잡음 낀 원본과의 오차 :',
       round(np.linalg.norm(clean - noisy) / np.linalg.norm(clean), 4))
 print('k=3 복원 오차         :', round(errors[2], 4))</code></pre>
 <p>\(k\)를 3보다 크게 하면 오히려 오차가 늘어난다. <strong>잡음까지 복원해 버리기 때문</strong>이다. 적절한 지점에서 자르는 것이 노이즈 제거의 핵심이다.</li>
+<li><strong>특이값 분해를 3차원에서 보자.</strong> 11.2절에서 "단위원은 어떤 행렬을 통과해도 타원이 된다"고 했다. 3차원에서는 <strong>단위구가 타원체</strong>가 되고, 그 세 축의 길이가 곧 특이값이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[1.8, 0.4, 0.0],
+              [0.2, 1.2, 0.3],
+              [0.0, 0.3, 0.9]])
+U, s, Vt = np.linalg.svd(A)
+
+t = np.linspace(0, 2 * np.pi, 60)          # 단위구 위의 점들
+p = np.linspace(0, np.pi, 30)
+S = np.array([[np.cos(a) * np.sin(b), np.sin(a) * np.sin(b), np.cos(b)]
+              for b in p for a in t])
+
+fig, ax = new_axes3d(xlim=(-2, 2), ylim=(-2, 2), zlim=(-2, 2))
+draw_points(ax, transform(A, S), color='lightsteelblue', size=3)
+for k in range(3):                         # 타원체의 세 축
+    draw_vector(ax, s[k] * U[:, k],
+                color=['crimson', 'seagreen', 'darkorange'][k],
+                label=f'{s[k]:.2f}')
+ax.view_init(elev=24, azim=-52)
+plt.show()
+
+print('특이값 :', np.round(s, 4))
+print('부피비 :', round(np.prod(s), 4), '=', round(abs(np.linalg.det(A)), 4))</code></pre>
+<pre class="pyout">특이값 : [1.9414 1.2739 0.6914]
+부피비 : 1.71 = 1.71</pre>
+<div class="center"><img class="shot" src="img/ch11/ch11_img01.png" alt="figure"></div>
+<p>세 화살표가 타원체의 반축이며, 그 길이가 특이값 \(\sigma_1, \sigma_2, \sigma_3\)이다. 마지막 줄은 <strong>특이값의 곱이 행렬식의 절댓값</strong>임을 확인한다. 세 방향의 늘어난 비율을 모두 곱하면 부피 배율이 되기 때문이다. \(\sigma_3\)을 0에 가깝게 만들면 타원체가 납작한 원판이 되는데, 그것이 곧 랭크가 떨어지는 순간이다.</li>
 </ol></p></div></p>
 <details class="box summary" id="summary"><summary class="box-head">11장 요약</summary><div class="sum-body"><ul>
 <li><strong>특이값 분해</strong>: 모든 행렬 \(\mm{A}\in\Rmat{m}{n}\)은 \(\mm{A} = \mm{U}\mm{\Sigma}\mm{V}\tp\)로 분해된다. \(\mm{U}\)와 \(\mm{V}\)는 직교행렬, \(\mm{\Sigma}\)는 대각 위치에 특이값 \(\sigma_1\geq\sigma_2\geq\cdots\geq0\)이 놓인 행렬이다.</li>

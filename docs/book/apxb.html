@@ -480,7 +480,7 @@ fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 3), zlim=(-1, 3),
                      interactive=True)
 
 draw_matrix(ax, M, label='M')                 # 평행육면체 (부피 = |det M|)
-draw_points(ax, transform(M, UNIT_CUBE), color='crimson', size=25)
+draw_points(ax, transform(M, UNIT_CUBE), color='crimson', size=3)
 draw_plane(ax, [0, 0, 0], np.cross(M[:, 0], M[:, 1]), r=1.5)</code></pre>
 <div class="listing-caption">코드 B.1: 같은 코드, 캔버스만 바꾸면 대화형이 된다</div></p>
 <h3>예제 1  —  외적이 만드는 방향 (4장)</h3>

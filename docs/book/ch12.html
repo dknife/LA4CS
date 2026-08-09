@@ -490,10 +490,10 @@ t0 = time.time(); x = np.linalg.pinv(A) @ b; methods['SVD (pinv)'] = (time.time(
 
 for name, (t, x) in methods.items():
     print(f'{name:12s}: {t:.4f} sec, 잔차 {np.linalg.norm(A @ x - b):.3e}')</code></pre>
-<p><pre class="pyout">solve (LU)  : 0.0016 sec, 잔차 3.313e-14
-inv         : 0.0045 sec, 잔차 3.124e-14
-QR          : 0.0109 sec, 잔차 3.052e-14
-SVD (pinv)  : 0.0519 sec, 잔차 9.636e-14</pre>
+<p><pre class="pyout">solve (LU)  : 0.0015 sec, 잔차 3.313e-14
+inv         : 0.0046 sec, 잔차 3.124e-14
+QR          : 0.0099 sec, 잔차 3.052e-14
+SVD (pinv)  : 0.0495 sec, 잔차 9.636e-14</pre>
 <div class="listing-caption">코드 12.11: 같은 문제, 네 가지 풀이법의 비용 비교</div></p>
 <p>정방이고 조건이 좋은 문제라면 <code>solve</code>(내부적으로 LU)가 가장 빠르고 정확도도 충분하다. SVD를 쓰는 <code>pinv</code>는 수십 배 느리다(측정값은 기기에 따라 다르다). <strong>강력한 도구가 항상 옳은 선택은 아니다.</strong></p>
 <h3>다항식 곡선 맞추기</h3>

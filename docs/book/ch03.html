@@ -535,6 +535,20 @@ ax1.imshow(board, cmap='gray'); ax1.set_title('board')
 ax2.imshow(board.T, cmap='gray'); ax2.set_title('board.T')
 plt.tight_layout(); plt.show()</code></pre>
 <p>이미지 한 장이 곧 행렬이라는 사실은 11장의 이미지 압축 실습에서 결정적으로 쓰인다.</li>
+<li><strong>3차원 벡터를 눈으로 보자.</strong> 지금까지는 평면 위의 벡터를 그렸다. 벡터의 정의에는 차원 제한이 없으므로 3차원도 똑같이 그릴 수 있다. 캔버스를 만드는 함수만 <code>new_axes3d()</code>로 바꾸면 된다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+V = np.array([[2., 1., 0.5], [-1., 2., 1.5], [0.5, -1., 2.]])
+
+fig, ax = new_axes3d(xlim=(-2, 3), ylim=(-2, 3), zlim=(-1, 3))
+draw_vectors(ax, V, labels=['a', 'b', 'c'])
+draw_points(ax, V, color='black', size=25)
+ax.view_init(elev=22, azim=35)     # 보는 각도
+plt.show()</code></pre>
+<div class="center"><img class="shot" src="img/ch03/ch03_img01.png" alt="figure"></div>
+<p>화살표의 끝점이 곧 그 벡터의 좌표다(검은 점). 2차원에서 익힌 "화살표와 점, 두 가지로 보기"가 3차원에서도 그대로 통한다는 것을 확인하자. 종이 위의 그림은 각도가 고정되어 있어 답답한데, <code>new_axes3d(..., interactive=True)</code>로 바꾸면 마우스로 돌려 볼 수 있다.</li>
 </ol></p></div></p>
 <details class="box summary" id="summary"><summary class="box-head">3장 요약</summary><div class="sum-body"><ul>
 <li><strong>스칼라</strong>는 크기만 가진 값으로 수직선 위의 한 점에 대응한다. <strong>벡터</strong>는 크기와 함께 방향을 가진 양이며, \(n\)개의 실수를 순서대로 늘어놓은 것으로 \(\Rsp{n}\)의 원소다. 속력은 스칼라이고 속도는 벡터라는 예가 이 차이를 잘 보여 준다.</li>
