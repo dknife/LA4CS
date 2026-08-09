@@ -512,9 +512,11 @@ async function ensurePyodide() {
     if (r.ok) {
       var src = await r.text();
       py.FS.writeFile('lautils.py', src);
-      py.runPython('import os, sys\n'
-                   'if os.getcwd() not in sys.path:\n'
-                   '    sys.path.insert(0, os.getcwd())');
+      py.runPython([
+        'import os, sys',
+        'if os.getcwd() not in sys.path:',
+        '    sys.path.insert(0, os.getcwd())'
+      ].join('\n'));
       await py.loadPackage(['numpy', 'matplotlib']);
       py.runPython('import matplotlib\nmatplotlib.use("Agg")');
     } else {
