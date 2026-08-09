@@ -100,36 +100,37 @@
 <li>구글 계정으로 로그인한 뒤 [새 노트]를 선택한다.</li>
 <li>코드 셀에 예제를 입력하고 <code>Shift + Enter</code>로 실행한다.</li>
 </ol>
-<p>넘파이와 맷플롯립이 이미 설치되어 있으므로 바로 시작할 수 있다. 버전은 다음으로 확인한다.</p>
+<p>넘파이·맷플롯립·plotly가 이미 설치되어 있으므로 바로 시작할 수 있다. 버전은 다음으로 확인한다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-print(np.__version__, plt.matplotlib.__version__)</code></pre>
-<h3><code>lautils.py</code> 만들기</h3>
+import plotly
+print(np.__version__, plotly.__version__)</code></pre>
+<h3><code>tuvis.py</code> 만들기</h3>
 <p>2장에서 만든 시각화 모듈은 코랩에서 다음과 같이 저장한다. 셀 맨 위에 <code>%%writefile</code>을 적고 그 아래에 모듈 내용을 붙여 넣은 뒤 실행하면 된다.</p>
-<pre class="line-numbers"><code class="language-python">"""lautils.py — 부록 B의 내용을 여기에 붙여 넣는다"""
+<pre class="line-numbers"><code class="language-python">"""tuvis.py — 부록 B의 내용을 여기에 붙여 넣는다"""
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 # ... (이하 생략)</code></pre>
-<p>한 번 저장하면 같은 세션 동안 <code>from lautils import *</code>로 불러 쓸 수 있다. 다만 <strong>코랩 런타임이 초기화되면 파일이 사라지므로</strong> 다시 실행해야 한다. 구글 드라이브에 저장해 두면 매번 만들 필요가 없다.</p>
+<p>한 번 저장하면 같은 세션 동안 <code>from tuvis import *</code>로 불러 쓸 수 있다. 다만 <strong>코랩 런타임이 초기화되면 파일이 사라지므로</strong> 다시 실행해야 한다. 구글 드라이브에 저장해 두면 매번 만들 필요가 없다.</p>
 <pre class="line-numbers"><code class="language-python">from google.colab import drive
 drive.mount('/content/drive')
 
 import sys
-sys.path.append('/content/drive/MyDrive/linalg')   # lautils.py를 둔 폴더
-from lautils import *</code></pre>
+sys.path.append('/content/drive/MyDrive/linalg')   # tuvis.py를 둔 폴더
+from tuvis import *</code></pre>
 <h2 id="sec2">내 컴퓨터에 설치하기</h2>
 <h3>파이썬 설치</h3>
 <p>파이썬 3.10 이상을 권장한다. <code>python.org</code>에서 내려받거나, 아나콘다 배포판을 설치해도 좋다.</p>
 <h3>패키지 설치</h3>
 <p>터미널(윈도우는 명령 프롬프트)에서 다음을 실행한다.</p>
-<pre class="pyout">pip install numpy matplotlib</pre>
+<pre class="pyout">pip install numpy matplotlib plotly</pre>
+<p>넘파이는 계산, plotly는 <code>tuvis</code>의 대화형 그림, 맷플롯립은 손실 곡선 같은 일반 그래프에 쓴다.</p>
 <p>가상환경을 쓰는 것을 권한다. 프로젝트마다 패키지 버전을 분리할 수 있다.</p>
 <pre class="pyout">python -m venv linalg-env
 source linalg-env/bin/activate      # 윈도우: linalg-env\Scripts\activate
-pip install numpy matplotlib</pre>
-<h3>선택: 대화형 3차원 그림</h3>
-<p>부록 B에서 소개하는 <code>tuvis.py</code>를 쓰려면 plotly가 필요하다. 이 책의 본문 예제에는 필요 없으므로, 3차원을 직접 돌려 보고 싶을 때만 설치하면 된다.</p>
-<pre class="pyout">pip install plotly</pre>
+pip install numpy matplotlib plotly</pre>
+<h3>선택: 그림을 파일로 저장하기</h3>
+<p>대화형 그림을 PNG로 저장하려면 kaleido가 필요하다. 화면에서 보기만 할 때는 필요 없다.</p>
+<pre class="pyout">pip install kaleido</pre>
 <p>코랩에는 plotly가 이미 설치되어 있어 바로 쓸 수 있다.</p>
 <h3>편집 환경</h3>
 <p>주피터 노트북이나 VS Code를 권한다. 특히 이 책처럼 코드를 조금씩 실행하며 그림을 확인하는 학습에는 노트북 방식이 잘 맞는다.</p>
@@ -149,9 +150,9 @@ plt.rcParams['font.family'] = 'AppleGothic'
 
 plt.rcParams['axes.unicode_minus'] = False    # 마이너스 기호 깨짐 방지</code></pre>
 <h3>그림이 나타나지 않는다</h3>
-<p>스크립트로 실행하는 경우 <code>plt.show()</code>가 필요하다. 주피터에서는 셀의 마지막 표현식이 자동으로 표시되지만, 명시적으로 호출하는 습관을 들이는 편이 안전하다.</p>
-<h3><code>ModuleNotFoundError: No module named 'lautils'</code></h3>
-<p><code>lautils.py</code>가 현재 작업 디렉터리에 없는 경우다. 파일 위치를 확인하거나 경로를 추가한다.</p>
+<p><code>tuvis</code>의 그림은 <code>fig.show()</code>로 띄운다. 스크립트로 실행하면 기본 브라우저에 새 탭이 열리고, 주피터·코랩에서는 셀 아래에 바로 나타난다. 맷플롯립으로 그린 일반 그래프는 <code>plt.show()</code>가 필요하다.</p>
+<h3><code>ModuleNotFoundError: No module named 'tuvis'</code></h3>
+<p><code>tuvis.py</code>가 현재 작업 디렉터리에 없는 경우다. 파일 위치를 확인하거나 경로를 추가한다.</p>
 <pre class="line-numbers"><code class="language-python">import os, sys
 print(os.getcwd())                 # 현재 작업 디렉터리 확인
 sys.path.append('/파일이/있는/경로')</code></pre>

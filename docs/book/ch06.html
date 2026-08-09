@@ -332,26 +332,22 @@ solve 방식 : [0.2 3.6]
 <h3>해를 그림으로 보기</h3>
 <p>2차원 연립방정식은 두 직선의 교점을 찾는 문제다. 이 익숙한 그림과 5장에서 배운 "열의 선형결합" 관점을 나란히 놓아 보자.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[4., 7.], [2., 6.]])
 b = np.array([26., 22.])
 x = np.linalg.solve(A, b)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.5))
+fig, (ax1, ax2) = new_axes(xlim=(-2, 28), ylim=(-2, 26), ncols=2)
 
 # ① 행 관점: 두 직선의 교점
 t = np.linspace(-2, 8, 100)
-ax1.plot(t, (26 - 4 * t) / 7, label='4x + 7y = 26')
-ax1.plot(t, (22 - 2 * t) / 6, label='2x + 6y = 22')
-ax1.scatter(*x, color='crimson', s=90, zorder=5)
-ax1.set_aspect('equal'); ax1.grid(True, alpha=0.3); ax1.legend(fontsize=8)
+draw_curve(ax1, t, (26 - 4 * t) / 7, color='royalblue', label='4x + 7y = 26')
+draw_curve(ax1, t, (22 - 2 * t) / 6, color='seagreen', label='2x + 6y = 22')
+draw_points(ax1, x.reshape(1, 2), color='crimson', size=8)
 ax1.set_title('row view: two lines meet')
 
 # ② 열 관점: 열벡터를 섞어 b를 만들기
-ax2.set_xlim(-2, 28); ax2.set_ylim(-2, 26)
-ax2.grid(True, alpha=0.3)
 draw_vector(ax2, A[:, 0], color='crimson', label='a1')
 draw_vector(ax2, A[:, 1], color='royalblue', label='a2')
 draw_vector(ax2, x[0] * A[:, 0], color='lightcoral', width=0.008)
@@ -359,9 +355,9 @@ draw_vector(ax2, x[1] * A[:, 1], origin=x[0] * A[:, 0],
             color='lightskyblue', width=0.008)
 draw_vector(ax2, b, color='seagreen', label='b')
 ax2.set_title('column view: mix the columns')
-plt.tight_layout(); plt.show()
 
-print('해 :', x)</code></pre>
+print('해 :', x)
+fig.show()</code></pre>
 <div class="listing-caption">코드 6.6: 연립방정식의 해를 두 관점으로 보기</div></p>
 <figure class="fig">
 <img class="tikz" src="img/ch06/fig02.svg" alt="figure">
@@ -404,8 +400,7 @@ print('잔차norm:', np.linalg.norm(A @ x - b))</code></pre>
 <p><figcaption>그림 6.3: 역행렬이 없는 변환은 차원을 무너뜨린다</figcaption></figure></p>
 <p>한번 눌리고 나면 되돌릴 방법이 없다. 예를 들어 \((1,0)\)과 \((-1,1)\)은 둘 다 \(\mm{S}\)에 의해 각각 \((1,2)\)와 \((1,2)\)로 간다. 서로 다른 두 점이 같은 곳에 도착했으니, 도착점만 보고 출발점을 알아낼 방법이 없는 것이다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 S = np.array([[1., 2.],
               [2., 4.]])
@@ -414,11 +409,7 @@ print('det(S) :', np.linalg.det(S))
 print('S @ (1, 0)  :', S @ np.array([1., 0.]))
 print('S @ (-1, 1) :', S @ np.array([-1., 1.]))   # 다른 입력, 같은 출력?
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
-for ax in (ax1, ax2):
-    ax.set_xlim(-6, 6); ax.set_ylim(-6, 6)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.8); ax.axvline(0, color='black', lw=0.8)
+fig, (ax1, ax2) = new_axes(xlim=(-6, 6), ylim=(-6, 6), ncols=2)
 
 rng = np.random.default_rng(0)
 P = rng.uniform(-2, 2, (300, 2))          # 무작위 점 300개
@@ -426,7 +417,7 @@ draw_points(ax1, P, color='steelblue', s=8)
 ax1.set_title('before')
 draw_points(ax2, transform(S, P), color='crimson', s=8)
 ax2.set_title('after S : collapsed to a line')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">det(S) : 0.0
 S @ (1, 0)  : [1. 2.]
 S @ (-1, 1) : [1. 2.]</pre>
@@ -543,8 +534,7 @@ for n in [100, 500, 1000]:
 <p><code>solve</code>가 더 빠르면서 오차도 작다. 이것이 실무에서 <code>inv</code>를 피하는 이유다.</li>
 <li><strong>역행렬을 그림으로 확인하자.</strong> 어떤 행렬로 도형을 변환한 뒤 역행렬을 적용해 원래대로 돌아오는지 확인하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.5, 0.8],
               [-0.4, 1.1]])
@@ -552,40 +542,33 @@ Ainv = np.linalg.inv(A)
 
 house = np.array([[0., 0.], [2., 0.], [2., 1.5], [1., 2.5], [0., 1.5]])
 
-fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+fig, axes = new_axes(xlim=(-2, 5), ylim=(-2, 4), ncols=3)
 shapes = [house, transform(A, house), transform(Ainv, transform(A, house))]
 titles = ['original', 'after A', 'after A then A inverse']
 for ax, P, t in zip(axes, shapes, titles):
-    ax.set_xlim(-2, 5); ax.set_ylim(-2, 4)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
     draw_polygon(ax, P, color='crimson', alpha=0.45)
     ax.set_title(t, fontsize=10)
-plt.tight_layout(); plt.show()
 
 print('완전히 복원되었는가 :',
-      np.allclose(transform(Ainv, transform(A, house)), house))</code></pre></li>
+      np.allclose(transform(Ainv, transform(A, house)), house))
+fig.show()</code></pre></li>
 <li><strong>특이행렬의 붕괴를 관찰하자.</strong> 행렬식이 점점 0에 가까워질 때 무작위 점들이 어떻게 되는지 살펴보시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(1)
 P = rng.uniform(-2, 2, (400, 2))
 
-fig, axes = plt.subplots(1, 4, figsize=(13, 3.4))
+fig, axes = new_axes(xlim=(-8, 8), ylim=(-10, 10), ncols=4)
 for ax, eps in zip(axes, [1.0, 0.4, 0.1, 0.0]):
     A = np.array([[1., 2.], [2., 4. + eps]])
-    ax.set_xlim(-8, 8); ax.set_ylim(-10, 10)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
     draw_points(ax, transform(A, P), color='steelblue', s=5)
     ax.set_title(f'det = {np.linalg.det(A):.2f}', fontsize=10)
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <p>행렬식이 0에 가까워질수록 점 구름이 점점 납작해지다가, 0이 되는 순간 완전히 직선이 된다. <strong>행렬식은 "얼마나 납작한가"를 재는 값</strong>이라는 7장의 주제가 여기서 미리 드러난다.</li>
 <li><strong>역행렬의 순서 규칙을 확인하자.</strong> \((\mm{A}\mm{B})\inv = \mm{B}\inv\mm{A}\inv\)임을 확인하고, 순서를 지킨 \(\mm{A}\inv\mm{B}\inv\)는 왜 틀리는지 도형으로 보이시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[2., 0.], [0., 1.]])        # 가로 2배
 B = np.array([[1., 1.], [0., 1.]])        # 전단
@@ -595,16 +578,14 @@ AB = A @ B
 correct = np.linalg.inv(B) @ np.linalg.inv(A)
 wrong = np.linalg.inv(A) @ np.linalg.inv(B)
 
-fig, axes = plt.subplots(1, 3, figsize=(12, 3.6))
+fig, axes = new_axes(xlim=(-1, 4), ylim=(-1, 3), ncols=3)
 for ax, M, t in [(axes[0], AB, 'A@B applied'),
                  (axes[1], correct @ AB, 'undo with B_inv @ A_inv'),
                  (axes[2], wrong @ AB, 'undo with A_inv @ B_inv (wrong)')]:
-    ax.set_xlim(-1, 4); ax.set_ylim(-1, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
     draw_polygon(ax, shape, color='lightgray', alpha=0.4)
     draw_polygon(ax, transform(M, shape), color='crimson', alpha=0.45)
     ax.set_title(t, fontsize=9)
-plt.tight_layout(); plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>직교행렬의 역행렬이 전치임을 확인하자.</strong> 여러 각도의 회전행렬에 대해 \(\mm{R}\inv = \mm{R}\tp\)를 검증하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
 

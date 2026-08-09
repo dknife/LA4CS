@@ -172,19 +172,18 @@ print('영행렬 :\n', np.zeros((2, 3)))</code></pre>
 <h3>행렬 연산을 그림으로 확인하기</h3>
 <p>숫자만으로는 행렬 연산의 효과를 실감하기 어렵다. <code>show_matrix()</code>로 확인해 보자.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(7)
 A = rng.normal(0, 1, (6, 6))
 B = np.eye(6) * 2                        # 대각선만 2인 행렬
 
-fig, axes = plt.subplots(1, 4, figsize=(12, 3.2))
+fig, axes = new_matrix_axes(ncols=4)
 show_matrix(axes[0], A, fmt='', title='A')
 show_matrix(axes[1], B, fmt='', title='B = 2I')
 show_matrix(axes[2], A + B, fmt='', title='A + B')
 show_matrix(axes[3], -A, fmt='', title='-A')
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 5.3: 행렬 연산의 효과를 색으로 보기</div></p>
 <p><code>A + B</code>에서는 대각선만 색이 진해지고 나머지는 그대로다. <code>-A</code>에서는 모든 색이 정반대로 뒤집힌다(붉은 칸은 파랗게, 파란 칸은 붉게). 숫자를 하나하나 확인하지 않아도 연산이 무엇을 했는지 알 수 있다.</p>
 <div class="box note"><span class="chip">잠깐</span><span class="box-title"><code>fmt=''</code>로 숫자 숨기기</span><p><code>show_matrix()</code>의 <code>fmt</code> 인자에 빈 문자열을 주면 숫자가 표시되지 않고 색만 남는다. 행렬이 커서 숫자를 읽을 수 없을 때 유용하다. 이 책에서는 \(6 \times 6\)을 넘어가면 대체로 숫자를 숨긴다.</p></div>
@@ -383,8 +382,7 @@ print('첫 열만  :', A @ P[:, 0])    # 같은 결과의 첫 열</code></pre>
 \end{equation}</div>
 <p>이렇게 만들어진 행렬은 모든 열이 서로 상수배 관계이므로 "정보량"이 매우 적다. 이런 행렬을 랭크가 1이라고 한다. 행렬 곱을 이런 얇은 조각들의 합으로 보는 관점이, <strong>"큰 행렬을 몇 개의 조각으로 근사한다"</strong>는 11장의 아이디어로 이어진다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1., 2., 3.],
               [4., 5., 6.]])
@@ -393,15 +391,15 @@ B = np.array([[7., 8.],
               [11., 12.]])
 
 total = np.zeros((2, 2))
-fig, axes = plt.subplots(1, 4, figsize=(11, 3))
+fig, axes = new_matrix_axes(ncols=4)
 for k in range(3):
     piece = np.outer(A[:, k], B[k, :])      # k번째 랭크-1 조각
     total += piece
     show_matrix(axes[k], piece, fmt='{:.0f}', title=f'piece {k}')
 show_matrix(axes[3], total, fmt='{:.0f}', title='sum = A @ B')
-plt.tight_layout(); plt.show()
 
-print('조각의 합 == A @ B :', np.allclose(total, A @ B))</code></pre>
+print('조각의 합 == A @ B :', np.allclose(total, A @ B))
+fig.show()</code></pre>
 <p><pre class="pyout">조각의 합 == A @ B : True</pre>
 <div class="listing-caption">코드 5.10: 행렬 곱을 랭크-1 조각들의 합으로 분해하기</div></p>
 <h3>네 관점의 정리</h3>
@@ -437,17 +435,12 @@ T(\vv{x}) = \mm{A}\vv{x}, \qquad T: \Rsp{2} \to \Rsp{2}
 <img class="tikz" src="img/ch05/fig04.svg" alt="figure">
 <p><figcaption>그림 5.4: 행렬의 열은 기저벡터가 옮겨 가는 자리다</figcaption></figure></p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[0., -1.],
               [1., 0.]])
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
-for ax in (ax1, ax2):
-    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
-    ax.set_aspect('equal')
-    ax.axhline(0, color='black', lw=0.8); ax.axvline(0, color='black', lw=0.8)
+fig, (ax1, ax2) = new_axes(xlim=(-3, 3), ylim=(-3, 3), ncols=2)
 
 # 변환 전
 draw_grid(ax1, None, n=2, color='lightgray')
@@ -462,17 +455,16 @@ draw_polygon(ax2, transform(A, UNIT_SQUARE))
 draw_vector(ax2, A[:, 0], color='crimson', label='A e1')
 draw_vector(ax2, A[:, 1], color='royalblue', label='A e2')
 ax2.set_title('after')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 5.11: 행렬이 평면을 어떻게 바꾸는지 확인하기</div></p>
 <h3>여러 개의 점을 한꺼번에 변환하기</h3>
 <p>이 책에서 앞으로 계속 쓰게 될 패턴을 여기서 확립해 두자. 점들을 <strong>행마다 하나씩</strong> 담은 배열 \(\mm{P}\)가 있을 때, 모든 점에 \(\mm{A}\)를 적용하는 방법은 두 가지로 적을 수 있다.</p>
 <div class="mathblock">\begin{equation}
 \mm{P}' = (\mm{A}\mm{P}\tp)\tp = \mm{P}\mm{A}\tp
 \end{equation}</div>
-<p><code>lautils</code>의 <code>transform()</code>이 하는 일이 정확히 이것이다. 행에 점을 담는 방식은 데이터 분석의 관례(\(n\)개의 샘플 \(\times\) \(d\)개의 특징)와 일치하므로 이 책 전체에서 이 방식을 쓴다.</p>
+<p><code>tuvis</code>의 <code>transform()</code>이 하는 일이 정확히 이것이다. 행에 점을 담는 방식은 데이터 분석의 관례(\(n\)개의 샘플 \(\times\) \(d\)개의 특징)와 일치하므로 이 책 전체에서 이 방식을 쓴다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 # 집 모양 다각형 (각 행이 한 점)
 house = np.array([[0., 0.], [2., 0.], [2., 1.5],
@@ -485,15 +477,12 @@ mats = {
     'rotate 45' : np.array([[0.707, -0.707], [0.707, 0.707]]),
 }
 
-fig, axes = plt.subplots(1, 4, figsize=(13, 3.5))
+fig, axes = new_axes(xlim=(-3, 4), ylim=(-1, 4), ncols=4)
 for ax, (name, A) in zip(axes, mats.items()):
-    ax.set_xlim(-3, 4); ax.set_ylim(-1, 4)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
     draw_polygon(ax, house, color='lightgray', alpha=0.4)      # 원래 모양
     draw_polygon(ax, transform(A, house), color='crimson', alpha=0.4)
     ax.set_title(name, fontsize=10)
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 5.12: 집 모양에 여러 행렬을 적용해 보기</div></p>
 <figure class="fig">
 <img class="tikz" src="img/ch05/fig05.svg" alt="figure">
@@ -508,24 +497,20 @@ plt.tight_layout(); plt.show()</code></pre>
 <p>결합법칙에 의해 \(\mm{A}(\mm{B}\vv{x}) = (\mm{A}\mm{B})\vv{x}\)이므로, <strong>두 변환을 이어서 적용하는 것은 곱 행렬 \(\mm{A}\mm{B}\) 하나를 적용하는 것과 같다.</strong> 행렬 곱의 규칙은 이 성질이 성립하도록 만들어진 것이다. 계산의 편의가 아니라 필연이었던 셈이다.</p>
 <p>이 관점에서 보면 교환법칙이 성립하지 않는 이유도 자명하다. 순서를 바꾸면 다른 결과가 나오는 변환이 얼마든지 있기 때문이다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 R = np.array([[0., -1.], [1., 0.]])       # 90도 회전
 S = np.array([[2., 0.], [0., 1.]])        # 가로로 2배
 
 house = np.array([[0., 0.], [2., 0.], [2., 1.5], [1., 2.5], [0., 1.5]])
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
+fig, (ax1, ax2) = new_axes(xlim=(-5, 5), ylim=(-2, 5), ncols=2)
 for ax, M, title in [(ax1, R @ S, 'R @ S : 늘인 뒤 회전'),
                      (ax2, S @ R, 'S @ R : 회전한 뒤 늘임')]:
-    ax.set_xlim(-5, 5); ax.set_ylim(-2, 5)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
     draw_polygon(ax, house, color='lightgray', alpha=0.4)
     draw_polygon(ax, transform(M, house), color='crimson', alpha=0.4)
     ax.set_title(title, fontsize=10)
-plt.show()
+fig.show()
 
 print('R @ S =\n', R @ S)
 print('S @ R =\n', S @ R)</code></pre>
@@ -590,8 +575,7 @@ A와 2A : True
 <p>무작위로는 100번 중 한 번도 성립하지 않는다. 그러나 단위행렬, 자기 자신의 배수, 대각행렬끼리는 언제나 교환된다. <strong>교환되는 행렬 쌍은 특별한 관계에 있다</strong>는 뜻이며, 이 사실이 10장의 동시 대각화로 이어진다.</li>
 <li><strong>행렬의 열이 기저의 상(image)임을 확인하자.</strong> 임의의 행렬에 대해 \(\mm{A}\vv{e}_1\)과 \(\mm{A}\)의 첫 열이 같은지 확인하고 그림으로 그리시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.5, -0.5], [0.5, 1.2]])
 e1, e2 = np.eye(2)
@@ -606,11 +590,10 @@ draw_vector(ax, e1, color='lightcoral', width=0.010)
 draw_vector(ax, e2, color='lightskyblue', width=0.010)
 draw_vector(ax, A[:, 0], color='crimson', label='A e1')
 draw_vector(ax, A[:, 1], color='royalblue', label='A e2')
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>변환을 이어 붙여 보자.</strong> 회전과 확대를 두 가지 순서로 합성하여 결과가 다름을 그림으로 보이시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def rot(deg):
     t = np.radians(deg)
@@ -621,16 +604,14 @@ R = rot(30)
 S = np.diag([2.0, 0.5])
 shape = np.array([[0., 0.], [2., 0.], [2., 1.], [0., 1.]])
 
-fig, axes = plt.subplots(1, 3, figsize=(12, 3.8))
+fig, axes = new_axes(xlim=(-2, 5), ylim=(-2, 3), ncols=3)
 for ax, M, t in [(axes[0], np.eye(2), 'original'),
                  (axes[1], R @ S, 'R @ S'),
                  (axes[2], S @ R, 'S @ R')]:
-    ax.set_xlim(-2, 5); ax.set_ylim(-2, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
     draw_polygon(ax, shape, color='lightgray', alpha=0.4)
     draw_polygon(ax, transform(M, shape), color='crimson', alpha=0.45)
     ax.set_title(t, fontsize=10)
-plt.tight_layout(); plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>신경망 두 층을 계산해 보자.</strong> 입력 4차원, 은닉 3차원, 출력 2차원인 신경망의 순전파를 행렬 곱으로 구현하시오. 활성화 함수는 ReLU를 쓴다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
 
@@ -675,20 +656,19 @@ print(np.allclose((A @ B @ C).T, C.T @ B.T @ A.T))
 print('(ABC).T shape :', (A @ B @ C).T.shape)</code></pre></li>
 <li><strong>행렬이 3차원 공간을 어떻게 바꾸는지 보자.</strong> 5.4절에서 행렬의 열이 기저벡터가 옮겨 가는 자리라고 했다. 3차원에서는 단위 정육면체의 여덟 꼭짓점이 어디로 가는지를 함께 보면 변환의 모습이 한눈에 들어온다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.0, 0.6, 0.0],
               [0.0, 1.0, 0.5],
               [0.4, 0.0, 1.0]])
 
 fig, ax = new_axes3d(xlim=(-0.5, 2.5), ylim=(-0.5, 2.5), zlim=(-0.5, 2.5))
-draw_points(ax, UNIT_CUBE, color='lightgray', size=25)        # 변환 전
-draw_points(ax, transform(A, UNIT_CUBE), color='crimson', size=25)
+draw_points(ax, UNIT_CUBE, color='lightgray', size=5)        # 변환 전
+draw_points(ax, transform(A, UNIT_CUBE), color='crimson', size=5)
 for j, c in enumerate(['crimson', 'seagreen', 'royalblue']):
     draw_vector(ax, A[:, j], color=c, label=f'A e{j + 1}')
-ax.view_init(elev=22, azim=35)
-plt.show()</code></pre>
+setCam(ax, (1.59, 1.12, 0.79))
+fig.show()</code></pre>
 <div class="center"><img class="shot" src="img/ch05/ch05_img01.png" alt="figure"></div>
 <p>회색이 원래 정육면체의 꼭짓점, 붉은색이 옮겨 간 자리다. 세 화살표는 \(\vv{e}_1, \vv{e}_2, \vv{e}_3\)이 각각 도착한 곳이며, 그것이 곧 \(\mm{A}\)의 세 열이다. 행렬의 숫자 아홉 개가 공간 전체의 운명을 결정한다는 것을 3차원에서 다시 확인할 수 있다.</li>
 </ol></p></div></p>
@@ -708,7 +688,7 @@ plt.show()</code></pre>
 <li>행렬은 벡터를 벡터로 보내는 <strong>함수</strong>다. \(T(\vv{x}) = \mm{A}\vv{x}\)로 보면 행렬은 공간 전체를 옮기는 장치가 된다.</li>
 <li><strong>행렬의 \(j\)번째 열은 기저벡터 \(\vv{e}_j\)가 옮겨 가는 자리</strong>다. \(\mm{A}\vv{e}_j = \vv{a}_j\)이므로, 열만 확인하면 그 행렬이 무슨 변환인지 알 수 있다. 나머지 벡터는 기저의 조합이므로 자동으로 결정된다.</li>
 <li>행렬 곱 \(\mm{A}\mm{B}\)는 <strong>변환의 합성</strong>이다. \((\mm{A}\mm{B})\vv{x} = \mm{A}(\mm{B}\vv{x})\)이므로 \(\mm{B}\)가 <strong>먼저</strong> 적용되고 \(\mm{A}\)가 나중에 적용된다. 교환법칙이 성립하지 않는 이유도 변환의 순서가 결과를 바꾸기 때문이다.</li>
-<li>여러 점을 한꺼번에 변환할 때는 점을 행으로 담고 \(\mm{P}\mm{A}\tp\)를 계산한다(<code>lautils</code>의 <code>transform()</code>).</li>
+<li>여러 점을 한꺼번에 변환할 때는 점을 행으로 담고 \(\mm{P}\mm{A}\tp\)를 계산한다(<code>tuvis</code>의 <code>transform()</code>).</li>
 </ul></div></details>
 <details class="box exercise" id="exercises"><summary class="box-head">5장 연습문제</summary><div class="ex-body"><ol>
 <li class="ex-item" data-ex="1"><span class="diff"><span class="d1">★</span></span>  \(\mm{A} = \mtwo{2}{-1}{0}{3}\), \(\mm{B} = \mtwo{1}{4}{-2}{5}\)일 때 \(\mm{A}+\mm{B}\), \(\mm{A}-\mm{B}\), \(3\mm{A}\)를 구하시오.</li>

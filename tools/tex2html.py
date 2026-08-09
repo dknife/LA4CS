@@ -123,7 +123,7 @@ def grab_opt(text, i):
 # ---------------------------------------------------------------- converter
 APPENDICES = [
     ("A", "실습 환경 준비", "appendix_a_setup"),
-    ("B", "시각화 모듈 전체 소스", "appendix_b_lautils"),
+    ("B", "시각화 모듈 전체 소스", "appendix_b_tuvis"),
     ("C", "넘파이 선형대수 레퍼런스", "appendix_c_reference"),
 ]
 
@@ -1227,11 +1227,11 @@ def main():
         (OUT / f"apx{letter.lower()}.html").write_text(
             render_appendix(idx, ach, abody, meta), encoding="utf-8")
     # 웹 실행기(Pyodide)가 파이썬 파일시스템에 심을 시각화 모듈
-    for name in ("lautils.py", "tuvis.py"):
+    for name in ("tuvis.py",):
         src = TEX / "code" / name
         if src.exists():
             shutil.copyfile(src, OUT / name)
-    print("lautils.py · tuvis.py 복사 (웹 실행기용)")
+    print("tuvis.py 복사 (웹 실행기용)")
 
     build_cover()
     pre, gu = convert_preface()

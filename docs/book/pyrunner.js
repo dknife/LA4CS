@@ -544,13 +544,11 @@ async function ensurePyodide() {
   ].join('\n'));
 
   // 이 책의 시각화 모듈을 파이썬 파일시스템에 심어 둔다.
-  // 본문 예제 대부분이 `from lautils import *` 로 시작하는데, 브라우저 안에는
+  // 본문 예제 대부분이 `from tuvis import *` 로 시작하는데, 브라우저 안에는
   // 그 파일이 없으므로 미리 넣어 주지 않으면 ModuleNotFoundError 가 난다.
   // (numpy·matplotlib 은 loadPackagesFromImports 가 알아서 받아 온다)
-  // tuvis.py 는 lautils 가 interactive=True 일 때 불러 쓰는 대화형 백엔드다.
-  // 함께 심어 두지 않으면 ModuleNotFoundError: No module named 'tuvis' 가 난다.
   try {
-    var mods = ['lautils.py', 'tuvis.py'];
+    var mods = ['tuvis.py'];
     for (var mi = 0; mi < mods.length; mi++) {
       var r = await fetch(mods[mi]);
       if (r.ok) {
@@ -604,7 +602,7 @@ self.onmessage = async function (ev) {
 
     // 대화형 3차원 그림(tuvis/plotly)이 필요한 코드인지 본다.
     // plotly 는 Pyodide 기본 배포에 없으므로 micropip 으로 받는다(순수 파이썬, 약 10MB).
-    if (/interactive\s*=\s*True|\btuvis\b|\bplotly\b/.test(code)) {
+    if (/\btuvis\b|\bplotly\b/.test(code)) {
       if (!p._algjaPlotly) {
         post('status', '대화형 3차원 그림 준비 중입니다 — 처음 한 번만 걸립니다');
         await p.loadPackage('micropip');

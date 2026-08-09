@@ -607,8 +607,7 @@ for dx in [[0.1, 0], [0, 0.1], [-0.05, 0.05]]:
     print(f'x + {dx} -&gt; 잔차 {np.linalg.norm(b - A @ x2):.6f}')</code></pre></li>
 <li><strong>그람–슈미트를 구현하고 시각화하자.</strong> 2차원에서 두 벡터를 직교화하는 과정을 그리시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 a1 = np.array([3., 1.])
 a2 = np.array([1., 2.5])
@@ -627,7 +626,7 @@ draw_vector(ax, q1, color='crimson', label='q1')
 draw_vector(ax, p, color='mediumpurple', label='proj')
 draw_vector(ax, v, origin=p, color='seagreen')
 draw_vector(ax, q2, color='royalblue', label='q2')
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>유사 역행렬의 세 얼굴을 확인하자.</strong> 가역·과결정·부족결정 세 경우에 대해 <code>pinv</code>가 무엇을 주는지 확인하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 
@@ -661,8 +660,7 @@ for rc in rconds:
 <p>문턱값을 높이면 해의 크기가 급격히 작아지는 반면 잔차는 거의 늘지 않는다. <strong>안정성을 거의 공짜로 얻는</strong> 것이다.</li>
 <li><strong>QR 알고리즘으로 고유값을 구하자.</strong> 반복 과정에서 행렬이 삼각행렬로 변해 가는 모습을 그림으로 확인하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(2)
 M = rng.normal(0, 1, (6, 6))
@@ -675,14 +673,14 @@ for k in range(60):
     if k in (2, 9, 59):
         snaps.append(A.copy())
 
-fig, axes = plt.subplots(1, 4, figsize=(13, 3.2))
+fig, axes = new_matrix_axes(ncols=4)
 titles = ['k=0', 'k=3', 'k=10', 'k=60']
 for ax, S, t in zip(axes, snaps, titles):
     show_matrix(ax, S, fmt='', title=t)
-plt.tight_layout(); plt.show()
 
 print('대각성분 :', np.round(np.sort(np.diag(A)), 6))
-print('넘파이   :', np.round(np.linalg.eigh(snaps[0])[0], 6))</code></pre>
+print('넘파이   :', np.round(np.linalg.eigh(snaps[0])[0], 6))
+fig.show()</code></pre>
 <p>반복할수록 대각선 밖의 색이 옅어지며 대각행렬에 가까워진다.</li>
 <li><strong>다항식 회귀와 과적합을 관찰하자.</strong> 차수를 1부터 15까지 바꿔 가며 훈련 오차와 검증 오차를 비교하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np

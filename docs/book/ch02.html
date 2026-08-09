@@ -56,7 +56,7 @@
 <div class="nav-ch"><a class="nav-ch-link" href="ch01.html"><span class="nav-num">01</span> 선형대수와 도구</a>
 </div>
 <div class="nav-ch current"><a class="nav-ch-link" href="ch02.html"><span class="nav-num">02</span> 대규모 배열을 다루는 고성능 넘파이</a>
-<div class="nav-secs"><a class="nav-sec" href="ch02.html#sec1">2.1 과학자들이 좋아하는 넘파이</a><a class="nav-sec" href="ch02.html#sec2">2.2 넘파이의 고성능 연산 활용하기</a><a class="nav-sec" href="ch02.html#sec3">2.3 선형대수를 척척 다루는 넘파이의 기능</a><a class="nav-sec" href="ch02.html#sec4">2.4 그리기 도구 만들기 — lautils.py</a><a class="nav-sec" href="ch02.html#labs">실습을 통한 개념 정리</a><a class="nav-sec" href="ch02.html#summary">2장 요약</a><a class="nav-sec" href="ch02.html#exercises">연습문제</a></div>
+<div class="nav-secs"><a class="nav-sec" href="ch02.html#sec1">2.1 과학자들이 좋아하는 넘파이</a><a class="nav-sec" href="ch02.html#sec2">2.2 넘파이의 고성능 연산 활용하기</a><a class="nav-sec" href="ch02.html#sec3">2.3 선형대수를 척척 다루는 넘파이의 기능</a><a class="nav-sec" href="ch02.html#sec4">2.4 그리기 도구 만들기 — tuvis.py</a><a class="nav-sec" href="ch02.html#labs">실습을 통한 개념 정리</a><a class="nav-sec" href="ch02.html#summary">2장 요약</a><a class="nav-sec" href="ch02.html#exercises">연습문제</a></div>
 </div>
 <div class="nav-ch"><a class="nav-ch-link" href="ch03.html"><span class="nav-num">03</span> 선형대수의 기본 자료: 스칼라, 벡터, 행렬</a>
 </div>
@@ -99,7 +99,7 @@
 <li><code>shape</code>, <code>ndim</code>, <code>dtype</code>으로 배열의 구조를 읽을 수 있다.</li>
 <li>벡터화 연산과 브로드캐스팅으로 반복문 없이 계산할 수 있다.</li>
 <li><code>np.linalg</code> 모듈이 제공하는 선형대수 기능의 지도를 그릴 수 있다.</li>
-<li>책 전체에서 사용할 시각화 모듈 <code>lautils.py</code>를 직접 만들 수 있다.</li>
+<li>책 전체에서 사용할 대화형 시각화 모듈 <code>tuvis.py</code>를 직접 만들 수 있다.</li>
 </ul></div></details></p></div>
 <p>선형대수는 현실의 문제를 해결하는 강력한 도구다. 그런데 다루는 데이터의 수가 조금만 늘어나도 사람의 손으로 계산하는 것은 곧 불가능해진다. \(3 \times 3\) 행렬의 역행렬을 손으로 구해 본 사람이라면, \(100 \times 100\) 행렬 앞에서는 연필을 내려놓게 된다는 사실을 안다.</p>
 <p>이 장에서 우리는 그 계산을 대신해 줄 도구인 <strong class="term-ko">넘파이</strong><sup class="term">NumPy</sup>를 익힌다. 다만 넘파이의 모든 기능을 훑는 대신, <strong>선형대수를 다루는 데 꼭 필요한 것</strong>에 집중한다. 그리고 마지막 절에서는 이 책의 나머지 열한 개 장에서 계속 사용할 시각화 모듈을 직접 만든다. 남이 만든 상자를 가져다 쓰는 대신 우리 손으로 만드는 이유는, 그 안에서 무슨 일이 벌어지는지 알고 시작하기 위해서다.</p>
@@ -405,21 +405,25 @@ print(rng.integers(1, 7, 5))        # 1~6 정수 5개 (주사위)</code></pre>
 <div class="listing-caption">코드 2.14: 시드를 고정한 난수 생성</div></p>
 <p>시드를 같은 값으로 두면 언제 어디서 실행해도 같은 난수가 나온다. 이 책의 난수 예제는 모두 <code>default_rng(42)</code>를 사용하므로, 여러분의 화면에도 책과 같은 숫자가 나타날 것이다.</p>
 <div class="box note"><span class="chip">잠깐</span><span class="box-title"><code>np.random.seed()</code>는 이제 옛 방식이다</span><p>예전 코드에서는 <code>np.random.seed(42)</code>와 <code>np.random.rand()</code>를 썼다. 지금도 동작하지만, 넘파이는 <code>default_rng()</code>로 생성기 객체를 만들어 쓰는 새로운 방식을 권장한다. 전역 상태를 건드리지 않아 여러 실험을 섞어 돌릴 때 안전하기 때문이다. 이 책은 새 방식을 따른다.</p></div>
-<h2 id="sec4">2.4 그리기 도구 만들기  —  <code>lautils.py</code></h2>
+<h2 id="sec4">2.4 그리기 도구 만들기  —  <code>tuvis.py</code></h2>
 <h3>왜 도구를 직접 만드는가</h3>
 <p>1장에서 벡터 하나를 그리는 데 여덟 줄이 필요했다. 축 범위를 정하고, 비율을 맞추고, 격자를 켜고, 좌표축을 그리고, 화살표를 놓았다. 이 여덟 줄을 앞으로 수백 번 반복해 적을 수는 없다.</p>
-<p>그렇다고 남이 만든 시각화 라이브러리를 가져다 쓰면, 그 안에서 무슨 일이 일어나는지 모른 채로 그림만 받아 보게 된다. 그래서 우리는 <strong>필요한 만큼만, 우리 손으로</strong> 도구를 만든다. 이 절에서 만들 <code>lautils.py</code>는 함수 여덟 개짜리 작은 파일이지만, 이 책의 나머지 열한 개 장이 이 파일 위에서 돌아간다.</p>
-<p>여기서는 2차원 그림에 필요한 <strong>핵심 여덟 개</strong>만 만든다. 3차원 함수까지 갖춘 완성본은 부록 B에 실려 있으니, 3차원이 본격적으로 등장하는 13장 전에 부록 B의 파일로 바꿔 두면 된다.</p>
-<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th></tr><tr><td><code>new_axes()</code></td><td>비율이 맞고 축이 그려진 빈 좌표평면을 준비한다</td></tr><tr><td><code>draw_vector()</code></td><td>화살표 하나를 그린다</td></tr><tr><td><code>draw_vectors()</code></td><td>여러 개의 화살표를 색을 바꿔 가며 그린다</td></tr><tr><td><code>draw_points()</code></td><td>점들을 찍는다</td></tr><tr><td><code>draw_polygon()</code></td><td>다각형을 색으로 채운다 (넓이 시각화)</td></tr><tr><td><code>draw_grid()</code></td><td>격자를 그린다. 행렬을 주면 변환된 격자를 그린다</td></tr><tr><td><code>transform()</code></td><td>점들의 묶음에 행렬을 적용한다</td></tr><tr><td><code>show_matrix()</code></td><td>행렬을 색과 숫자로 함께 보여 준다</td></tr></table></div></div>
+<p>그렇다고 남이 만든 시각화 라이브러리를 가져다 쓰면, 그 안에서 무슨 일이 일어나는지 모른 채로 그림만 받아 보게 된다. 그래서 우리는 <strong>필요한 만큼만, 우리 손으로</strong> 도구를 만든다. 이 절에서 만들 <code>tuvis.py</code>는 함수 아홉 개짜리 작은 파일이지만, 이 책의 나머지 열한 개 장이 이 파일 위에서 돌아간다.</p>
+<div class="box keypoint"><span class="chip">요점</span><p>이 책의 그림은 <strong>전부 대화형</strong>이다. 마우스로 끌면 돌아가고, 휠을 굴리면 확대된다. 선형대수는 <em>공간</em>을 다루는 학문인데, 종이 위에 고정된 그림은 그 공간의 한 각도만 보여 준다. 직접 돌려 보면 <strong class="term-ko">외적</strong><sup class="term">cross product</sup>이 왜 두 벡터에 수직인지, 평행육면체의 부피가 왜 행렬식인지가 눈으로 들어온다.</p></div>
+<p>여기서는 평면 그림에 필요한 <strong>핵심 아홉 개</strong>만 만든다. 3차원 캔버스와 여러 칸 배치까지 갖춘 완성본은 부록 B에 실려 있으니, 3차원이 본격적으로 등장하기 전에 부록 B의 파일로 바꿔 두면 된다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th></tr><tr><td><code>new_axes()</code></td><td>비율이 맞고 축이 그려진 빈 좌표평면을 준비한다</td></tr><tr><td><code>new_matrix_axes()</code></td><td>행렬을 색으로 볼 히트맵 캔버스를 준비한다</td></tr><tr><td><code>draw_vector()</code></td><td>화살표 하나를 그린다</td></tr><tr><td><code>draw_vectors()</code></td><td>여러 개의 화살표를 색을 바꿔 가며 그린다</td></tr><tr><td><code>draw_points()</code></td><td>점들을 찍는다</td></tr><tr><td><code>draw_polygon()</code></td><td>다각형을 색으로 채운다 (넓이 시각화)</td></tr><tr><td><code>draw_grid()</code></td><td>격자를 그린다. 행렬을 주면 변환된 격자를 그린다</td></tr><tr><td><code>transform()</code></td><td>점들의 묶음에 행렬을 적용한다</td></tr><tr><td><code>show_matrix()</code></td><td>행렬을 색과 숫자로 함께 보여 준다</td></tr></table></div></div>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">왜 캔버스가 늘 3차원인가</span><p><code>new_axes()</code>가 만드는 평면 캔버스도 속은 3차원 장면이다. \(z=0\) 평면을 바로 위에서 내려다보도록 카메라를 고정해 두었을 뿐이다.</p>
+<p>덕분에 <strong>2차원에서 쓰던 코드가 3차원에서 그대로 동작한다.</strong> 바꿀 것은 캔버스를 만드는 첫 줄뿐이고, 그리기 함수는 넘겨받은 벡터의 길이를 보고 2차원인지 3차원인지 스스로 판단한다. 이 책이 평면에서 공간으로 넘어갈 때 코드가 거의 바뀌지 않는 이유가 여기에 있다.</p></div>
 <h3>모듈 만들기</h3>
-<p>코랩을 쓴다면 새 셀에 다음 코드를 넣고 실행하면 된다. 첫 줄의 <code>%%writefile</code>은 셀의 내용을 파일로 저장하라는 코랩(정확히는 주피터)의 명령이다. 내 컴퓨터에서 작업한다면 그 줄을 빼고 <code>lautils.py</code>라는 이름으로 저장하면 된다.</p>
-<div class="filecode-wrap"><div class="file-label">lautils.py \enspace (코랩에서는 첫 줄에 %%writefile lautils.py 를 추가)</div><pre class="filecode"><code class="language-python">"""lautils.py — 『쓸모 있는 선형대수』 전용 시각화 도구
+<p>plotly가 필요하다. 코랩에는 이미 설치되어 있고, 내 컴퓨터라면 <code>pip install plotly</code> 한 번이면 된다.</p>
+<p>코랩을 쓴다면 새 셀에 다음 코드를 넣고 실행하면 된다. 첫 줄의 <code>%%writefile</code>은 셀의 내용을 파일로 저장하라는 코랩(정확히는 주피터)의 명령이다. 내 컴퓨터에서 작업한다면 그 줄을 빼고 <code>tuvis.py</code>라는 이름으로 저장하면 된다.</p>
+<div class="filecode-wrap"><div class="file-label">tuvis.py \enspace (코랩에서는 첫 줄에 %%writefile tuvis.py 를 추가)</div><pre class="filecode"><code class="language-python">"""tuvis.py — 『쓸모 있는 선형대수』 전용 시각화 도구
 
-numpy와 matplotlib만 사용한다. 모든 함수는 matplotlib의 Axes 객체를
-첫 인자로 받아 그 위에 그린다.
+numpy와 plotly만 사용한다. 모든 함수는 캔버스를 첫 인자로 받아 그 위에
+그린다. 그림은 전부 대화형이다 — 마우스로 끌면 돌아간다.
 """
 import numpy as np
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 # 벡터를 여러 개 그릴 때 순서대로 사용할 색
 PALETTE = ['crimson', 'royalblue', 'seagreen', 'darkorange',
@@ -429,73 +433,130 @@ PALETTE = ['crimson', 'royalblue', 'seagreen', 'darkorange',
 UNIT_SQUARE = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
 
 
-def new_axes(xlim=(-5, 5), ylim=(-5, 5), figsize=(4.5, 4.5), grid=True):
-    """비율이 1:1로 맞춰진 빈 좌표평면을 만들어 (fig, ax)를 돌려준다."""
-    fig, ax = plt.subplots(figsize=figsize)
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-    ax.set_aspect('equal')          # 각도와 길이가 왜곡되지 않도록
-    if grid:
-        ax.grid(True, alpha=0.3, lw=0.5)
-    ax.axhline(0, color='black', lw=0.8)
-    ax.axvline(0, color='black', lw=0.8)
-    return fig, ax
+def _to3(v):
+    """2차원 벡터에 z=0을 붙여 3차원으로 만든다.
 
-
-def draw_vector(ax, v, origin=(0, 0), color='crimson', label=None,
-                width=0.012, alpha=1.0):
-    """원점(또는 지정한 시작점)에서 v 방향으로 화살표를 그린다."""
+    캔버스가 늘 3차원이므로, 평면 벡터도 z=0인 공간 벡터로 바꿔 그린다.
+    """
     v = np.asarray(v, dtype=float)
-    o = np.asarray(origin, dtype=float)
-    ax.quiver(o[0], o[1], v[0], v[1],
-              angles='xy', scale_units='xy', scale=1,
-              color=color, width=width, alpha=alpha, zorder=3)
+    return np.array([v[0], v[1], 0.0]) if v.shape == (2,) else v
+
+
+def new_axes(xlim=(-5, 5), ylim=(-5, 5)):
+    """비율이 1:1로 맞춰진 빈 좌표평면을 만들어 (fig, ax)를 돌려준다."""
+    fig = go.Figure()
+    for gx in range(int(np.ceil(xlim[0])), int(np.floor(xlim[1])) + 1):
+        fig.add_trace(go.Scatter3d(x=[gx, gx], y=list(ylim), z=[0, 0],
+                                   mode='lines', hoverinfo='skip',
+                                   line=dict(color='lightgray', width=1),
+                                   showlegend=False))
+    for gy in range(int(np.ceil(ylim[0])), int(np.floor(ylim[1])) + 1):
+        fig.add_trace(go.Scatter3d(x=list(xlim), y=[gy, gy], z=[0, 0],
+                                   mode='lines', hoverinfo='skip',
+                                   line=dict(color='lightgray', width=1),
+                                   showlegend=False))
+    for a, b in [(xlim, (0, 0)), ((0, 0), ylim)]:       # 원점을 지나는 좌표축
+        fig.add_trace(go.Scatter3d(x=list(a), y=list(b), z=[0, 0],
+                                   mode='lines', hoverinfo='skip',
+                                   line=dict(color='gray', width=3),
+                                   showlegend=False))
+    # z축을 아주 얇게 눌러 평면처럼 보이게 하고, 위에서 내려다보게 한다
+    zspan = max(xlim[1] - xlim[0], ylim[1] - ylim[0]) * 0.01
+    fig.update_layout(
+        width=520, height=520, margin=dict(l=0, r=0, t=30, b=0),
+        scene=dict(
+            xaxis=dict(range=list(xlim), title='x'),
+            yaxis=dict(range=list(ylim), title='y'),
+            zaxis=dict(range=[-zspan, zspan], visible=False),
+            aspectmode='manual',
+            aspectratio=dict(x=1, z=0.001,
+                             y=(ylim[1] - ylim[0]) / (xlim[1] - xlim[0])),
+            camera=dict(eye=dict(x=0, y=0, z=2.0), up=dict(x=0, y=1, z=0),
+                        projection=dict(type='orthographic'))))
+    return fig, fig            # plotly에서는 캔버스가 곧 그리기 대상이다
+
+
+def new_matrix_axes():
+    """행렬을 색으로 보여 줄 히트맵 캔버스를 만든다."""
+    fig = go.Figure()
+    fig.update_layout(width=400, height=380, margin=dict(l=10, r=10, t=50, b=10),
+                      xaxis=dict(visible=False),
+                      yaxis=dict(visible=False, autorange='reversed',
+                                 scaleanchor='x'))    # 칸을 정사각형으로
+    return fig, fig
+
+
+def draw_vector(ax, v, origin=None, color='crimson', label=None, alpha=1.0):
+    """원점(또는 지정한 시작점)에서 v 방향으로 화살표를 그린다."""
+    v = _to3(v)
+    o = np.zeros(3) if origin is None else _to3(origin)
+    end = o + v
+    ax.add_trace(go.Scatter3d(x=[o[0], end[0]], y=[o[1], end[1]],
+                              z=[o[2], end[2]], mode='lines', opacity=alpha,
+                              line=dict(color=color, width=5),
+                              showlegend=False, hoverinfo='skip'))
+    ax.add_trace(go.Cone(x=[end[0]], y=[end[1]], z=[end[2]],      # 화살촉
+                         u=[v[0]], v=[v[1]], w=[v[2]],
+                         sizemode='absolute', sizeref=0.28, anchor='tip',
+                         colorscale=[[0, color], [1, color]],
+                         showscale=False, opacity=alpha, hoverinfo='skip'))
     if label is not None:
-        mid = o + v * 0.55                      # 화살표 중간쯤에 이름표
-        ax.text(mid[0] + 0.12, mid[1] + 0.12, label,
-                color=color, fontsize=10)
+        m = o + v * 0.55                       # 화살표 중간쯤에 이름표
+        ax.add_trace(go.Scatter3d(x=[m[0]], y=[m[1]], z=[m[2]], mode='text',
+                                  text=[label], showlegend=False,
+                                  textfont=dict(size=12, color=color)))
     return ax
 
 
-def draw_vectors(ax, vs, origin=(0, 0), labels=None, alpha=1.0):
+def draw_vectors(ax, vs, origin=None, labels=None, alpha=1.0):
     """여러 벡터를 PALETTE 순서대로 색을 바꿔 가며 그린다."""
-    vs = np.asarray(vs, dtype=float)
-    for i, v in enumerate(vs):
+    for i, v in enumerate(np.asarray(vs, dtype=float)):
         lab = None if labels is None else labels[i]
         draw_vector(ax, v, origin=origin, color=PALETTE[i % len(PALETTE)],
                     label=lab, alpha=alpha)
     return ax
 
 
-def draw_points(ax, P, color='darkorange', s=40, label=None, marker='o'):
-    """행마다 점 하나가 담긴 배열 P를 산점도로 찍는다."""
-    P = np.asarray(P, dtype=float)
-    ax.scatter(P[:, 0], P[:, 1], s=s, color=color, marker=marker,
-               label=label, zorder=4)
+def draw_points(ax, P, color='darkorange', size=4, labels=None):
+    """행마다 점 하나가 담긴 배열 P의 점들을 찍는다."""
+    pts = np.array([_to3(p) for p in np.atleast_2d(np.asarray(P, dtype=float))])
+    ax.add_trace(go.Scatter3d(x=pts[:, 0], y=pts[:, 1], z=pts[:, 2],
+                              mode='markers+text' if labels else 'markers',
+                              marker=dict(size=size, color=color),
+                              text=labels, textposition='top center',
+                              showlegend=False))
     return ax
 
 
-def draw_polygon(ax, P, color='goldenrod', alpha=0.35, edge=True):
+def draw_polygon(ax, P, color='goldenrod', alpha=0.35):
     """꼭짓점 목록 P가 이루는 다각형을 색으로 채운다 (넓이 표현용)."""
-    P = np.asarray(P, dtype=float)
-    ax.fill(P[:, 0], P[:, 1], color=color, alpha=alpha, zorder=1)
-    if edge:
-        loop = np.vstack([P, P[0]])             # 마지막 점을 처음과 이어 닫기
-        ax.plot(loop[:, 0], loop[:, 1], color=color, lw=1.2, zorder=2)
+    pts = np.array([_to3(p) for p in np.asarray(P, dtype=float)])
+    n = len(pts)
+    # 0번 꼭짓점에서 부채꼴로 삼각형을 나눠 면을 채운다
+    ax.add_trace(go.Mesh3d(x=pts[:, 0], y=pts[:, 1], z=pts[:, 2],
+                           i=[0] * (n - 2), j=list(range(1, n - 1)),
+                           k=list(range(2, n)),
+                           color=color, opacity=alpha, showlegend=False))
+    loop = np.vstack([pts, pts[0]])            # 마지막 점을 처음과 이어 닫기
+    ax.add_trace(go.Scatter3d(x=loop[:, 0], y=loop[:, 1], z=loop[:, 2],
+                              mode='lines', line=dict(color=color, width=3),
+                              showlegend=False))
     return ax
 
 
-def draw_grid(ax, A=None, n=4, color='steelblue', alpha=0.55, lw=0.7):
+def draw_grid(ax, A=None, n=4, color='steelblue', alpha=0.55, lw=1):
     """단위 격자를 그린다. 행렬 A를 주면 A로 변환된 격자를 그린다."""
     A = np.eye(2) if A is None else np.asarray(A, dtype=float)
-    t = np.linspace(-n, n, 2 * n + 1)           # 격자선의 위치
-    s = np.linspace(-n, n, 40)                  # 선 위의 표본점
-    for k in t:
-        horiz = np.vstack([s, np.full_like(s, k)])   # 가로선 (2, 40)
-        vert = np.vstack([np.full_like(s, k), s])    # 세로선 (2, 40)
-        for line in (horiz, vert):
-            q = A @ line                             # 각 점에 A를 적용
-            ax.plot(q[0], q[1], color=color, alpha=alpha, lw=lw, zorder=0)
+    u, v = _to3(A[:, 0]), _to3(A[:, 1])        # 변환된 두 방향
+    for i in range(-n, n + 1):
+        for base, along in ((u, v), (v, u)):
+            s = base * i - along * n           # 격자선의 한쪽 끝
+            e = s + along * 2 * n              # 반대쪽 끝
+            ax.add_trace(go.Scatter3d(x=[s[0], e[0]], y=[s[1], e[1]],
+                                      z=[s[2], e[2]], mode='lines',
+                                      line=dict(color=color, width=lw),
+                                      opacity=alpha, showlegend=False,
+                                      hoverinfo='skip'))
     return ax
 
 
@@ -509,46 +570,41 @@ def transform(A, P):
 def show_matrix(ax, A, fmt='{:.2f}', cmap='RdBu_r', title=None):
     """행렬을 색상 격자와 숫자로 함께 보여 준다."""
     A = np.asarray(A, dtype=float)
-    lim = np.abs(A).max()
-    lim = 1.0 if lim == 0 else lim
-    ax.imshow(A, cmap=cmap, vmin=-lim, vmax=lim)
-    for i in range(A.shape[0]):
-        for j in range(A.shape[1]):
-            ax.text(j, i, fmt.format(A[i, j]),
-                    ha='center', va='center', fontsize=9)
-    ax.set_xticks(range(A.shape[1]))
-    ax.set_yticks(range(A.shape[0]))
-    ax.set_aspect('equal')
+    lim = np.abs(A).max() or 1.0               # 0을 가운데 색으로 두기 위해
+    ax.add_trace(go.Heatmap(
+        z=A, zmin=-lim, zmax=lim, showscale=False,
+        colorscale=cmap[:-2] if cmap.endswith('_r') else cmap,
+        reversescale=cmap.endswith('_r'),
+        text=[[fmt.format(x) for x in row] for row in A] if fmt else None,
+        texttemplate='%{text}' if fmt else None, textfont=dict(size=10)))
     if title:
-        ax.set_title(title, fontsize=10)
+        ax.update_layout(title=title)
     return ax</code></pre></div>
 <h3>동작 확인</h3>
-<p>파일을 저장했다면 불러서 써 보자. <code>from lautils import *</code>는 이 파일의 모든 함수를 이름 그대로 가져오는 표현이다.</p>
+<p>파일을 저장했다면 불러서 써 보자. <code>from tuvis import *</code>는 이 파일의 모든 함수를 이름 그대로 가져오는 표현이다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *          # 방금 만든 모듈
+from tuvis import *          # 방금 만든 모듈
 
-fig, ax = new_axes(xlim=(-1, 5), ylim=(-1, 5), figsize=(4, 4))
+fig, ax = new_axes(xlim=(-1, 5), ylim=(-1, 5))
 draw_vector(ax, [3, 2], label='v')
-plt.show()</code></pre>
-<div class="listing-caption">코드 2.15: <code>lautils</code>로 다시 그린 1장의 그림</div></p>
-<p>1장에서 여덟 줄이었던 코드가 두 줄이 되었다. 앞으로 모든 예제는 이 형태로 시작한다.</p>
+fig.show()</code></pre>
+<div class="listing-caption">코드 2.15: <code>tuvis</code>로 다시 그린 1장의 그림</div></p>
+<p>1장에서 여덟 줄이었던 코드가 두 줄이 되었다. 앞으로 모든 예제는 이 형태로 시작한다. 그림이 뜨면 마우스로 끌어 보자. 평면 그림도 실은 공간 위에 놓여 있어서, 비스듬히 돌리면 벡터가 \(z=0\) 바닥에 누워 있는 것이 보인다.</p>
 <h3>맛보기  —  격자를 변형해 보기</h3>
-<p><code>draw_grid()</code>에 행렬을 넘기면 그 행렬이 평면을 어떻게 변형하는지 한눈에 보인다. 이것이 이 책의 3부 전체를 관통하는 그림이다. 지금은 원리를 몰라도 좋으니, 숫자를 바꿔 가며 격자가 어떻게 휘는지 구경해 보자.</p>
+<p><code>draw_grid()</code>에 행렬을 넘기면 그 행렬이 평면을 어떻게 변형하는지 한눈에 보인다. 이것이 이 책의 후반부 전체를 관통하는 그림이다. 지금은 원리를 몰라도 좋으니, 숫자를 바꿔 가며 격자가 어떻게 휘는지 구경해 보자.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.0, 0.8],
               [0.3, 1.4]])
 
-fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4), figsize=(4.5, 4.5), grid=False)
+fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4))
 draw_grid(ax, None, n=3, color='lightgray')          # 원래 격자
 draw_grid(ax, A, n=3, color='steelblue')             # A로 변환된 격자
 draw_polygon(ax, transform(A, UNIT_SQUARE))          # 단위 정사각형의 상
 draw_vector(ax, A[:, 0], color='crimson', label='A e1')   # 첫 열
 draw_vector(ax, A[:, 1], color='royalblue', label='A e2') # 둘째 열
-plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 2.16: 행렬 \(\mm{A}\)가 평면을 어떻게 변형하는지 보기</div></p>
 <figure class="fig">
 <img class="tikz" src="img/ch02/fig04.svg" alt="figure">
@@ -560,22 +616,24 @@ plt.show()</code></pre>
 <li><strong>노란 사각형의 넓이가 변했다.</strong> 원래 넓이 1이던 단위 정사각형이 조금 커졌다. 얼마나 커졌는지를 알려 주는 값이 바로 <strong>행렬식</strong>이며, 7장의 주제다.</li>
 </ul>
 <div class="box keypoint"><span class="chip">요점</span><ul>
-<li><code>lautils.py</code>는 이 책 전체에서 사용할 여덟 개의 시각화 함수를 담은 파일이다.</li>
-<li>모든 함수는 첫 인자로 <code>ax</code>를 받아 그 위에 그린다. 그래서 여러 요소를 겹쳐 그릴 수 있다.</li>
-<li><code>draw_grid(ax, A)</code>는 행렬 \(\mm{A}\)가 평면을 어떻게 변형하는지 보여 준다. 3부의 모든 그림이 이 함수를 쓴다.</li>
+<li><code>tuvis.py</code>는 이 책 전체에서 사용할 아홉 개의 시각화 함수를 담은 파일이다.</li>
+<li>모든 함수는 첫 인자로 캔버스를 받아 그 위에 그린다. 그래서 여러 요소를 겹쳐 그릴 수 있다.</li>
+<li><code>draw_grid(ax, A)</code>는 행렬 \(\mm{A}\)가 평면을 어떻게 변형하는지 보여 준다. 이 책 후반부의 거의 모든 그림이 이 함수를 쓴다.</li>
 <li>전체 소스는 부록 B에도 실려 있다.</li>
 </ul></div>
-<h3>3차원과 대화형 그림</h3>
+<h3>3차원으로 넘어가기</h3>
 <p>앞으로 대부분의 그림은 2차원이다. 2차원에서 성립하는 규칙이 고차원에서도 그대로 성립하므로(3장), 개념을 잡는 데는 평면으로 충분하기 때문이다. 그러나 외적(4장), 평행육면체의 부피(7장), 부분공간(8장)처럼 <strong>3차원이라야 보이는</strong> 것들도 있다.</p>
-<p>부록 B의 완성본에는 3차원 함수가 함께 들어 있다. 사용법은 놀랄 만큼 단순하다. <strong>캔버스를 만드는 첫 줄만 바꾸면 된다.</strong></p>
+<p>부록 B의 완성본에는 3차원 캔버스가 함께 들어 있다. 사용법은 놀랄 만큼 단순하다. <strong>캔버스를 만드는 첫 줄만 바꾸면 된다.</strong></p>
 <pre class="line-numbers"><code class="language-python">fig, ax = new_axes()      # 2차원
 fig, ax = new_axes3d()    # 3차원 — 나머지 코드는 그대로</code></pre>
 <p><code>draw_vector</code>, <code>draw_points</code>, <code>draw_polygon</code> 등은 넘겨받은 배열의 길이를 보고 2차원인지 3차원인지 스스로 판단한다. 여기에 행렬의 열이 만드는 도형을 한 번에 그려 주는 <code>draw_matrix</code>가 더해지는데, \(2\times2\)이면 평행사변형을, \(3\times3\)이면 평행육면체를 그린다. 7장에서 행렬식을 넓이와 부피로 이해할 때 이 함수를 계속 쓰게 된다.</p>
-<div class="box note"><span class="chip">잠깐</span><span class="box-title">돌려 볼 수 있는 그림</span><p>맷플롯립의 3차원 그림은 보는 각도가 고정되어 있어 답답할 때가 있다. 마우스로 돌려 가며 보고 싶다면 캔버스를 만들 때 <code>interactive=True</code>를 붙이면 된다.</p>
-<pre class="line-numbers"><code class="language-python">fig, ax = new_axes3d()                    # 정적 그림
-fig, ax = new_axes3d(interactive=True)    # 마우스로 돌려 보기</code></pre>
-<p>그 뒤의 코드는 한 글자도 달라지지 않는다. 그리기 함수가 캔버스를 보고 알아서 처리하기 때문이다. 대화형 그림은 plotly로 그리므로 <code>pip install plotly</code>가 한 번 필요하며(코랩에는 이미 있다), 실제 구현은 부록 B의 <code>tuvis.py</code>에 있다.</p>
-<p>이 책의 도판은 종이에 실려야 하므로 모두 정적 그림이다. 개념은 책의 그림으로 잡고, 3차원이 나오는 대목에서는 <code>interactive=True</code>를 붙여 직접 돌려 보기를 권한다.</p></div>
+<p>여러 개를 나란히 놓고 비교할 때는 칸 수를 준다. 변환의 단계를 한 줄로 늘어놓는 그림이 이 책에 자주 나오는데, 모두 이 방식이다.</p>
+<pre class="line-numbers"><code class="language-python">fig, axs = new_axes(ncols=3, titles=['before', 'A', 'A A'])
+draw_grid(axs[0]); draw_grid(axs[1], A); draw_grid(axs[2], A @ A)
+fig.show()</code></pre>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">그림을 파일로 저장하려면</span><p>대화형 그림은 화면에서 돌려 보는 것이고, 보고서나 인쇄물에는 정지 화면이 필요하다. <code>write_image</code>를 쓰면 된다.</p>
+<pre class="line-numbers"><code class="language-python">fig.write_image('figure.png', scale=2)    # pip install kaleido 가 한 번 필요</code></pre>
+<p>이 책의 지면에 실린 3차원 도판도 모두 이렇게 저장한 것이다. 화면에서 마음에 드는 각도로 돌린 다음 저장하면 되고, 각도를 코드로 지정하고 싶다면 <code>setCam(ax, (1.5, 1.2, 0.9))</code>처럼 카메라의 위치를 직접 준다.</p></div>
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 넘파이로 대규모 수치 배열 다루기</div><ol>
 <li><strong>리스트와 배열의 차이를 확인하시오.</strong> 같은 데이터를 리스트와 배열로 만들어 <code>+</code>, <code>*</code> 연산의 결과를 비교하시오.
 <pre class="line-numbers"><code class="language-python">import numpy as np
@@ -619,10 +677,9 @@ table = col * row                   # 브로드캐스팅 -&gt; (9, 9)
 print(table)
 print('shape :', table.shape)</code></pre>
 <p><code>(9,1)</code>과 <code>(9,)</code>가 만나면 각각 <code>(9,9)</code>로 늘어나 모든 조합의 곱이 만들어진다. 이중 반복문이 브로드캐스팅 한 줄로 사라졌다.</li>
-<li><strong>만든 도구를 시험하시오.</strong> <code>lautils.py</code>를 불러 서로 다른 세 벡터를 그리고, 그 벡터들이 이루는 삼각형을 색으로 채우시오.</p>
+<li><strong>만든 도구를 시험하시오.</strong> <code>tuvis.py</code>를 불러 서로 다른 세 벡터를 그리고, 그 벡터들이 이루는 삼각형을 색으로 채우시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 P = np.array([[3., 1.], [1., 3.], [-2., -1.]])
 
@@ -630,20 +687,18 @@ fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4))
 draw_polygon(ax, P, color='skyblue', alpha=0.3)
 draw_vectors(ax, P, labels=['a', 'b', 'c'])
 draw_points(ax, P, color='black', s=25)
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>행렬을 그림으로 보자.</strong> \(5 \times 5\) 크기의 무작위 행렬을 만들고 <code>show_matrix()</code>로 표시한 뒤, 그 행렬과 자기 자신의 전치를 나란히 비교하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(42)
 M = rng.normal(0, 1, (5, 5))
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+fig, (ax1, ax2) = new_matrix_axes(ncols=2)
 show_matrix(ax1, M, title='M')
 show_matrix(ax2, M.T, title='M.T')
-plt.tight_layout()
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p>두 그림은 대각선을 기준으로 서로 뒤집힌 모양이다. 전치가 무엇을 하는 연산인지 숫자를 보지 않고도 알 수 있다.</li>
 <li><strong>벡터화의 위력을 직접 재어 보자.</strong> 원소 100만 개짜리 배열의 모든 값에 \(\sin\)을 적용하는 작업을, 반복문과 벡터화로 각각 수행하고 시간을 비교하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
@@ -694,7 +749,7 @@ print(D)</code></pre>
 <li><code>np.linalg</code> 모듈에 이 책에서 배울 거의 모든 계산이 함수로 준비되어 있다: <code>inv</code>, <code>det</code>, <code>solve</code>, <code>eig</code>, <code>svd</code>, <code>pinv</code>, <code>lstsq</code>, <code>qr</code> 등.</li>
 <li>부동소수점 오차 때문에 <code>det(A) == 0</code> 같은 비교는 위험하다. <code>np.allclose()</code>나 허용 오차를 둔 비교를 사용해야 한다.</li>
 <li>난수는 <code>rng = np.random.default_rng(42)</code>처럼 생성기를 만들어 쓴다. 시드를 고정하면 결과가 재현된다.</li>
-<li>이 책 전체에서 사용할 시각화 모듈 <strong><code>lautils.py</code></strong>를 직접 만들었다. <code>new_axes</code>, <code>draw_vector</code>, <code>draw_vectors</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_grid</code>, <code>transform</code>, <code>show_matrix</code>의 여덟 함수로 이루어져 있으며 전체 소스는 부록 B에 있다.</li>
+<li>이 책 전체에서 사용할 대화형 시각화 모듈 <strong><code>tuvis.py</code></strong>를 직접 만들었다. <code>new_axes</code>, <code>new_matrix_axes</code>, <code>draw_vector</code>, <code>draw_vectors</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_grid</code>, <code>transform</code>, <code>show_matrix</code>의 아홉 함수로 이루어져 있으며, 3차원 캔버스까지 갖춘 전체 소스는 부록 B에 있다.</li>
 </ul></div></details>
 <details class="box exercise" id="exercises"><summary class="box-head">2장 연습문제</summary><div class="ex-body"><ol>
 <li class="ex-item" data-ex="1"><span class="diff"><span class="d1">★</span></span>  넘파이 배열이 파이썬 리스트보다 빠른 이유를 메모리 배치와 자료형의 관점에서 각각 설명하시오.</li>
@@ -732,7 +787,7 @@ print(A)          # 결과 2</code></pre></li>
 <li>배열의 값을 \(-1\)과 \(1\) 사이로 자르기 (clipping)</li>
 </ol></li>
 <li class="ex-item" data-ex="10"><span class="diff"><span class="d3">★★★</span></span>  \(N = 10^6\), \(10^7\)일 때 리스트 축약 표현과 넘파이 벡터화 연산의 시간을 각각 측정하고, 데이터가 커질수록 속도 차이가 어떻게 변하는지 서술하시오.</li>
-<li class="ex-item" data-ex="11"><span class="diff"><span class="d2">★★</span></span>  <code>lautils.py</code>의 <code>draw_vector()</code> 함수를 수정하여, 화살표 옆에 벡터의 길이를 소수점 둘째 자리까지 표시하는 옵션 <code>show_len=True</code>를 추가하시오.
+<li class="ex-item" data-ex="11"><span class="diff"><span class="d2">★★</span></span>  <code>tuvis.py</code>의 <code>draw_vector()</code> 함수를 수정하여, 화살표 옆에 벡터의 길이를 소수점 둘째 자리까지 표시하는 옵션 <code>show_len=True</code>를 추가하시오.
 (힌트: 길이는 <code>np.linalg.norm(v)</code>)</li>
 <li class="ex-item" data-ex="12"><span class="diff"><span class="d3">★★★</span></span>  <code>draw_grid()</code> 함수에서 행렬 <code>A</code>로 <code>np.array([[1, 2], [2, 4]])</code>를 넘기면 무슨 일이 일어나는지 실행해 보고, 그림을 설명하시오. 이 현상이 무엇을 뜻하는지는 7장과 8장에서 밝혀진다.</li>
 <li class="ex-item" data-ex="13"><span class="diff"><span class="d3">★★★</span></span>  <code>show_matrix()</code>를 사용하여 다음 세 행렬을 나란히 그리고, 각각의 시각적 특징을 서술하시오.

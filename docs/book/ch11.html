@@ -212,8 +212,7 @@ Frobenius  : 7.071068 7.071068</pre>
 <p>10장의 대각화와 구조가 같지만 결정적인 차이가 하나 있다. 대각화에서는 앞뒤가 \(\mm{V}\inv\)과 \(\mm{V}\)로 <strong>서로 반대인 같은 회전</strong>이었지만, SVD에서는 \(\mm{V}\tp\)와 \(\mm{U}\)로 <strong>서로 다른 회전</strong>이다. 이 자유도 덕분에 모든 행렬을 다룰 수 있게 된다.</p>
 <div class="box keypoint"><span class="chip">요점</span><p><strong>단위원은 어떤 행렬을 통과해도 타원이 된다.</strong> 그 타원의 축 방향이 \(\mm{U}\)의 열이고, 축의 길이가 특이값 \(\sigma_i\)다. 그리고 그 축으로 가게 될 원래 방향이 \(\mm{V}\)의 열이다.</p></div>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[2., 1.5],
               [0.5, 1.]])
@@ -228,19 +227,16 @@ stages = [(np.eye(2), 'start (unit circle)'),
           (np.diag(s) @ Vt, 'step 2: Sigma (stretch)'),
           (U @ np.diag(s) @ Vt, 'step 3: U (rotate) = A')]
 
-fig, axes = plt.subplots(1, 4, figsize=(14, 3.6))
+fig, axes = new_axes(xlim=(-3, 3), ylim=(-3, 3), ncols=4)
 for ax, (M, title) in zip(axes, stages):
-    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.5); ax.axvline(0, color='black', lw=0.5)
     C = transform(M, circle)
-    ax.plot(C[:, 0], C[:, 1], color='steelblue', lw=1.5)
+    draw_curve(ax, C, color='steelblue', width=3)
     draw_points(ax, transform(M, dots), color='crimson', s=18)
     ax.set_title(title, fontsize=9)
-plt.tight_layout(); plt.show()
 
 print('특이값 :', np.round(s, 4))
-print('타원의 반장축, 반단축과 같다')</code></pre>
+print('타원의 반장축, 반단축과 같다')
+fig.show()</code></pre>
 <div class="listing-caption">코드 11.4: SVD를 세 단계로 나누어 보기</div></p>
 <figure class="fig">
 <img class="tikz" src="img/ch11/fig03.svg" alt="figure">
@@ -256,8 +252,7 @@ print('타원의 반장축, 반단축과 같다')</code></pre>
 <p>를 얻는다. 아주 깔끔한 관계다. <strong>\(\mm{A}\)는 \(i\)번째 오른쪽 특이벡터를 \(\sigma_i\)배 하여 \(i\)번째 왼쪽 특이벡터로 보낸다.</strong></p>
 <p>이것은 고유값 방정식 \(\mm{A}\vv{v} = \lambda\vv{v}\)와 닮았지만 결정적으로 다르다. 고유값에서는 들어간 벡터와 나온 벡터의 <strong>방향이 같아야</strong> 했지만, 여기서는 <strong>서로 다른 벡터</strong>여도 된다. 그 완화 덕분에 모든 행렬이 SVD를 갖게 되는 것이다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[2., 1.5],
               [0.5, 1.]])
@@ -268,25 +263,21 @@ for i in range(2):
     print(f'A v{i} == sigma{i} u{i} :',
           np.allclose(A @ V[:, i], s[i] * U[:, i]))
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.8))
-for ax in (ax1, ax2):
-    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.5); ax.axvline(0, color='black', lw=0.5)
+fig, (ax1, ax2) = new_axes(xlim=(-3, 3), ylim=(-3, 3), ncols=2)
 
 t = np.linspace(0, 2 * np.pi, 200)
 circle = np.column_stack([np.cos(t), np.sin(t)])
-ax1.plot(circle[:, 0], circle[:, 1], color='lightgray', lw=1.2)
+draw_curve(ax1, circle, color='lightgray', width=2)
 draw_vector(ax1, V[:, 0], color='crimson', label='v1')
 draw_vector(ax1, V[:, 1], color='royalblue', label='v2')
 ax1.set_title('input: orthogonal v1, v2')
 
 E = transform(A, circle)
-ax2.plot(E[:, 0], E[:, 1], color='steelblue', lw=1.2)
+draw_curve(ax2, E, color='steelblue', width=3)
 draw_vector(ax2, s[0] * U[:, 0], color='crimson', label='s1 u1')
 draw_vector(ax2, s[1] * U[:, 1], color='royalblue', label='s2 u2')
 ax2.set_title('output: still orthogonal!')
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">A v0 == sigma0 u0 : True
 A v1 == sigma1 u1 : True</pre>
 <div class="listing-caption">코드 11.5: \(\mm{A}\vv{v}_i = \sigma_i\vv{u}_i\) 관계 확인</div></p>
@@ -302,25 +293,24 @@ A v1 == sigma1 u1 : True</pre>
 각 항 \(\sigma_i\vv{u}_i\vv{v}_i\tp\)는 랭크가 1인 행렬이며, \(\sigma_i\)가 그 조각의 "세기"다.</p></div>
 <p>특이값이 내림차순으로 정렬되어 있다는 사실이 여기서 결정적으로 중요해진다. <strong>앞쪽 조각일수록 원래 행렬을 더 많이 설명한다.</strong> 그렇다면 뒤쪽 조각을 버려도 되지 않을까? 이것이 다음 절의 주제다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(0)
 A = rng.normal(0, 1, (6, 6))
 U, s, Vt = np.linalg.svd(A)
 
-fig, axes = plt.subplots(1, 4, figsize=(12, 3.2))
+fig, axes = new_matrix_axes(ncols=4)
 partial = np.zeros_like(A)
 for k, ax in enumerate(axes[:3]):
     piece = s[k] * np.outer(U[:, k], Vt[k, :])
     partial += piece
     show_matrix(ax, piece, fmt='', title=f'sigma{k} u{k} v{k}.T')
 show_matrix(axes[3], A, fmt='', title='A (sum of all 6)')
-plt.tight_layout(); plt.show()
 
 full = sum(s[i] * np.outer(U[:, i], Vt[i, :]) for i in range(6))
 print('모든 조각의 합 == A :', np.allclose(full, A))
-print('특이값 :', np.round(s, 4))</code></pre>
+print('특이값 :', np.round(s, 4))
+fig.show()</code></pre>
 <div class="listing-caption">코드 11.6: 행렬을 랭크-1 조각으로 분해하기</div></p>
 <h2 id="sec3">11.3 저계수 근사와 데이터 압축</h2>
 <h3>앞쪽 몇 개만 남기기</h3>
@@ -455,8 +445,7 @@ k(m+n+1) < mn \quad\Longleftrightarrow\quad k < \frac{mn}{m+n+1}
 공분산행렬을 만들지 않는 편이 수치적으로 더 안정적이다.</p></div>
 <h3>PCA 직접 구현하기</h3>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def pca(X, k=None):
     """주성분 분석. X는 (샘플 x 특징) 행렬."""
@@ -484,20 +473,16 @@ print('주성분 방향 :\n', np.round(PCs, 4))
 print('분산        :', np.round(var, 4))
 print('설명 비율   :', np.round(ratio * 100, 2), '%')
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.5))
-ax1.scatter(X[:, 0], X[:, 1], s=12, alpha=0.6, color='steelblue')
+fig, (ax1, ax2) = new_axes(
+    xlim=(-9, 9), ylim=(-9, 9), ncols=2,
+    titles=['original data with PC directions', 'rotated to PC1-PC2 axes'])
+draw_points(ax1, X, color='steelblue', size=3)
 for i in range(2):
     v = PCs[i] * np.sqrt(var[i]) * 2
-    ax1.arrow(mean[0], mean[1], v[0], v[1], color=PALETTE[i],
-              width=0.05, head_width=0.25, zorder=5)
-ax1.set_aspect('equal'); ax1.grid(True, alpha=0.3)
-ax1.set_title('original data with PC directions')
+    draw_vector(ax1, v, origin=mean, color=PALETTE[i], label=f'PC{i + 1}')
 
-ax2.scatter(Z[:, 0], Z[:, 1], s=12, alpha=0.6, color='crimson')
-ax2.set_aspect('equal'); ax2.grid(True, alpha=0.3)
-ax2.set_xlabel('PC1'); ax2.set_ylabel('PC2')
-ax2.set_title('rotated to PC coordinates')
-plt.tight_layout(); plt.show()</code></pre>
+draw_points(ax2, Z, color='crimson', size=3)
+fig.show()</code></pre>
 <p><pre class="pyout">주성분 방향 :
  [[-0.8601 -0.5101]
  [-0.5101  0.8601]]
@@ -567,8 +552,7 @@ for name, D in [('중심화만', X - X.mean(axis=0)),
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 주성분 분석을 이용한 데이터 차원 축소</div><ol>
 <li><strong>SVD의 세 단계를 그려 보자.</strong> 임의의 \(2\times2\) 행렬에 대해 단위원이 타원이 되는 과정을 네 장으로 나누어 그리시오.
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.5, 1.2],
               [-0.8, 1.0]])
@@ -581,16 +565,14 @@ dots = circle[::16]
 steps = [(np.eye(2), 'unit circle'), (Vt, 'V.T'),
          (np.diag(s) @ Vt, 'Sigma V.T'), (A, 'A = U Sigma V.T')]
 
-fig, axes = plt.subplots(1, 4, figsize=(14, 3.6))
+fig, axes = new_axes(xlim=(-3, 3), ylim=(-3, 3), ncols=4)
 for ax, (M, name) in zip(axes, steps):
-    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
     C = transform(M, circle)
-    ax.plot(C[:, 0], C[:, 1], color='steelblue', lw=1.5)
+    draw_curve(ax, C, color='steelblue', width=3)
     draw_points(ax, transform(M, dots), color='crimson', s=16)
     ax.set_title(name, fontsize=9)
-plt.tight_layout(); plt.show()
-print('특이값 :', np.round(s, 4))</code></pre></li>
+print('특이값 :', np.round(s, 4))
+fig.show()</code></pre></li>
 <li><strong>특이값의 감쇠를 관찰하자.</strong> 랭크가 낮은 행렬과 무작위 행렬의 특이값 분포를 비교하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
@@ -732,27 +714,32 @@ print('k=3 복원 오차         :', round(errors[2], 4))</code></pre>
 <p>\(k\)를 3보다 크게 하면 오히려 오차가 늘어난다. <strong>잡음까지 복원해 버리기 때문</strong>이다. 적절한 지점에서 자르는 것이 노이즈 제거의 핵심이다.</li>
 <li><strong>특이값 분해를 3차원에서 보자.</strong> 11.2절에서 "단위원은 어떤 행렬을 통과해도 타원이 된다"고 했다. 3차원에서는 <strong>단위구가 타원체</strong>가 되고, 그 세 축의 길이가 곧 특이값이다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.8, 0.4, 0.0],
               [0.2, 1.2, 0.3],
               [0.0, 0.3, 0.9]])
 U, s, Vt = np.linalg.svd(A)
 
-t = np.linspace(0, 2 * np.pi, 60)          # 단위구 위의 점들
-p = np.linspace(0, np.pi, 30)
-S = np.array([[np.cos(a) * np.sin(b), np.sin(a) * np.sin(b), np.cos(b)]
-              for b in p for a in t])
-
+t = np.linspace(0, 2 * np.pi, 120)         # 구를 철사틀처럼 그린다
 fig, ax = new_axes3d(xlim=(-2, 2), ylim=(-2, 2), zlim=(-2, 2))
-draw_points(ax, transform(A, S), color='lightsteelblue', size=3)
+
+for phi in np.linspace(0.001, np.pi, 7):   # 위도선
+    ring = np.column_stack([np.cos(t) * np.sin(phi),
+                            np.sin(t) * np.sin(phi),
+                            np.full_like(t, np.cos(phi))])
+    draw_curve(ax, transform(A, ring), color='lightsteelblue', width=2)
+for th in np.linspace(0, np.pi, 6):        # 경도선
+    ring = np.column_stack([np.cos(th) * np.sin(t),
+                            np.sin(th) * np.sin(t), np.cos(t)])
+    draw_curve(ax, transform(A, ring), color='lightsteelblue', width=2)
+
 for k in range(3):                         # 타원체의 세 축
     draw_vector(ax, s[k] * U[:, k],
                 color=['crimson', 'seagreen', 'darkorange'][k],
                 label=f'{s[k]:.2f}')
-ax.view_init(elev=24, azim=-52)
-plt.show()
+setCam(ax, (1.18, -1.51, 0.85))
+fig.show()
 
 print('특이값 :', np.round(s, 4))
 print('부피비 :', round(np.prod(s), 4), '=', round(abs(np.linalg.det(A)), 4))</code></pre>

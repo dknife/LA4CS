@@ -114,8 +114,7 @@
 \text{dist} = \norm{(\vv{q}-\vv{p}) - \proj_{\vv{d}}(\vv{q}-\vv{p})}
 \end{equation}</div>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def point_line_distance(q, p, d):
     """점 q에서 직선 p + t*d 까지의 거리와 가장 가까운 점"""
@@ -137,11 +136,11 @@ print('수직 확인  :', round((q - foot) @ d, 12))
 fig, ax = new_axes(xlim=(-1, 7), ylim=(-1, 6))
 ts = np.linspace(-1, 3, 50)
 line = p + ts[:, None] * d
-ax.plot(line[:, 0], line[:, 1], color='steelblue', lw=1.5)
+draw_curve(ax, line, color='steelblue', width=3)
 draw_points(ax, q.reshape(1, 2), color='crimson', s=70)
 draw_points(ax, foot.reshape(1, 2), color='seagreen', s=70)
-ax.plot([q[0], foot[0]], [q[1], foot[1]], color='gray', ls='--')
-plt.show()</code></pre>
+draw_line(ax, q, foot, color='gray', linestyle='--')
+fig.show()</code></pre>
 <p><pre class="pyout">거리       : 1.341641
 가장 가까운 점 : [4.6 2.8]
 수직 확인  : 0.0</pre>
@@ -253,8 +252,7 @@ plt.show()</code></pre>
 <p>이 표현을 <strong class="term-ko">동차좌표</strong><sup class="term">homogeneous coordinates</sup>라 한다. 마지막 1이 이동량을 끌어와 주는 역할을 한다.</p>
 <div class="center"><div class="table-wrap"><table><tr><th> 변환</th><th> 2D 동차 행렬</th><th> 설명</th></tr><tr><td>이동</td><td>\(\begin{bmatrix}1&0&t_x\\0&1&t_y\\0&0&1\end{bmatrix}\)</td><td>\((t_x, t_y)\)만큼 옮김</td></tr><tr><td>회전</td><td>\(\begin{bmatrix}\cos\theta&-\sin\theta&0\\\sin\theta&\cos\theta&0\\0&0&1\end{bmatrix}\)</td><td>원점 기준 회전</td></tr><tr><td>확대</td><td>\(\begin{bmatrix}s_x&0&0\\0&s_y&0\\0&0&1\end{bmatrix}\)</td><td>원점 기준 확대</td></tr></table></div></div>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def translate(tx, ty):
     return np.array([[1., 0., tx], [0., 1., ty], [0., 0., 1.]])
@@ -280,7 +278,7 @@ M = translate(3, 1) @ rotate(30) @ scale(0.8, 0.8)   # 오른쪽부터 적용
 fig, ax = new_axes(xlim=(-1, 6), ylim=(-1, 5))
 draw_polygon(ax, house, color='lightgray', alpha=0.5)
 draw_polygon(ax, apply(M, house), color='crimson', alpha=0.5)
-plt.show()
+fig.show()
 
 print('합성 행렬 :\n', np.round(M, 4))</code></pre>
 <div class="listing-caption">코드 13.6: 동차좌표로 이동·회전·확대를 한 행렬에</div></p>
@@ -292,8 +290,7 @@ print('합성 행렬 :\n', np.round(M, 4))</code></pre>
 \end{equation}</div>
 <p>이 패턴은 그래픽스에서 끝없이 반복된다. 10장의 닮음변환 \(\mm{P}\inv\mm{A}\mm{P}\)와 구조가 같다는 점도 눈여겨보자. <strong>"좌표계를 옮기고, 일을 하고, 되돌린다"</strong>는 발상은 선형대수 전체를 관통한다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 house = np.array([[0., 0.], [2., 0.], [2., 1.5], [1., 2.5], [0., 1.5]])
 center = house.mean(axis=0)
@@ -304,7 +301,7 @@ for deg, col in zip([45, 90, 135, 180], PALETTE):
     M = (translate(*center) @ rotate(deg) @ translate(*(-center)))
     draw_polygon(ax, apply(M, house), color=col, alpha=0.3)
 draw_points(ax, center.reshape(1, 2), color='black', s=40)
-plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 13.7: 물체를 제자리에서 회전시키기</div></p>
 <h3>3차원 회전과 투영</h3>
 <p>3차원에서는 동차좌표가 \(4\times4\) 행렬이 된다. 각 축에 대한 회전행렬은 다음과 같다(동차 성분은 생략하고 \(3\times3\)만 적었다).</p>
@@ -556,7 +553,7 @@ print(f'전체 평점 범위      : {true.min():.2f} ~ {true.max():.2f}')</code>
 <p>인접행렬의 거듭제곱에는 재미있는 의미가 있다. \(\mm{A}^k\)의 \((i,j)\) 성분은 <strong>노드 \(i\)에서 \(j\)로 가는 길이 \(k\)인 경로의 개수</strong>다. 행렬 곱의 정의 \(\sum_k a_{ik}a_{kj}\)가 "중간 노드를 거쳐 가는 경우의 수를 모두 더한 것"이기 때문이다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 # 5개 노드의 친구 관계
 A = np.array([[0, 1, 1, 0, 0],
@@ -713,8 +710,7 @@ print(point_plane_distance(np.array([2., 2., 2.]),
                            np.zeros(3), np.array([1., 1., 1.])))</code></pre></li>
 <li><strong>2차원 변환을 합성해 애니메이션처럼 그리자.</strong> 물체가 원을 그리며 돌면서 스스로도 회전하는 모습을 여러 프레임으로 그리시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def T(tx, ty): return np.array([[1., 0., tx], [0., 1., ty], [0., 0., 1.]])
 def R(deg):
@@ -733,7 +729,7 @@ for k in range(12):
     M = R(deg) @ T(2.5, 0) @ R(deg * 3)     # 공전 + 자전
     draw_polygon(ax, apply(M, arrow), color=PALETTE[k % len(PALETTE)],
                  alpha=0.55)
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>3차원 물체를 회전시켜 여러 각도에서 보자.</strong> 정사면체를 만들고 회전 각도를 바꿔 가며 투영하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
@@ -799,8 +795,7 @@ plt.scatter(X[:, 0], X[:, 1], c=T_.ravel(), cmap='RdBu_r',
 plt.gca().set_aspect('equal'); plt.show()</code></pre></li>
 <li><strong>어텐션 가중치를 그림으로 보자.</strong> 다섯 개의 토큰에 대한 어텐션 행렬을 계산하고 히트맵으로 표시하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def softmax(x, axis=-1):
     e = np.exp(x - x.max(axis=axis, keepdims=True))
@@ -812,13 +807,12 @@ d = 16
 Q = rng.normal(0, 1, (5, d)); K = rng.normal(0, 1, (5, d))
 W = softmax(Q @ K.T / np.sqrt(d))
 
-fig, ax = plt.subplots(figsize=(4.5, 4))
-show_matrix(ax, W, fmt='{:.2f}', cmap='YlOrRd', title='attention weights')
-ax.set_xticks(range(5)); ax.set_xticklabels(tokens)
-ax.set_yticks(range(5)); ax.set_yticklabels(tokens)
-plt.tight_layout(); plt.show()
+fig, ax = new_matrix_axes()
+show_matrix(ax, W, fmt='{:.2f}', cmap='YlOrRd', title='attention weights',
+            xticks=tokens, yticks=tokens)
 
-print('각 행의 합 :', np.round(W.sum(axis=1), 6))</code></pre></li>
+print('각 행의 합 :', np.round(W.sum(axis=1), 6))
+fig.show()</code></pre></li>
 <li><strong>그래프를 두 덩어리로 나누자.</strong> 스펙트럼 클러스터링을 구현하고 결과를 확인하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 

@@ -127,8 +127,7 @@
 <p>①은 두 벡터가 만드는 평행사변형의 대각선이 합이라는 설명이다. 물리에서 두 힘의 합력을 구할 때 쓰는 방식이다.</p>
 <p>②는 \(\vv{a}\)의 끝점에서 \(\vv{b}\)를 이어 붙이는 방식이다. "더한다"는 개념에는 이쪽이 더 충실하다. \(\vv{a}\)만큼 이동한 뒤 이어서 \(\vv{b}\)만큼 이동하면 결국 \(\vv{a}+\vv{b}\)만큼 이동한 것과 같다. 벡터를 <strong>이동</strong>으로 보는 관점이며, 벡터가 셋 이상일 때도 그대로 확장된다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 a = np.array([3., 1.])
 b = np.array([1., 3.])
@@ -140,7 +139,7 @@ fig, ax = new_axes(xlim=(-1, 5), ylim=(-1, 5))
 draw_vector(ax, a, color='crimson', label='a')
 draw_vector(ax, b, origin=a, color='royalblue', label='b')   # a 끝에서 시작
 draw_vector(ax, a + b, color='seagreen', label='a+b')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">a + b = [4. 4.]
 a - b = [ 2. -2.]</pre>
 <div class="listing-caption">코드 4.1: 벡터의 덧셈을 꼬리–머리 방식으로 그리기</div></p>
@@ -153,8 +152,7 @@ a - b = [ 2. -2.]</pre>
 <p><figcaption>그림 4.2: \(\vv{a}-\vv{b}\)는 \(\vv{b}\)에서 \(\vv{a}\)로 가는 벡터</figcaption></figure></p>
 <p>이 해석은 실전에서 매우 자주 쓰인다. 두 데이터 점 사이의 <strong>차이 벡터</strong>가 곧 이것이며, 그 길이가 두 점 사이의 거리다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 a = np.array([3., 1.])
 b = np.array([1., 3.])
@@ -165,7 +163,7 @@ draw_vector(ax, a, color='crimson', label='a')
 draw_vector(ax, b, color='royalblue', label='b')
 draw_vector(ax, d, origin=b, color='seagreen', label='a-b')   # b 끝에서 시작
 print('두 점 사이의 거리 :', np.linalg.norm(d))
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">두 점 사이의 거리 : 2.8284271247461903</pre>
 <div class="listing-caption">코드 4.2: 차이 벡터와 두 점 사이의 거리</div></p>
 <h3>덧셈의 성질</h3>
@@ -210,8 +208,7 @@ c\vv{v} = c\begin{bmatrix} v_1 \\ v_2 \\ \vdots \\ v_n \end{bmatrix}
 <p><figcaption>그림 4.3: 스칼라 곱은 길이를 바꾸고, 음수는 방향을 뒤집는다</figcaption></figure></p>
 <p>\(c > 1\)이면 늘어나고, \(0 < c < 1\)이면 줄어들며, \(c < 0\)이면 뒤집힌다. \(c = 0\)이면 영벡터가 된다. 벡터를 스칼라로 나누는 것은 그 역수를 곱하는 것과 같다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 v = np.array([1.5, 0.75])
 
@@ -219,7 +216,7 @@ fig, ax = new_axes(xlim=(-4, 4), ylim=(-3, 3))
 for c, color in [(2, 'lightsteelblue'), (1, 'crimson'),
                  (0.5, 'seagreen'), (-1.5, 'mediumpurple')]:
     draw_vector(ax, c * v, color=color, label=f'{c}v')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 4.4: 같은 벡터의 여러 스칼라 배</div></p>
 <h3>벡터의 크기  —  노름</h3>
 <p>벡터의 길이를 어떻게 재야 할까? 2차원에서는 피타고라스 정리를 쓰면 된다. 성분이 \((v_1, v_2)\)인 벡터는 밑변 \(v_1\), 높이 \(v_2\)인 직각삼각형의 빗변이므로 길이는 \(\sqrt{v_1^2 + v_2^2}\)이다. 이 계산은 차원이 늘어나도 그대로 확장된다.</p>
@@ -262,8 +259,7 @@ print(np.linalg.norm(v, np.inf))  # 4.0</code></pre></p></div>
 \end{equation}</div></p></div>
 <p>정규화는 <strong>크기 정보를 버리고 방향만 남기는</strong> 조작이다. 이것이 왜 유용한지는 곧 이어지는 코사인 유사도에서 분명해진다. 두 문서가 얼마나 비슷한 주제를 다루는지 판단할 때, 문서의 길이(단어 수)는 방해가 될 뿐이다. 방향만 비교하면 길이의 영향을 없앨 수 있다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 vs = np.array([[3., 4.], [-2., 1.], [1., -3.], [4., 1.]])
 units = vs / np.linalg.norm(vs, axis=1, keepdims=True)   # 행마다 정규화
@@ -272,11 +268,11 @@ print('원래 크기 :', np.linalg.norm(vs, axis=1))
 print('정규화 후 :', np.linalg.norm(units, axis=1))
 
 fig, ax = new_axes(xlim=(-4, 5), ylim=(-4, 5))
-theta = np.linspace(0, 2 * np.pi, 200)         # 단위원 그리기
-ax.plot(np.cos(theta), np.sin(theta), color='gray', ls='--', lw=1)
+draw_circle(ax, (0, 0), 1.0, color='gray',     # 단위원
+            fill=False, linestyle='--')
 draw_vectors(ax, vs, alpha=0.35)
 draw_vectors(ax, units)
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">원래 크기 : [5.         2.23606798 3.16227766 4.12310563]
 정규화 후 : [1. 1. 1. 1.]</pre>
 <div class="listing-caption">코드 4.6: 여러 벡터를 한꺼번에 정규화하기</div></p>
@@ -333,8 +329,7 @@ print('마스킹   :', a * gate)         # 2번, 4번 성분을 차단</code></p
 <div class="solution-label">풀이</div>
 \(\vv{a}\cdot\vv{b} = 3\times(-1) + 1\times 3 = -3 + 3 = 0\)이므로 두 벡터는 직교한다.</p></div>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 a = np.array([3., 1.])
 b = np.array([-1., 3.])
@@ -346,7 +341,7 @@ print('b . c =', b @ c)      # 양수 -&gt; 예각
 
 fig, ax = new_axes(xlim=(-3, 4), ylim=(-2, 4))
 draw_vectors(ax, [a, b, c], labels=['a', 'b', 'c'])
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">a . b = 0.0
 a . c = 9.0
 b . c = 7.0</pre>
@@ -487,8 +482,7 @@ doc1 vs doc3 : 0.09928333399068708
 <p><figcaption>그림 4.8: 정사영: \(\vv{a}\)가 \(\vv{b}\) 위에 드리우는 그림자</figcaption></figure></p>
 <p>정사영의 진짜 가치는 그림 4.8의 점선에 있다. \(\vv{a}\)에서 그림자를 빼고 남은 \(\vv{a} - \proj_{\vv{b}}\vv{a}\)는 <strong>\(\vv{b}\)에 수직</strong>이다. 즉 정사영은 임의의 벡터를 "\(\vv{b}\) 방향 성분"과 "\(\vv{b}\)에 수직인 성분"으로 쪼개는 도구다. 이 분해가 최소제곱법(12장)과 QR 분해(12장)의 뼈대가 된다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def project(a, b):
     """a를 b 위에 정사영한 벡터"""
@@ -507,8 +501,8 @@ fig, ax = new_axes(xlim=(-1, 5), ylim=(-1, 4))
 draw_vector(ax, b, color='royalblue', label='b')
 draw_vector(ax, a, color='crimson', label='a')
 draw_vector(ax, p, color='seagreen', label='proj')
-ax.plot([a[0], p[0]], [a[1], p[1]], color='gray', ls='--')
-plt.show()</code></pre>
+draw_line(ax, a, p, color='gray', linestyle='--')
+fig.show()</code></pre>
 <p><pre class="pyout">정사영     : [2.07058824 0.51764706]
 잔차       : [-0.57058824  2.28235294]
 잔차와 b의 내적 : -8.881784197001252e-16</pre>
@@ -529,17 +523,12 @@ plt.show()</code></pre>
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 벡터 연산의 수행과 결과 가시화</div><ol>
 <li><strong>덧셈의 두 그림을 나란히 그리자.</strong> \(\vv{a}=(3,1)\), \(\vv{b}=(1,3)\)의 합을 평행사변형 방식과 꼬리–머리 방식으로 각각 그리시오.
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 a = np.array([3., 1.])
 b = np.array([1., 3.])
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
-for ax in (ax1, ax2):
-    ax.set_xlim(-1, 5); ax.set_ylim(-1, 5)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.8); ax.axvline(0, color='black', lw=0.8)
+fig, (ax1, ax2) = new_axes(xlim=(-1, 5), ylim=(-1, 5), ncols=2)
 
 # ① 평행사변형
 draw_polygon(ax1, np.array([[0, 0], a, a + b, b]), color='goldenrod', alpha=0.2)
@@ -553,29 +542,26 @@ draw_vector(ax2, a, color='crimson', label='a')
 draw_vector(ax2, b, origin=a, color='royalblue', label='b')
 draw_vector(ax2, a + b, color='seagreen', label='a+b')
 ax2.set_title('head to tail')
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>정규화를 눈으로 확인하자.</strong> 무작위 벡터 12개를 그리고, 정규화한 결과가 모두 단위원 위에 놓이는지 확인하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(42)
 V = rng.normal(0, 1.5, (12, 2))
 U = V / np.linalg.norm(V, axis=1, keepdims=True)
 
-fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4), figsize=(5, 5))
-t = np.linspace(0, 2 * np.pi, 300)
-ax.plot(np.cos(t), np.sin(t), color='gray', ls='--', lw=1)
+fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4))
+draw_circle(ax, (0, 0), 1.0, color='gray', fill=False, linestyle='--')
 for v, u in zip(V, U):
     draw_vector(ax, v, color='lightsteelblue', width=0.008)
     draw_vector(ax, u, color='crimson', width=0.010)
-plt.show()
+fig.show()
 
 print('정규화 후 크기 :', np.round(np.linalg.norm(U, axis=1), 6))</code></pre></li>
 <li><strong>내적의 부호를 색으로 확인하자.</strong> 기준 벡터 \(\vv{a}=(3,1)\)을 고정하고, 원 위에 놓인 24개의 벡터에 대해 내적의 부호에 따라 색을 다르게 칠하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 a = np.array([3., 1.])
 t = np.linspace(0, 2 * np.pi, 24, endpoint=False)
@@ -587,7 +573,7 @@ for v in V:
     color = 'crimson' if d &gt; 0.01 else ('royalblue' if d &lt; -0.01 else 'black')
     draw_vector(ax, v, color=color, width=0.008)
 draw_vector(ax, a, color='seagreen', width=0.016, label='a')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p>붉은색은 \(\vv{a}\)와 예각, 파란색은 둔각을 이루는 벡터다. 두 색을 가르는 경계선이 정확히 \(\vv{a}\)에 수직인 직선이 된다. <strong>내적의 부호는 공간을 두 쪽으로 나눈다</strong>는 사실을 눈으로 확인할 수 있으며, 이것이 곧 분류기의 결정 경계다.</li>
 <li><strong>각도를 재는 함수를 만들자.</strong> 두 벡터 사이의 각을 도(degree) 단위로 반환하는 함수를 작성하고, 여러 벡터 쌍에 대해 시험하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
@@ -605,8 +591,7 @@ for a, b in pairs:
     print(f'{str(a):&gt;18} vs {str(b):&gt;18} : {angle_between(a, b):6.2f} deg')</code></pre></li>
 <li><strong>코사인 유사도로 문서를 분류하자.</strong> 다섯 개의 문서 벡터를 만들고 모든 쌍의 코사인 유사도를 행렬로 계산하여 그림으로 표시하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 # 단어 [고양이, 강아지, 주식, 금리, 백신] 등장 횟수
 docs = np.array([[8., 6., 0., 1., 0.],      # 반려동물
@@ -618,14 +603,13 @@ docs = np.array([[8., 6., 0., 1., 0.],      # 반려동물
 U = docs / np.linalg.norm(docs, axis=1, keepdims=True)
 S = U @ U.T                  # 모든 쌍의 코사인 유사도를 한 번에!
 
-fig, ax = plt.subplots(figsize=(4.5, 4))
+fig, ax = new_matrix_axes()
 show_matrix(ax, S, fmt='{:.2f}', cmap='YlOrRd', title='cosine similarity')
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <p>핵심은 <code>U @ U.T</code> 한 줄이다. 정규화된 벡터들을 행으로 쌓은 뒤 자기 자신의 전치와 곱하면, <strong>모든 쌍의 코사인 유사도가 한 번에</strong> 계산된다. 이중 반복문이 행렬 곱 하나로 사라졌다. 검색 엔진과 추천 시스템이 실제로 쓰는 방식이다.</li>
 <li><strong>정사영으로 벡터를 분해하자.</strong> 임의의 벡터를 주어진 방향의 성분과 그에 수직인 성분으로 나누고, 두 성분의 합이 원래 벡터가 되는지 확인하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def project(a, b):
     return (a @ b) / (b @ b) * b
@@ -643,7 +627,7 @@ draw_vector(ax, b, color='royalblue', label='b')
 draw_vector(ax, a, color='crimson', label='a')
 draw_vector(ax, p, color='seagreen', label='parallel')
 draw_vector(ax, r, origin=p, color='mediumpurple', label='perpendicular')
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>외적으로 삼각형 메시의 법선을 구하자.</strong> 3차원 삼각형 네 개의 법선 벡터를 각각 구하고 단위 길이로 정규화하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
 
@@ -666,8 +650,7 @@ triangle 3: normal=[0. 0. 1.], area=0.500</pre>
 <p>3번 삼각형의 법선이 \((0.577, 0.577, 0.577)\)인 것은 세 축에 대해 똑같이 기울어진 면이기 때문이다. \(0.577 \approx 1/\sqrt{3}\)임을 확인해 보자.</li>
 <li><strong>외적을 3차원에서 확인하자.</strong> 외적 \(\vv{a}\times\vv{b}\)가 정말 두 벡터에 수직인지, 그 크기가 평행사변형의 넓이인지는 3차원 그림으로 보아야 실감이 난다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 a = np.array([2., 0.5, 0.])
 b = np.array([0.5, 2., 0.])
@@ -678,8 +661,8 @@ draw_polygon(ax, np.array([np.zeros(3), a, a + b, b]), alpha=0.4)
 draw_vector(ax, a, color='crimson', label='a')
 draw_vector(ax, b, color='seagreen', label='b')
 draw_vector(ax, n, color='royalblue', label='a x b')
-ax.view_init(elev=18, azim=28)
-plt.show()
+setCam(ax, (1.76, 0.94, 0.65))
+fig.show()
 
 print('a 와 수직 :', np.isclose(n @ a, 0))
 print('b 와 수직 :', np.isclose(n @ b, 0))

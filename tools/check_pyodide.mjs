@@ -1,4 +1,4 @@
-// check_pyodide.mjs — 실제 Pyodide 로 대화형(plotly) 예제가 도는지 확인한다.
+// check_pyodide.mjs — 실제 Pyodide 로 tuvis(plotly) 예제가 도는지 확인한다.
 //
 //   mkdir -p /tmp/pyo && cd /tmp/pyo && npm install pyodide
 //   node ~/GitRepos/LA4CS/tools/check_pyodide.mjs
@@ -29,7 +29,7 @@ const py = await loadPyodide();
 py.setStderr({ batched: () => {} });
 
 // pyrunner 의 모듈 주입 블록만 발췌 실행 (실제 파일에서 잘라 온다)
-const b0 = src.indexOf('  // tuvis.py 는');
+const b0 = src.indexOf('  // 이 책의 시각화 모듈을');
 const b1 = src.indexOf('  return py;', b0);
 const block = src.slice(b0, b1);
 const hook  = src.match(/var PLOTLY_HOOK = \[[\s\S]*?\]\.join\('\\n'\);/)[0];
@@ -41,16 +41,24 @@ py.runPython(globalThis.PLOTLY_HOOK);
 await py.loadPackage('micropip');
 await py.runPythonAsync('import micropip\nawait micropip.install("plotly")');
 
-// 부록 B 대화형 예제 전부
+// tuvis 를 쓰는 예제를 여러 장에서 골라 돌린다 (3차원·여러 칸·히트맵을 모두 포함)
 const un = s => s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
 const key = s => { let v=5381; for (const c of s){ v=((Math.imul(v,33))^c.codePointAt(0))>>>0; } return v.toString(36); };
 const pre = JSON.parse(fs.readFileSync(H+'run-preludes.json','utf8'));
-const html = fs.readFileSync(H+'apxb.html','utf8');
-const blocks = [...html.matchAll(/<pre class="line-numbers"><code class="language-python">([\s\S]*?)<\/code>/g)].map(m=>un(m[1]));
-const targets = blocks.filter(c => c.includes('interactive=True'));
-console.log('\n부록 B 대화형 예제', targets.length, '개\n');
+const concept = new Set(JSON.parse(fs.readFileSync(H+'concept-codes.json','utf8')));
+const PAGES = ['ch02.html','ch03.html','ch05.html','ch08.html','ch09.html',
+               'ch11.html','ch13.html','apxb.html'];
+const targets = [];
+for (const page of PAGES) {
+  const html = fs.readFileSync(H + page, 'utf8');
+  const blocks = [...html.matchAll(/<pre class="line-numbers"><code class="language-python">([\s\S]*?)<\/code>/g)].map(m=>un(m[1]));
+  const hit = blocks.filter(c => /\bnew_axes3d\(|\bnew_matrix_axes\(|ncols=/.test(c)
+                                 && !concept.has(key(c.trim())));
+  for (const c of hit.slice(-3)) targets.push([page, c]);   // 장마다 최대 3개
+}
+console.log('\ntuvis 예제', targets.length, '개\n');
 let bad = 0;
-for (const [i,code] of targets.entries()) {
+for (const [i,[page,code]] of targets.entries()) {
   const ns = py.runPython('dict(__name__="__main__")');
   py.runPython('_algja_plotly_patch()');
   try {
@@ -58,8 +66,8 @@ for (const [i,code] of targets.entries()) {
     py.globals.set('_algja_ns', ns);
     const pj = py.runPython('_algja_plotly_dump(_algja_ns)');
     const list = pj.toJs(); pj.destroy();
-    console.log(`예제 ${i+1}: 그림 ${list.length}개 → OK`);
-  } catch (e) { bad++; console.log(`예제 ${i+1}: 실패 —`, String(e).split('\n').filter(x=>x.trim()).pop().slice(0,90)); }
+    console.log(`${page} 예제 ${i+1}: 그림 ${list.length}개 → ${list.length ? 'OK' : '그림 없음'}`);
+  } catch (e) { bad++; console.log(`${page} 예제 ${i+1}: 실패 —`, String(e).split('\n').filter(x=>x.trim()).pop().slice(0,90)); }
   ns.destroy();
 }
 console.log(bad ? `\n실패 ${bad}개` : '\n전부 통과');

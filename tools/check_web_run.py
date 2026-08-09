@@ -17,8 +17,14 @@ def key(s):
 pre = json.loads(pathlib.Path("run-preludes.json").read_text())
 concepts = set(json.loads(pathlib.Path("concept-codes.json").read_text()))
 # pyrunner.js 초기화와 같은 조건 (Pyodide 에서는 Agg 를 먼저 정해야 한다)
+# fig.show() 는 반드시 막아야 한다. 막지 않으면 plotly 가 예제마다 임시 서버를
+# 띄우고 브라우저 탭을 연다(예제가 수백 개다). 웹에서는 pyrunner 가 가로채므로
+# 여기서도 같은 조건을 만들어 준다.
 HEAD = ("import matplotlib\nmatplotlib.use('Agg')\n"
         "import matplotlib.pyplot as _p\n_p.show=lambda *a,**k:None\n"
+        "import plotly.io as _pio; _pio.renderers.default='json'\n"
+        "import plotly.graph_objects as _pgo\n"
+        "_pgo.Figure.show=lambda *a,**k:None\n"
         "import sys; sys.path.insert(0,'.')\n")
 fails, total = [], 0
 for f in sorted(pathlib.Path('.').glob('ch*.html')) + sorted(pathlib.Path('.').glob('apx*.html')):

@@ -127,19 +127,14 @@
 <p><figcaption>그림 7.2: 행렬식은 넓이의 배율</figcaption></figure></p>
 <p>이 관점에서 보면 6장의 사실이 자명해진다. \(\det(\mm{A}) = 0\)이면 넓이가 0배가 된다는 뜻이고, 넓이가 0이라는 것은 평면이 직선(또는 점)으로 눌렸다는 뜻이다. 눌린 것은 되돌릴 수 없으므로 역행렬이 없다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[3., 1.],
               [1., 2.]])
 
 print('det(A) :', np.linalg.det(A))
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
-for ax in (ax1, ax2):
-    ax.set_xlim(-1, 5); ax.set_ylim(-1, 4)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
+fig, (ax1, ax2) = new_axes(xlim=(-1, 5), ylim=(-1, 4), ncols=2)
 
 draw_polygon(ax1, UNIT_SQUARE)
 draw_vector(ax1, [1, 0], color='crimson')
@@ -150,13 +145,13 @@ draw_polygon(ax2, transform(A, UNIT_SQUARE))
 draw_vector(ax2, A[:, 0], color='crimson')
 draw_vector(ax2, A[:, 1], color='royalblue')
 ax2.set_title(f'area = {np.linalg.det(A):.0f}')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">det(A) : 5.000000000000001</pre>
 <div class="listing-caption">코드 7.1: 단위 정사각형의 넓이 변화를 행렬식과 비교</div></p>
 <h3>어떤 도형에도 같은 배율이 적용된다</h3>
 <p>단위 정사각형에만 통하는 이야기가 아니다. 임의의 도형에 대해서도 넓이는 정확히 \(\abs{\det(\mm{A})}\)배가 된다. 몬테카를로 방식으로 확인해 보자.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-from lautils import *
+from tuvis import *
 
 A = np.array([[3., 1.],
               [1., 2.]])
@@ -441,8 +436,7 @@ T(\vv{x}) = x_1T(\vv{e}_1) + \cdots + x_nT(\vv{e}_n)
 <img class="tikz" src="img/ch07/fig06.svg" alt="figure">
 <p><figcaption>그림 7.6: 기본 선형변환과 각각의 행렬식</figcaption></figure></p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def rot(deg):
     t = np.radians(deg)
@@ -459,15 +453,12 @@ transforms = {
 }
 house = np.array([[0., 0.], [1.6, 0.], [1.6, 1.2], [0.8, 2.], [0., 1.2]])
 
-fig, axes = plt.subplots(2, 3, figsize=(11, 7))
+fig, axes = new_axes(xlim=(-3, 3), ylim=(-3, 3), nrows=2, ncols=3)
 for ax, (name, M) in zip(axes.flat, transforms.items()):
-    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
     draw_polygon(ax, house, color='gray', alpha=0.3)
     draw_polygon(ax, transform(M, house), color='crimson', alpha=0.45)
     ax.set_title(f'{name}  (det={np.linalg.det(M):.2f})', fontsize=10)
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 7.9: 여섯 가지 기본 변환을 한 화면에 비교하기</div></p>
 <h3>행렬식으로 변환을 읽어 내기</h3>
 <p>행렬식 하나로 변환의 성격을 상당 부분 알 수 있다.</p>
@@ -475,29 +466,26 @@ plt.tight_layout(); plt.show()</code></pre>
 <h3>연속 변환에서 넓이의 변화</h3>
 <p>곱셈 정리 \(\det(\mm{A}\mm{B}) = \det(\mm{A})\det(\mm{B})\)를 그림으로 확인해 보자. 변환을 여러 번 적용할 때 넓이가 어떻게 누적되는지 보는 것이다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.2, 0.4],
               [0.1, 0.9]])
 print('det(A) :', np.linalg.det(A))
 
 square = UNIT_SQUARE
-fig, axes = plt.subplots(1, 5, figsize=(14, 3))
+fig, axes = new_axes(xlim=(-1, 3), ylim=(-1, 3), ncols=5)
 P = square.copy()
 for k, ax in enumerate(axes):
-    ax.set_xlim(-1, 3); ax.set_ylim(-1, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
     draw_polygon(ax, P, color='crimson', alpha=0.45)
     area = abs(np.linalg.det(A)) ** k
     ax.set_title(f'A^{k}  area={area:.3f}', fontsize=9)
     P = transform(A, P)
-plt.tight_layout(); plt.show()
 
 # 넓이가 det의 거듭제곱으로 줄어드는지 확인
 for k in range(5):
     print(f'A^{k}: det = {np.linalg.det(np.linalg.matrix_power(A, k)):.5f},'
-          f' det(A)^{k} = {np.linalg.det(A) ** k:.5f}')</code></pre>
+          f' det(A)^{k} = {np.linalg.det(A) ** k:.5f}')
+fig.show()</code></pre>
 <p><pre class="pyout">det(A) : 1.04
 A^0: det = 1.00000, det(A)^0 = 1.00000
 A^1: det = 1.04000, det(A)^1 = 1.04000
@@ -523,7 +511,7 @@ A^4: det = 1.16986, det(A)^4 = 1.16986</pre>
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 행렬식의 계산과 가시화</div><ol>
 <li><strong>행렬식이 넓이임을 수치로 확인하자.</strong> 무작위 점을 뿌려 변환 전후의 넓이 비율을 몬테카를로로 추정하고 행렬식과 비교하시오.
 <pre class="line-numbers"><code class="language-python">import numpy as np
-from lautils import *
+from tuvis import *
 
 def area_by_sampling(poly, n=400_000, seed=0):
     """다각형 안에 있는 표본점의 비율로 넓이를 추정한다."""
@@ -573,25 +561,20 @@ print('2열 전개 :', col1)
 print('넘파이   :', np.linalg.det(A))</code></pre></li>
 <li><strong>행렬식이 0이 되는 순간을 관찰하자.</strong> 매개변수를 바꿔 가며 행렬식이 0을 지나갈 때 도형이 어떻게 변하는지 그리시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
-fig, axes = plt.subplots(1, 5, figsize=(14, 3))
+fig, axes = new_axes(xlim=(-3, 3), ylim=(-3, 3), ncols=5)
 for ax, t in zip(axes, [2.0, 1.0, 0.0, -1.0, -2.0]):
     A = np.array([[1., 1.], [1., 1. + t]])
-    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.5); ax.axvline(0, color='black', lw=0.5)
     draw_polygon(ax, transform(A, UNIT_SQUARE), color='crimson', alpha=0.5)
     draw_vector(ax, A[:, 0], color='darkred', width=0.015)
     draw_vector(ax, A[:, 1], color='navy', width=0.015)
     ax.set_title(f't={t}, det={np.linalg.det(A):.1f}', fontsize=9)
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <p>\(t=0\)일 때 두 열벡터가 완전히 겹쳐 도형이 선분으로 찌부러진다. 그 전후로 행렬식의 부호도 바뀌는데, 이는 두 벡터의 좌우 관계가 뒤바뀌었기 때문이다.</li>
 <li><strong>회전은 넓이를 바꾸지 않는다.</strong> 여러 각도의 회전행렬에 대해 행렬식이 언제나 1인지 확인하고, 도형을 실제로 회전시켜 보시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def rot(deg):
     t = np.radians(deg)
@@ -604,7 +587,7 @@ fig, ax = new_axes(xlim=(-3, 3), ylim=(-3, 3), figsize=(5, 5))
 for deg in range(0, 360, 45):
     draw_polygon(ax, transform(rot(deg), shape),
                  color=PALETTE[(deg // 45) % len(PALETTE)], alpha=0.25)
-plt.show()
+fig.show()
 
 print([round(np.linalg.det(rot(d)), 12) for d in range(0, 360, 45)])</code></pre></li>
 <li><strong>\(4\times4\) 이상에서 알고리즘의 차이를 체감하자.</strong> 여인자 전개와 소거법의 실행 시간을 비교하시오.</p>
@@ -669,8 +652,7 @@ print('첫 성분만 남기기 :', is_linear(lambda x: np.array([x[0], 0.])))</c
 <p>마지막 항목이 흥미롭다. 정보를 버리는 정사영도 엄연한 선형변환이다. 선형성은 "정보를 보존한다"가 아니라 "선형결합을 보존한다"는 뜻임을 확인하자.</li>
 <li><strong>행렬식이 부피임을 3차원에서 보자.</strong> 2차원에서 행렬식은 넓이였다. 3차원에서는 세 열벡터가 만드는 <strong>평행육면체의 부피</strong>가 된다. <code>draw_matrix()</code>가 그 육면체를 그려 준다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 M = np.array([[1.2, 0.4, 0.2],
               [0.3, 1.4, 0.1],
@@ -678,8 +660,8 @@ M = np.array([[1.2, 0.4, 0.2],
 
 fig, ax = new_axes3d(xlim=(-0.3, 2.2), ylim=(-0.3, 2.2), zlim=(-0.3, 2.2))
 draw_matrix(ax, M, label='M')
-ax.view_init(elev=20, azim=32)
-plt.show()
+setCam(ax, (1.67, 1.05, 0.72))
+fig.show()
 
 print('부피 = |det M| =', round(abs(np.linalg.det(M)), 4))</code></pre>
 <pre class="pyout">부피 = |det M| = 2.46</pre>

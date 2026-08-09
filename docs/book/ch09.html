@@ -134,8 +134,7 @@
 <h3>눈으로 고유벡터 찾기</h3>
 <p>정의만 알면 고유벡터를 <strong>그림으로 찾아낼 수</strong> 있다. 여러 방향의 벡터를 모두 변환해 놓고, 원래 방향과 겹치는 것을 고르면 된다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[3., 1.],
               [0., 2.]])
@@ -155,7 +154,7 @@ for v, w, c in zip(V, W, cos):
     draw_vector(ax, w, color=('crimson' if aligned else 'steelblue'),
                 width=(0.014 if aligned else 0.006))
 ax.set_title('red = direction preserved')
-plt.show()
+fig.show()
 
 print('가장 잘 정렬된 방향 :', np.round(V[np.argmax(cos)], 4))</code></pre>
 <div class="listing-caption">코드 9.1: 여러 방향을 변환해 고유벡터를 눈으로 찾기</div></p>
@@ -352,32 +351,28 @@ print(np.round(V.T @ V, 10))            # 단위행렬이어야 한다</code></p
 <h3>대칭행렬을 눈으로 보기</h3>
 <p>대칭행렬의 고유벡터가 직교한다는 사실은 그림으로 보면 인상적이다. 원 위의 벡터들을 변환하면 <strong>타원</strong>이 되는데, 그 타원의 장축과 단축이 정확히 고유벡터 방향이다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 S = np.array([[3., 1.],
               [1., 2.]])            # 대칭
 N = np.array([[3., 1.],
               [0., 2.]])            # 비대칭
 
-fig, axes = plt.subplots(1, 2, figsize=(9.5, 4.8))
+fig, axes = new_axes(xlim=(-5, 5), ylim=(-5, 5), ncols=2)
 t = np.linspace(0, 2 * np.pi, 200)
 circle = np.column_stack([np.cos(t), np.sin(t)])
 
 for ax, A, title in [(axes[0], S, 'symmetric'), (axes[1], N, 'not symmetric')]:
-    ax.set_xlim(-5, 5); ax.set_ylim(-5, 5)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
-    ax.plot(circle[:, 0], circle[:, 1], color='lightgray', lw=1)
+    draw_curve(ax, circle, color='lightgray', width=2)
     E = transform(A, circle)
-    ax.plot(E[:, 0], E[:, 1], color='steelblue', lw=1.5)
+    draw_curve(ax, E, color='steelblue', width=3)
     w, V = np.linalg.eig(A)
     for k in range(2):
         draw_vector(ax, np.real(w[k]) * np.real(V[:, k]),
                     color=PALETTE[k], width=0.014)
     angle = np.degrees(np.arccos(abs(V[:, 0] @ V[:, 1])))
     ax.set_title(f'{title}: eigvec angle = {angle:.1f} deg', fontsize=10)
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 9.7: 대칭행렬의 고유벡터는 타원의 장축·단축과 일치한다</div></p>
 <figure class="fig">
 <img class="tikz" src="img/ch09/fig04.svg" alt="figure">
@@ -422,8 +417,7 @@ A.T의 고유값    : True</pre>
 <p>이 된다. 각 고유방향의 성분이 자기 고유값의 \(k\)제곱만큼 커지거나 작아지는 것이다.</p>
 <p>\(\abs{\lambda_1} > \abs{\lambda_2}\)라면 \(k\)가 커질수록 첫째 항이 압도적으로 커진다. 결국 <strong>어떤 벡터에서 출발하든 \(\mm{A}^k\vv{x}\)의 방향은 가장 큰 고유값의 고유벡터 방향으로 수렴</strong>한다. 이것을 <strong class="term-ko">거듭제곱법</strong><sup class="term">power method</sup>이라 하며, 페이지랭크를 계산하는 알고리즘의 뼈대다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.4, 0.6],
               [0.3, 1.1]])
@@ -432,18 +426,20 @@ print('고유값 :', np.round(w, 4))
 print('가장 큰 고유값의 고유벡터 :', np.round(V[:, np.argmax(np.abs(w))], 4))
 
 x = np.array([1., -1.5])            # 아무 벡터에서 출발
-fig, ax = new_axes(xlim=(-2, 5), ylim=(-2, 5), figsize=(5.5, 5.5))
+fig, ax = new_axes(xlim=(-2, 5), ylim=(-2, 5))
 
 # 지배적인 고유벡터 방향을 점선으로
 v_dom = np.real(V[:, np.argmax(np.abs(w))])
 s = np.linspace(-3, 5, 10)
-ax.plot(s * v_dom[0], s * v_dom[1], color='gray', ls='--', lw=1.2)
+draw_curve(ax, s * v_dom[0], s * v_dom[1], color='gray', linestyle='--')
 
+shades = ['#440154', '#414487', '#2a788e', '#22a884',   # 어두운 색에서 밝은 색으로
+          '#7ad151', '#bddf26', '#fde725']
 for k in range(7):
     draw_vector(ax, x / np.linalg.norm(x) * 3,   # 방향만 보기 위해 길이 고정
-                color=plt.cm.viridis(k / 6), width=0.010)
+                color=shades[k])
     x = A @ x
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">고유값 : [1.7 0.8]
 가장 큰 고유값의 고유벡터 : [0.8944 0.4472]</pre>
 <div class="listing-caption">코드 9.9: 반복 적용하면 지배적 고유벡터 방향으로 수렴한다</div></p>
@@ -488,7 +484,7 @@ print('넘파이 결과   :', np.linalg.eig(A)[0])</code></pre>
 <div class="center"><div class="table-wrap"><table><tr><th> 조건</th><th> 시스템의 장기 거동</th></tr><tr><td>모든 \(\abs{\lambda_i} < 1\)</td><td>원점으로 수렴한다 (안정)</td></tr><tr><td>어떤 \(\abs{\lambda_i} > 1\)</td><td>그 방향으로 발산한다 (불안정)</td></tr><tr><td>가장 큰 \(\abs{\lambda_i} = 1\)</td><td>특정 상태로 수렴한다 (정상상태)</td></tr><tr><td>복소수 고유값</td><td>회전하며 진동한다</td></tr></table></div></div>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 cases = {
     'stable (|w|&lt;1)'   : np.array([[0.7, 0.2], [0.1, 0.6]]),
@@ -523,8 +519,7 @@ plt.tight_layout(); plt.show()</code></pre>
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 고유벡터와 고유값 가시화</div><ol>
 <li><strong>고유벡터를 눈으로 찾아보자.</strong> 원 위의 벡터 36개를 변환하고, 방향이 유지되는 것을 강조해 표시하시오.
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[2., 1.],
               [1., 2.]])
@@ -540,7 +535,7 @@ for v, w, c in zip(V, W, cos):
     ok = c &gt; 0.9999
     draw_vector(ax, w, color=('crimson' if ok else 'lightsteelblue'),
                 width=(0.015 if ok else 0.005))
-plt.show()
+fig.show()
 
 print('고유값 :', np.linalg.eigh(A)[0])</code></pre>
 <p>\(\mm{A}\)가 대칭이므로 두 고유방향은 정확히 직교한다. 붉은 화살표가 그 방향이다.</li>
@@ -664,8 +659,7 @@ for name, (M, expected) in tests.items():
     print(f'{name:8s}: {np.allclose(got, np.sort_complex(expected))}')</code></pre></li>
 <li><strong>고유벡터를 3차원에서 확인하자.</strong> 고유벡터의 정의는 "변환해도 방향이 그대로"였다. 3차원에서 고유벡터 하나와 고유벡터가 아닌 벡터 하나를 나란히 변환해 보면 그 차이가 뚜렷하다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[2.0, 0.0, 0.0],
               [0.0, 1.5, 0.5],
@@ -681,8 +675,8 @@ draw_vector(ax, u, color='lightcoral', label='u')
 draw_vector(ax, A @ u, color='crimson', label='A u')
 draw_vector(ax, x, color='lightsteelblue', label='x')
 draw_vector(ax, A @ x, color='royalblue', label='A x')
-ax.view_init(elev=16, azim=-62)
-plt.show()
+setCam(ax, (0.95, -1.78, 0.58))
+fig.show()
 
 print('고유값                :', np.round(w, 4))
 print('A u = lambda u 인가?  :', np.allclose(A @ u, w[-1] * u))

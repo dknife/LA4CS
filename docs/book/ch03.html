@@ -133,8 +133,7 @@
 <h3>벡터를 넘파이로 만들고 그리기</h3>
 <p>이제 벡터를 코드로 다루어 보자. 벡터를 만드는 일은 간단하고, 그리는 일은 앞 장에서 만든 도구가 대신해 준다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 v = np.array([3., 2.])
 w = np.array([-2., 3.])
@@ -146,7 +145,7 @@ print('v[0]   :', v[0])         # 첫 번째 성분
 fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4))
 draw_vector(ax, v, color='crimson', label='v = (3, 2)')
 draw_vector(ax, w, color='royalblue', label='w = (-2, 3)')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">v      : [3. 2.]
 shape  : (2,)
 v[0]   : 3.0</pre>
@@ -166,22 +165,17 @@ v[0]   : 3.0</pre>
 <div class="center"><div class="table-wrap"><table><tr><th> 관점</th><th> 언제 쓰는가</th></tr><tr><td>화살표(이동)</td><td>벡터를 더하고 빼는 연산을 설명할 때. 힘·속도 같은 물리량을 다룰 때.</td></tr><tr><td>점(위치)</td><td>데이터를 다룰 때. 100명의 사람을 100개의 점으로 흩뿌려 볼 때.</td></tr></table></div></div>
 <p>이 책에서는 두 관점을 상황에 따라 오간다. 4장의 벡터 연산에서는 주로 화살표로, 11장의 주성분 분석에서는 주로 점으로 볼 것이다. <strong>같은 대상을 두 눈으로 보는 훈련</strong>이 선형대수의 직관을 키우는 지름길이다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 V = np.array([[3., 1.], [1., 3.], [-2., 2.], [-1., -2.], [2., -3.]])
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
-for ax in (ax1, ax2):
-    ax.set_xlim(-4, 4); ax.set_ylim(-4, 4)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.8); ax.axvline(0, color='black', lw=0.8)
+fig, (ax1, ax2) = new_axes(xlim=(-4, 4), ylim=(-4, 4), ncols=2)
 
 draw_vectors(ax1, V)                          # 화살표로 보기
 ax1.set_title('as arrows')
 draw_points(ax2, V, color='crimson', s=50)    # 점으로 보기
 ax2.set_title('as points')
-plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 3.2: 같은 다섯 벡터를 화살표와 점, 두 가지로 보기</div></p>
 <h3>벡터의 차원  —  2차원 너머로</h3>
 <p>우리가 그릴 수 있는 것은 2차원, 잘해야 3차원까지다. 그러나 실제 데이터의 차원은 훨씬 높다.</p>
@@ -339,8 +333,7 @@ print('평균 키/몸무게:', X.mean(axis=0))</code></pre>
 \(\mm{A}\)가 \(m \times n\)이면 \(\mm{A}\tp\)는 \(n \times m\)이다.</p></div>
 <p>전치는 대각선을 축으로 행렬을 접는 것과 같다. 두 번 접으면 제자리로 돌아오므로 \((\mm{A}\tp)\tp = \mm{A}\)가 성립한다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.array([[1., 2., 3.],
               [4., 5., 6.]])
@@ -349,10 +342,10 @@ print('A   shape:', A.shape)
 print('A.T shape:', A.T.shape)
 print(A.T)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(7, 3))
+fig, (ax1, ax2) = new_matrix_axes(ncols=2)
 show_matrix(ax1, A, fmt='{:.0f}', title='A (2x3)')
 show_matrix(ax2, A.T, fmt='{:.0f}', title='A.T (3x2)')
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <p><pre class="pyout">A   shape: (2, 3)
 A.T shape: (3, 2)
 [[1. 4.]
@@ -380,8 +373,7 @@ A.T shape: (3, 2)
 <h3>한눈에 보는 특별한 행렬들</h3>
 <p>말로 설명하는 것보다 그림으로 보는 편이 훨씬 빠르다. <code>show_matrix()</code>로 여섯 가지 행렬을 한꺼번에 그려 보자.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(42)
 M = rng.integers(-5, 6, (5, 5)).astype(float)
@@ -395,10 +387,10 @@ mats = {
     'general'    : M,
 }
 
-fig, axes = plt.subplots(2, 3, figsize=(9, 6))
+fig, axes = new_matrix_axes(nrows=2, ncols=3)
 for ax, (name, A) in zip(axes.flat, mats.items()):
     show_matrix(ax, A, fmt='{:.0f}', title=name)
-plt.tight_layout(); plt.show()</code></pre>
+fig.show()</code></pre>
 <div class="listing-caption">코드 3.8: 특별한 행렬들을 그림으로 구별하기</div></p>
 <figure class="fig">
 <img class="tikz" src="img/ch03/fig07.svg" alt="figure">
@@ -418,25 +410,19 @@ print(np.allclose(K.T, -K))      # True</code></pre></p></div>
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 벡터와 행렬 데이터 가시화</div><ol>
 <li><strong>벡터를 두 얼굴로 보자.</strong> 여섯 개의 2차원 벡터를 화살표와 점으로 각각 그려 나란히 비교하시오.
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 V = np.array([[3., 1.], [1., 3.], [-2., 2.],
               [-3., -1.], [0., -3.], [2., -2.]])
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
-for ax in (ax1, ax2):
-    ax.set_xlim(-4, 4); ax.set_ylim(-4, 4)
-    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
-    ax.axhline(0, color='black', lw=0.8); ax.axvline(0, color='black', lw=0.8)
+fig, (ax1, ax2) = new_axes(xlim=(-4, 4), ylim=(-4, 4), ncols=2)
 
 draw_vectors(ax1, V); ax1.set_title('vectors as arrows')
 draw_points(ax2, V, color='crimson', s=60); ax2.set_title('vectors as points')
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>성분 분해를 그림으로 확인하자.</strong> 벡터 \((4,3)\)이 \(4\vv{e}_1 + 3\vv{e}_2\)임을 화살표를 이어 붙여 보이시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 v = np.array([4., 3.])
 e1 = np.array([1., 0.])
@@ -450,11 +436,10 @@ for k in range(4):
 for k in range(3):
     draw_vector(ax, e2, origin=4 * e1 + k * e2, color='royalblue', width=0.008)
 draw_vector(ax, v, color='seagreen', label='v = 4e1 + 3e2')
-plt.show()</code></pre></li>
+fig.show()</code></pre></li>
 <li><strong>데이터 행렬을 산점도로 그리자.</strong> 열 명의 (키, 몸무게)를 만들고 산점도로 그린 뒤, 평균 지점을 별표로 표시하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(42)
 height = rng.normal(168, 8, 10)          # 평균 168, 표준편차 8
@@ -464,28 +449,26 @@ X = np.column_stack([height, weight])    # (10, 2) 데이터 행렬
 print('shape :', X.shape)
 print('평균  :', X.mean(axis=0))
 
-fig, ax = plt.subplots(figsize=(5, 4.5))
+fig, ax = new_axes(xlim=(150, 190), ylim=(40, 90),
+                   xlabel='height (cm)', ylabel='weight (kg)')
 draw_points(ax, X, color='steelblue', s=50, label='people')
 draw_points(ax, X.mean(axis=0).reshape(1, 2), color='crimson',
-            s=200, marker='*', label='mean')
-ax.set_xlabel('height (cm)'); ax.set_ylabel('weight (kg)')
-ax.grid(True, alpha=0.3); ax.legend()
-plt.show()</code></pre>
+            s=200, label='mean')
+fig.show()</code></pre>
 <p><code>np.column_stack()</code>은 여러 1차원 배열을 열로 세워 행렬을 만든다. 데이터를 모을 때 자주 쓰는 함수다.</li>
 <li><strong>전치가 무슨 일을 하는지 눈으로 보자.</strong> \(3 \times 5\) 행렬과 그 전치를 나란히 그리고, 특정 성분이 어디로 옮겨 갔는지 확인하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 A = np.arange(15).reshape(3, 5).astype(float)
 
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4))
+fig, (ax1, ax2) = new_matrix_axes(ncols=2)
 show_matrix(ax1, A, fmt='{:.0f}', title='A (3x5)')
 show_matrix(ax2, A.T, fmt='{:.0f}', title='A.T (5x3)')
-plt.tight_layout(); plt.show()
 
 print('A[1, 3]   =', A[1, 3])
-print('A.T[3, 1] =', A.T[3, 1])    # 같은 값</code></pre></li>
+print('A.T[3, 1] =', A.T[3, 1])    # 같은 값
+fig.show()</code></pre></li>
 <li><strong>특별한 행렬을 만들어 보자.</strong> 다음을 각각 한 줄로 생성하시오.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 
@@ -496,7 +479,7 @@ print('하삼각  :\n', np.tril(np.ones((4, 4))))
 print('영행렬  :\n', np.zeros((2, 3)))</code></pre></li>
 <li><strong>대칭행렬을 만들고 확인하자.</strong> 무작위 행렬로부터 대칭행렬을 만들고, 실제로 대칭인지 검사하시오. 그리고 거리 행렬이 왜 자연스럽게 대칭인지 확인하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-from lautils import *
+from tuvis import *
 
 rng = np.random.default_rng(1)
 M = rng.normal(0, 1, (4, 4))
@@ -537,16 +520,15 @@ plt.tight_layout(); plt.show()</code></pre>
 <p>이미지 한 장이 곧 행렬이라는 사실은 11장의 이미지 압축 실습에서 결정적으로 쓰인다.</li>
 <li><strong>3차원 벡터를 눈으로 보자.</strong> 지금까지는 평면 위의 벡터를 그렸다. 벡터의 정의에는 차원 제한이 없으므로 3차원도 똑같이 그릴 수 있다. 캔버스를 만드는 함수만 <code>new_axes3d()</code>로 바꾸면 된다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 V = np.array([[2., 1., 0.5], [-1., 2., 1.5], [0.5, -1., 2.]])
 
 fig, ax = new_axes3d(xlim=(-2, 3), ylim=(-2, 3), zlim=(-1, 3))
 draw_vectors(ax, V, labels=['a', 'b', 'c'])
-draw_points(ax, V, color='black', size=25)
-ax.view_init(elev=22, azim=35)     # 보는 각도
-plt.show()</code></pre>
+draw_points(ax, V, color='black', size=5)
+setCam(ax, (1.59, 1.12, 0.79))     # 보는 각도
+fig.show()</code></pre>
 <div class="center"><img class="shot" src="img/ch03/ch03_img01.png" alt="figure"></div>
 <p>화살표의 끝점이 곧 그 벡터의 좌표다(검은 점). 2차원에서 익힌 "화살표와 점, 두 가지로 보기"가 3차원에서도 그대로 통한다는 것을 확인하자. 종이 위의 그림은 각도가 고정되어 있어 답답한데, <code>new_axes3d(..., interactive=True)</code>로 바꾸면 마우스로 돌려 볼 수 있다.</li>
 </ol></p></div></p>
@@ -582,7 +564,7 @@ print(v[:, np.newaxis].shape)</code></pre></li>
 <li>각 학생의 총점을 담은 벡터</li>
 <li>총점이 가장 높은 학생의 인덱스 (힌트: <code>np.argmax</code>)</li>
 </ol></li>
-<li class="ex-item" data-ex="7"><span class="diff"><span class="d2">★★</span></span>  벡터 \((2,3)\), \((-1,2)\), \((0,-3)\)을 화살표로 그리고, 각 화살표 끝에 좌표를 표시하는 코드를 작성하시오. <code>lautils</code>의 <code>draw_vectors()</code>를 사용하시오.</li>
+<li class="ex-item" data-ex="7"><span class="diff"><span class="d2">★★</span></span>  벡터 \((2,3)\), \((-1,2)\), \((0,-3)\)을 화살표로 그리고, 각 화살표 끝에 좌표를 표시하는 코드를 작성하시오. <code>tuvis</code>의 <code>draw_vectors()</code>를 사용하시오.</li>
 <li class="ex-item" data-ex="8"><span class="diff"><span class="d2">★★</span></span>  다음 행렬이 대칭행렬인지 판정하고, 대칭이 아니라면 대칭 부분과 반대칭 부분으로 분해하시오.
 <div class="mathblock">\[
 \mm{A} = \begin{bmatrix} 2 & 5 & 1 \\ 3 & 4 & 0 \\ 7 & 2 & 6 \end{bmatrix}

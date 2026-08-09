@@ -83,7 +83,7 @@
 <div class="nav-ch"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
 </div>
 <div class="nav-ch current"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
-<div class="nav-secs"><a class="nav-sec" href="apxb.html#sec1">함수 목록</a><a class="nav-sec" href="apxb.html#sec2">전체 소스</a><a class="nav-sec" href="apxb.html#sec3">대화형 3차원 — interactive=True</a><a class="nav-sec" href="apxb.html#sec4">확장해 보기</a></div>
+<div class="nav-secs"><a class="nav-sec" href="apxb.html#sec1">함수 목록</a><a class="nav-sec" href="apxb.html#sec2">여러 칸으로 나누어 비교하기</a><a class="nav-sec" href="apxb.html#sec3">전체 소스</a><a class="nav-sec" href="apxb.html#sec4">돌려 보아야 보이는 것들</a><a class="nav-sec" href="apxb.html#sec5">확장해 보기</a></div>
 </div>
 <div class="nav-ch"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
 </div>
@@ -93,407 +93,738 @@
   <div class="ch-label">APPENDIX B</div>
   <h1>시각화 모듈 전체 소스</h1>
 </div>
-<p>2장에서 만든 시각화 모듈의 전체 내용이다. 넘파이와 맷플롯립만 사용하며, 모든 함수는 첫 인자로 캔버스(맷플롯립의 <code>Axes</code> 객체)를 받아 그 위에 그린다. 여러 함수를 연달아 호출해 요소를 겹쳐 그릴 수 있다.</p>
+<p>2장에서 만든 시각화 모듈의 전체 내용이다. 넘파이와 plotly만 사용하며, 모든 함수는 첫 인자로 캔버스(또는 캔버스의 한 칸)를 받아 그 위에 그린다. 여러 함수를 연달아 호출해 요소를 겹쳐 그릴 수 있다.</p>
+<p>2장에서 만든 것은 평면에 필요한 아홉 개였다. 여기 실린 완성본은 거기에 <strong>3차원 캔버스</strong>, <strong>여러 칸 배치</strong>, 그리고 선분·원·평면 같은 도형을 더한 것이다. 이 파일로 바꿔 두면 이 책의 모든 예제가 그대로 돌아간다.</p>
 <h2 id="sec1">함수 목록</h2>
-<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th></tr><tr><td>2@l캔버스</td></tr><tr><td><code>new_axes()</code></td><td>비율이 1:1로 맞춰진 빈 2차원 좌표평면</td></tr><tr><td><code>new_axes3d()</code></td><td>세 축의 비율이 같은 빈 3차원 좌표공간</td></tr><tr><td>2@l벡터와 점</td></tr><tr><td><code>draw_vector()</code></td><td>화살표 하나 (2·3차원 자동 판별, <code>origin</code>으로 시작점 지정)</td></tr><tr><td><code>draw_vectors()</code></td><td>여러 화살표를 팔레트 색으로</td></tr><tr><td><code>draw_points()</code></td><td>행마다 점 하나가 담긴 배열을 산점도로</td></tr><tr><td>2@l도형</td></tr><tr><td><code>draw_polygon()</code></td><td>다각형을 색으로 채우기 (넓이·부피 시각화)</td></tr><tr><td><code>draw_line()</code></td><td>선분·반직선·직선 (<code>kind</code> 인자로 선택)</td></tr><tr><td><code>draw_circle()</code></td><td>원. 3차원에서는 <code>normal</code>에 수직인 평면 위의 원</td></tr><tr><td><code>draw_plane()</code></td><td>점과 법선으로 정해지는 평면</td></tr><tr><td>2@l격자와 행렬</td></tr><tr><td><code>draw_grid()</code></td><td>격자. 행렬을 주면 변환된 격자</td></tr><tr><td><code>draw_matrix()</code></td><td>행렬의 열이 만드는 평행사변형(\(2\times2\))·평행육면체(\(3\times3\))</td></tr><tr><td><code>transform()</code></td><td>점들의 묶음에 행렬을 적용</td></tr><tr><td><code>show_matrix()</code></td><td>행렬을 색과 숫자로 함께 표시</td></tr></table></div></div>
+<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th></tr><tr><td>2@l캔버스</td></tr><tr><td><code>new_axes()</code></td><td>비율이 1:1로 맞춰진 빈 2차원 좌표평면</td></tr><tr><td><code>new_axes3d()</code></td><td>세 축의 비율이 같은 빈 3차원 좌표공간</td></tr><tr><td><code>new_matrix_axes()</code></td><td>행렬을 색으로 볼 히트맵 캔버스</td></tr><tr><td><code>setCam()</code></td><td>카메라의 위치·방향을 직접 지정</td></tr><tr><td>2@l벡터와 점</td></tr><tr><td><code>draw_vector()</code></td><td>화살표 하나 (2·3차원 자동 판별, <code>origin</code>으로 시작점 지정)</td></tr><tr><td><code>draw_vectors()</code></td><td>여러 화살표를 팔레트 색으로</td></tr><tr><td><code>draw_points()</code></td><td>행마다 점 하나가 담긴 배열을 산점도로</td></tr><tr><td><code>draw_text()</code></td><td>지정한 지점에 글자를 놓기</td></tr><tr><td>2@l도형</td></tr><tr><td><code>draw_polygon()</code></td><td>다각형을 색으로 채우기 (넓이·부피 시각화)</td></tr><tr><td><code>draw_line()</code></td><td>선분·반직선·직선 (<code>kind</code> 인자로 선택)</td></tr><tr><td><code>draw_curve()</code></td><td>점들을 이어 만든 곡선 (타원·궤적 등)</td></tr><tr><td><code>draw_circle()</code></td><td>원. 3차원에서는 <code>normal</code>에 수직인 평면 위의 원</td></tr><tr><td><code>draw_plane()</code></td><td>점과 법선, 또는 세 점으로 정해지는 평면</td></tr><tr><td>2@l격자와 행렬</td></tr><tr><td><code>draw_grid()</code></td><td>격자. 행렬을 주면 변환된 격자</td></tr><tr><td><code>draw_matrix()</code></td><td>행렬의 열이 만드는 평행사변형(\(2\times2\))·평행육면체(\(3\times3\))</td></tr><tr><td><code>transform()</code></td><td>점들의 묶음에 행렬을 적용</td></tr><tr><td><code>show_matrix()</code></td><td>행렬을 색과 숫자로 함께 표시</td></tr></table></div></div>
 <p>그 밖에 상수 <code>PALETTE</code>(색 목록), <code>UNIT_SQUARE</code>(단위 정사각형의 네 꼭짓점), <code>UNIT_CUBE</code>(단위 정육면체의 여덟 꼭짓점)가 정의되어 있다.</p>
-<div class="box note"><span class="chip">잠깐</span><span class="box-title">2차원과 3차원을 같은 함수로</span><p><code>draw_vector</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_line</code>, <code>draw_circle</code>은 넘겨받은 배열의 길이를 보고 2차원인지 3차원인지 스스로 판단한다. 따라서 캔버스를 만드는 첫 줄만 <code>new_axes()</code>에서 <code>new_axes3d()</code>로 바꾸면 나머지 코드는 그대로 두어도 된다.</p></div>
-<h2 id="sec2">전체 소스</h2>
-<div class="filecode-wrap"><div class="file-label">lautils.py</div><pre class="filecode"><code class="language-python">"""lautils.py — 『쓸모 있는 선형대수』 시각화 도구
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">2차원과 3차원을 같은 함수로</span><p><code>draw_vector</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_line</code>, <code>draw_circle</code>은 넘겨받은 배열의 길이를 보고 2차원인지 3차원인지 스스로 판단한다. 따라서 캔버스를 만드는 첫 줄만 <code>new_axes()</code>에서 <code>new_axes3d()</code>로 바꾸면 나머지 코드는 그대로 두어도 된다.</p>
+<p>평면 캔버스도 속은 3차원 장면이고, \(z=0\) 평면을 위에서 내려다보도록 카메라를 고정해 둔 것뿐이기 때문이다.</p></div>
+<h2 id="sec2">여러 칸으로 나누어 비교하기</h2>
+<p>변환의 단계를 한 줄로 늘어놓는 그림이 이 책에 자주 나온다. 칸 수를 주면 된다. 돌려받은 목록의 각 칸에 그대로 그리면 되고, <code>titles</code>로 칸마다 제목을 붙인다.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+from tuvis import *
 
-이 책의 그림은 모두 이 모듈로 그린다. 넘파이와 맷플롯립만 있으면 동작한다.
+A = np.array([[1.0, 0.8],
+              [0.3, 1.4]])
 
-    from lautils import *
+fig, axs = new_axes(xlim=(-4, 4), ylim=(-4, 4), ncols=3,
+                    titles=['before', 'A', 'A A'])
+for ax, M in zip(axs, [np.eye(2), A, A @ A]):
+    draw_grid(ax, M, n=3, color='steelblue')
+    draw_polygon(ax, transform(M, UNIT_SQUARE))
+fig.show()</code></pre>
+<div class="listing-caption">코드 B.1: 세 칸을 나란히 놓고 변환을 비교하기</div></p>
+<p>행렬 자체를 색으로 들여다볼 때는 히트맵 캔버스를 쓴다. <code>show_matrix</code>와 짝을 이룬다.</p>
+<pre class="line-numbers"><code class="language-python">fig, axs = new_matrix_axes(ncols=2)
+show_matrix(axs[0], A, title='A')
+show_matrix(axs[1], A @ A, title='A A')
+fig.show()</code></pre>
+<h2 id="sec3">전체 소스</h2>
+<div class="filecode-wrap"><div class="file-label">tuvis.py</div><pre class="filecode"><code class="language-python">"""tuvis.py — 『쓸모 있는 선형대수』 시각화 도구
 
-    fig, ax = new_axes()                    # 2차원 (정적)
-    fig, ax = new_axes3d()                  # 3차원 (정적)
-    fig, ax = new_axes3d(interactive=True)  # 3차원 (마우스로 돌려 보기)
+이 책에서 독자가 import 하는 모듈은 이것 하나다.
 
-    draw_vector(ax, v)                      # 어느 쪽이든 같은 함수를 쓴다
-    draw_matrix(ax, A)
-    draw_points(ax, P)
+    from tuvis import *
 
-캔버스를 만들 때 interactive=True 를 주면 plotly 로 그리는 tuvis 백엔드가
-쓰인다(별도 설치: pip install plotly). 그 뒤로는 함수 이름도 인자도 똑같다.
-어떤 캔버스를 받았는지 그리기 함수가 알아서 판단해 넘겨주기 때문이다.
+    fig, ax = new_axes(xlim=(-3, 3), ylim=(-3, 3))   # 2차원 캔버스
+    draw_vector(ax, [2, 1], label='v')
+    fig.show()
 
-대화형 그림은 마우스로 회전·확대할 수 있어 외적·평행육면체·부분공간처럼
-3차원이라야 보이는 것을 설명할 때 좋다. 다만 결과가 대화형 HTML이라
-인쇄물에는 담을 수 없으므로, 이 책의 지면 도판은 모두 정적 그림이다.
+**모든 그림은 대화형이다.** 마우스로 끌면 돌아가고, 휠을 굴리면 확대된다.
+2차원 그림은 z=0 평면을 위에서 내려다보는 시점으로 고정해 두었을 뿐,
+속은 3차원과 같은 캔버스다. 그래서 2차원에서 쓰던 코드가 3차원에서도
+그대로 동작한다. 바뀌는 것은 캔버스를 만드는 첫 줄뿐이다.
 
-모든 그리기 함수는 첫 인자로 캔버스(ax)를 받아 그 위에 그린다.
+    fig, ax = new_axes()      # 2차원
+    fig, ax = new_axes3d()    # 3차원
+
+여러 칸을 나란히 놓고 비교하고 싶으면 칸 수를 준다.
+
+    fig, axs = new_axes(ncols=3, titles=['before', 'A', 'A^2'])
+    draw_grid(axs[0]); draw_grid(axs[1], A); draw_grid(axs[2], A @ A)
+    fig.show()
+
+행렬을 색으로 들여다볼 때는 히트맵 캔버스를 쓴다.
+
+    fig, axs = new_matrix_axes(ncols=2)
+    show_matrix(axs[0], A, title='A')
+    show_matrix(axs[1], A.T, title='A.T')
+    fig.show()
+
+설치:  pip install plotly
+
+이 모듈은 원래 수업용으로 만든 tuvis의 API(figure2d, draw_vec3d, draw_mat22,
+draw_space_mat22 ...)를 그대로 유지한다. 기존 수업 노트북은 수정 없이 동작한다.
 """
-import functools
-
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-# ---------------------------------------------------------------- 백엔드
+try:
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
+except ImportError as _e:                       # 친절한 안내
+    raise ImportError(
+        "tuvis는 plotly가 필요하다.  pip install plotly"
+    ) from _e
 
-def _is_interactive(ax):
-    """plotly 캔버스인가? (tuvis 로 만든 것)"""
-    return type(ax).__module__.startswith("plotly")
-
-
-def _tuvis():
-    """대화형 백엔드를 필요할 때만 불러온다."""
-    try:
-        import tuvis
-    except ImportError as e:
-        raise ImportError(
-            "대화형 그림에는 tuvis 와 plotly 가 필요하다.\n"
-            "  pip install plotly\n"
-            "정적 그림만 쓰려면 interactive=True 를 빼면 된다."
-        ) from e
-    return tuvis
-
-
-def _backend(fn):
-    """캔버스가 plotly 이면 tuvis 의 같은 이름 함수로 넘긴다.
-
-    덕분에 독자는 lautils 하나만 import 하면 되고, 캔버스를 어떻게 만들었는지에
-    따라 그리기 함수가 알아서 맞는 백엔드로 간다.
-    """
-    @functools.wraps(fn)
-    def wrapper(ax, *args, **kw):
-        if _is_interactive(ax):
-            return getattr(_tuvis(), fn.__name__)(ax, *args, **kw)
-        return fn(ax, *args, **kw)
-    return wrapper
-
-
-# 벡터를 여러 개 그릴 때 순서대로 사용할 색
 PALETTE = ['crimson', 'royalblue', 'seagreen', 'darkorange',
            'purple', 'teal', 'saddlebrown', 'deeppink']
-
-# 단위 정사각형의 네 꼭짓점 (넓이 시각화에 사용)
 UNIT_SQUARE = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
-
-# 단위 정육면체의 여덟 꼭짓점 (부피 시각화에 사용)
 UNIT_CUBE = np.array([[x, y, z] for x in (0., 1.)
                       for y in (0., 1.) for z in (0., 1.)])
 
 
-# ---------------------------------------------------------------- 캔버스
+# ================================================================ 칸(panel)
 
-def new_axes(xlim=(-5, 5), ylim=(-5, 5), figsize=(4.5, 4.5), grid=True,
-             interactive=False):
-    """비율이 1:1로 맞춰진 빈 2차원 좌표평면을 만들어 (fig, ax)를 돌려준다.
+class _Panel:
+    """캔버스의 한 칸. 그리기 함수의 첫 인자로 그대로 넘기면 된다.
 
-    interactive=True 이면 마우스로 조작할 수 있는 plotly 캔버스를 돌려준다.
+    plotly의 Figure 는 칸이 여럿이어도 하나뿐이므로, 어느 칸에 그릴지를
+    기억하는 얇은 껍데기를 씌워 둔다. add_trace 를 대신 받아 row/col 을
+    붙여 넘기는 것이 하는 일의 전부다.
     """
-    if interactive:
-        return _tuvis().new_axes(xlim=xlim, ylim=ylim)
-    fig, ax = plt.subplots(figsize=figsize)
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-    ax.set_aspect('equal')          # 각도와 길이가 왜곡되지 않도록
-    if grid:
-        ax.grid(True, alpha=0.3, lw=0.5)
-    ax.axhline(0, color='black', lw=0.8)
-    ax.axvline(0, color='black', lw=0.8)
-    return fig, ax
+
+    def __init__(self, fig, row, col, name, index):
+        self.fig = fig
+        self.row = row
+        self.col = col
+        self.name = name          # 'scene', 'scene2', ... 또는 'xy'
+        self.index = index        # 1부터
+
+    def add_trace(self, trace, **kw):
+        self.fig.add_trace(trace, row=self.row, col=self.col, **kw)
+        return self
+
+    def set_title(self, text, **kw):
+        """칸 위에 붙은 제목을 바꾼다."""
+        ann = self.fig.layout.annotations
+        if ann and self.index &lt;= len(ann):
+            ann[self.index - 1].text = text
+        return self
+
+    def show(self, *a, **kw):
+        return self.fig.show(*a, **kw)
 
 
-def new_axes3d(xlim=(-2, 2), ylim=(-2, 2), zlim=(-2, 2),
-               figsize=(5, 5), axes_on=True, interactive=False):
-    """빈 3차원 좌표공간을 만들어 (fig, ax)를 돌려준다.
+class _PanelList(list):
+    """칸 목록. axs[0] 로도, axs.flat 으로도 쓸 수 있다."""
 
-    interactive=True 이면 마우스로 돌려 볼 수 있는 plotly 캔버스를 돌려준다.
-    3차원은 각도를 바꿔 볼 수 있어야 이해가 빠르므로 특히 유용하다.
+    @property
+    def flat(self):
+        return iter(self)
+
+
+def _scene(i):
+    return 'scene' if i == 1 else f'scene{i}'
+
+
+def _axpair(i):
+    return ('x', 'y') if i == 1 else (f'x{i}', f'y{i}')
+
+
+def _titles(n, titles):
+    """subplot_titles 는 처음부터 자리를 잡아 두어야 나중에 바꿀 수 있다.
+
+    빈 문자열은 plotly가 자리를 만들지 않으므로 공백 하나를 넣어 둔다.
     """
-    if interactive:
-        return _tuvis().new_axes3d(xlim=xlim, ylim=ylim, zlim=zlim)
-    fig = plt.figure(figsize=figsize)
-    ax = fig.add_subplot(111, projection='3d')
-    ax.set_xlim(*xlim)
-    ax.set_ylim(*ylim)
-    ax.set_zlim(*zlim)
-    ax.set_box_aspect((1, 1, 1))    # 세 축의 비율을 같게
-    ax.set_xlabel('x'); ax.set_ylabel('y'); ax.set_zlabel('z')
-    if axes_on:                     # 원점을 지나는 좌표축
-        ax.plot(xlim, (0, 0), (0, 0), color='black', lw=0.8, alpha=0.5)
-        ax.plot((0, 0), ylim, (0, 0), color='black', lw=0.8, alpha=0.5)
-        ax.plot((0, 0), (0, 0), zlim, color='black', lw=0.8, alpha=0.5)
-    return fig, ax
+    if titles is None:
+        return [' '] * n
+    return [t or ' ' for t in titles] + [' '] * (n - len(titles))
 
 
-def _is3d(ax):
-    return hasattr(ax, 'get_zlim')
+# ================================================================ 캔버스
+
+def _decorate2d(p, x, y):
+    """2차원 칸에 배경·좌표축·격자를 깔아 준다."""
+    cx = [x[0], x[1], x[1], x[0]]
+    cy = [y[0], y[0], y[1], y[1]]
+    p.add_trace(go.Mesh3d(x=cx, y=cy, z=[0, 0, 0, 0], i=[0, 0], j=[1, 2], k=[2, 3],
+                          color='rgba(248, 250, 255, 0.3)', opacity=1.0,
+                          showlegend=False, hoverinfo='skip'))
+    for gx in range(int(np.ceil(x[0])), int(np.floor(x[1])) + 1):
+        p.add_trace(go.Scatter3d(x=[gx, gx], y=list(y), z=[0, 0], mode='lines',
+                                 line=dict(color='lightgray', width=1), opacity=0.6,
+                                 showlegend=False, hoverinfo='skip'))
+    for gy in range(int(np.ceil(y[0])), int(np.floor(y[1])) + 1):
+        p.add_trace(go.Scatter3d(x=list(x), y=[gy, gy], z=[0, 0], mode='lines',
+                                 line=dict(color='lightgray', width=1), opacity=0.6,
+                                 showlegend=False, hoverinfo='skip'))
+    for a, b in [((x[0], x[1]), (0, 0)), ((0, 0), (y[0], y[1]))]:
+        p.add_trace(go.Scatter3d(x=list(a), y=list(b), z=[0, 0], mode='lines',
+                                 line=dict(color='gray', width=3), opacity=0.5,
+                                 showlegend=False, hoverinfo='skip'))
 
 
-# ---------------------------------------------------------------- 벡터
+def _scene_grid(kind, nrows, ncols, titles, xlim, ylim, zlim,
+                width, height, title, labels=('x', 'y', 'z')):
+    """scene 타입 칸을 nrows x ncols 로 만든다."""
+    n = nrows * ncols
+    fig = make_subplots(rows=nrows, cols=ncols,
+                        specs=[[{'type': 'scene'}] * ncols for _ in range(nrows)],
+                        subplot_titles=_titles(n, titles),
+                        horizontal_spacing=0.02, vertical_spacing=0.06)
+    panels = _PanelList()
+    for r in range(1, nrows + 1):
+        for c in range(1, ncols + 1):
+            i = (r - 1) * ncols + c
+            p = _Panel(fig, r, c, _scene(i), i)
+            panels.append(p)
+            if kind == '2d':
+                _decorate2d(p, xlim, ylim)
+                zspan = max(xlim[1] - xlim[0], ylim[1] - ylim[0]) * 0.01
+                sc = dict(xaxis=dict(range=list(xlim), title=labels[0]),
+                          yaxis=dict(range=list(ylim), title=labels[1]),
+                          zaxis=dict(range=[-zspan, zspan], visible=False),
+                          aspectmode='manual',
+                          aspectratio=dict(x=1, y=(ylim[1] - ylim[0]) /
+                                           (xlim[1] - xlim[0]), z=0.001),
+                          camera=dict(eye=dict(x=0, y=0, z=2.0),
+                                      center=dict(x=0, y=0, z=0),
+                                      up=dict(x=0, y=1, z=0),
+                                      projection=dict(type='orthographic')))
+            else:
+                sc = dict(xaxis=dict(range=list(xlim), title=labels[0]),
+                          yaxis=dict(range=list(ylim), title=labels[1]),
+                          zaxis=dict(range=list(zlim), title=labels[2]),
+                          aspectmode='cube')
+            fig.update_layout(**{_scene(i): sc})
+    fig.update_layout(title=title,
+                      width=width or 380 * ncols + 40,
+                      height=height or 380 * nrows + 40,
+                      margin=dict(l=0, r=0, t=50, b=0))
+    return fig, panels
 
-@_backend
-def draw_vector(ax, v, origin=None, color='crimson', label=None,
+
+def new_axes(xlim=(-5, 5), ylim=(-5, 5), nrows=1, ncols=1, titles=None,
+             xlabel='x', ylabel='y', width=None, height=None, title='',
+             figsize=None, grid=True, **kw):
+    """빈 2차원 캔버스를 만들어 (fig, ax)를 돌려준다.
+
+    칸이 하나면 ax 는 그 칸, 여럿이면 칸들의 목록이다.
+    figsize·grid 는 옛 코드와의 호환을 위해 받기만 하고 쓰지 않는다.
+    """
+    fig, panels = _scene_grid('2d', nrows, ncols, titles, xlim, ylim, None,
+                              width, height, title, (xlabel, ylabel, 'z'))
+    return fig, (panels[0] if len(panels) == 1 else panels)
+
+
+def new_axes3d(xlim=(-2, 2), ylim=(-2, 2), zlim=(-2, 2), nrows=1, ncols=1,
+               titles=None, xlabel='x', ylabel='y', zlabel='z',
+               width=None, height=None, title='', figsize=None,
+               axes_on=True, **kw):
+    """빈 3차원 캔버스를 만들어 (fig, ax)를 돌려준다."""
+    fig, panels = _scene_grid('3d', nrows, ncols, titles, xlim, ylim, zlim,
+                              width, height, title, (xlabel, ylabel, zlabel))
+    return fig, (panels[0] if len(panels) == 1 else panels)
+
+
+def new_matrix_axes(nrows=1, ncols=1, titles=None, width=None, height=None,
+                    title=''):
+    """행렬을 색으로 보여 줄 히트맵 캔버스를 만든다. show_matrix 와 짝이다."""
+    n = nrows * ncols
+    fig = make_subplots(rows=nrows, cols=ncols,
+                        subplot_titles=_titles(n, titles),
+                        horizontal_spacing=0.06, vertical_spacing=0.12)
+    panels = _PanelList()
+    for r in range(1, nrows + 1):
+        for c in range(1, ncols + 1):
+            i = (r - 1) * ncols + c
+            panels.append(_Panel(fig, r, c, 'xy', i))
+            xa, ya = _axpair(i)
+            fig.update_layout(**{
+                'xaxis' + xa[1:]: dict(visible=False),
+                'yaxis' + ya[1:]: dict(visible=False, autorange='reversed',
+                                       scaleanchor=xa),
+            })
+    fig.update_layout(title=title,
+                      width=width or 300 * ncols + 40,
+                      height=height or 300 * nrows + 60,
+                      margin=dict(l=10, r=10, t=50, b=10))
+    return fig, (panels[0] if len(panels) == 1 else panels)
+
+
+def figure2d(x=(-5, 5), y=(-5, 5), title='', width=600, height=600, **kw):
+    """z=0 평면을 위에서 내려다보는 2차원 캔버스 (수업용 원래 API)."""
+    fig, _ = _scene_grid('2d', 1, 1, None, x, y, None, width, height, title)
+    return fig
+
+
+def figure3d(x=(-1, 1), y=(-1, 1), z=(-1, 1), title='', width=600, height=600):
+    """세 축의 비율이 같은 3차원 캔버스 (수업용 원래 API)."""
+    fig, _ = _scene_grid('3d', 1, 1, None, x, y, z, width, height, title)
+    return fig
+
+
+def setCam(fig, eye, target=(0, 0, 0), up=(0, 0, 1)):
+    """카메라의 위치(eye), 바라보는 지점(target), 위 방향(up)을 지정한다."""
+    f = fig.fig if isinstance(fig, _Panel) else fig
+    name = fig.name if isinstance(fig, _Panel) else 'scene'
+    f.update_layout(**{name: dict(camera=dict(
+        eye=dict(x=eye[0], y=eye[1], z=eye[2]),
+        center=dict(x=target[0], y=target[1], z=target[2]),
+        up=dict(x=up[0], y=up[1], z=up[2])))})
+    return fig
+
+
+# ================================================================ 내부 유틸
+
+def _dash(style):
+    """'-', '--', ':' 또는 'solid', 'dashed', 'dotted'를 plotly 표기로."""
+    return {'-': 'solid', '--': 'dash', ':': 'dot', '-.': 'dashdot',
+            'solid': 'solid', 'dashed': 'dash', 'dotted': 'dot'}.get(style, 'solid')
+
+
+def _to3(v):
+    """2차원 벡터를 z=0을 붙여 3차원으로 만든다."""
+    v = np.asarray(v, dtype=float)
+    return np.array([v[0], v[1], 0.0]) if v.shape == (2,) else v
+
+
+def _cone(tip, base, radius=0.06, n=12):
+    """화살촉으로 쓸 원뿔 메시를 만든다."""
+    d = tip - base
+    L = np.linalg.norm(d)
+    if L &lt; 1e-10:
+        return (None,) * 6
+    d = d / L
+    arb = np.array([1., 0., 0.]) if abs(d @ np.array([1., 0., 0.])) &lt; 0.9 \
+        else np.array([0., 1., 0.])
+    p1 = np.cross(d, arb); p1 /= np.linalg.norm(p1)
+    p2 = np.cross(d, p1)
+    th = np.linspace(0, 2 * np.pi, n + 1)[:-1]
+    ring = np.array([base + radius * (np.cos(t) * p1 + np.sin(t) * p2) for t in th])
+    verts = np.vstack([ring, [tip], [base]])
+    i, j, k = [], [], []
+    for a in range(n):
+        b = (a + 1) % n
+        i += [a, a]; j += [b, b]; k += [n, n + 1]
+    return verts[:, 0], verts[:, 1], verts[:, 2], i, j, k
+
+
+# ================================================================ 벡터
+
+def draw_vec3d(fig, v, color='crimson', start_from=None, alpha=1.0, label=None,
+               cone_ratio=0.12, cone_radius=None, lineType='solid'):
+    """3차원 화살표(선분 + 원뿔 화살촉)를 그린다.
+
+    cone_radius 를 주지 않으면 화살촉 크기를 화살표 길이에 맞춘다.
+    그래야 좌표 범위가 큰 그림에서도 촉이 보인다.
+    """
+    v = np.asarray(v, dtype=float)
+    s = np.zeros(3) if start_from is None else np.asarray(start_from, dtype=float)
+    end = s + v
+    L = np.linalg.norm(v)
+    if L &lt; 1e-10:
+        return fig
+    base = end - (v / L) * (L * cone_ratio)
+    if cone_radius is None:
+        cone_radius = 0.38 * L * cone_ratio
+
+    fig.add_trace(go.Scatter3d(x=[s[0], base[0]], y=[s[1], base[1]],
+                               z=[s[2], base[2]], mode='lines',
+                               line=dict(color=color, width=4, dash=_dash(lineType)),
+                               opacity=alpha, showlegend=False))
+    if cone_radius &gt; 0:
+        cx, cy, cz, ci, cj, ck = _cone(end, base, radius=cone_radius)
+        if cx is not None:
+            fig.add_trace(go.Mesh3d(x=cx, y=cy, z=cz, i=ci, j=cj, k=ck,
+                                    color=color, opacity=alpha, showlegend=False))
+    if label is not None:
+        m = s + v / 2
+        fig.add_trace(go.Scatter3d(x=[m[0]], y=[m[1]], z=[m[2]], mode='text',
+                                   text=[label], textfont=dict(size=12, color=color),
+                                   showlegend=False))
+    return fig
+
+
+def draw_vec2d(fig, v, color='crimson', start_from=None, alpha=1.0, label=None,
+               cone_ratio=0.12, cone_radius=None, lineType='solid'):
+    """z=0 평면 위에 2차원 화살표를 그린다."""
+    return draw_vec3d(fig, _to3(v), color=color,
+                      start_from=None if start_from is None else _to3(start_from),
+                      alpha=alpha, label=label, cone_ratio=cone_ratio,
+                      cone_radius=cone_radius, lineType=lineType)
+
+
+def draw_vector(fig, v, origin=None, color='crimson', label=None,
                 width=0.012, alpha=1.0, linestyle='-'):
     """원점(또는 지정한 시작점)에서 v 방향으로 화살표를 그린다. 2D/3D 공용."""
     v = np.asarray(v, dtype=float)
-    dim = len(v)
-    o = np.zeros(dim) if origin is None else np.asarray(origin, dtype=float)
-
-    if dim == 2:
-        ax.quiver(o[0], o[1], v[0], v[1],
-                  angles='xy', scale_units='xy', scale=1,
-                  color=color, width=width, alpha=alpha,
-                  linestyle=linestyle, zorder=3)
-    else:
-        ax.quiver(o[0], o[1], o[2], v[0], v[1], v[2],
-                  color=color, alpha=alpha, linestyle=linestyle,
-                  arrow_length_ratio=0.12, lw=width * 120)
-
-    if label is not None:
-        mid = o + v * 0.55                      # 화살표 중간쯤에 이름표
-        if dim == 2:
-            ax.text(mid[0] + 0.12, mid[1] + 0.12, label,
-                    color=color, fontsize=10)
-        else:
-            ax.text(mid[0], mid[1], mid[2], label, color=color, fontsize=10)
-    return ax
+    return draw_vec3d(fig, _to3(v), color=color,
+                      start_from=None if origin is None else _to3(origin),
+                      alpha=alpha, label=label, lineType=_dash(linestyle))
 
 
-@_backend
-def draw_vectors(ax, vs, origin=None, labels=None, alpha=1.0):
+def draw_vectors(fig, vs, origin=None, labels=None, alpha=1.0):
     """여러 벡터를 PALETTE 순서대로 색을 바꿔 가며 그린다."""
-    vs = np.asarray(vs, dtype=float)
-    for i, v in enumerate(vs):
-        lab = None if labels is None else labels[i]
-        draw_vector(ax, v, origin=origin, color=PALETTE[i % len(PALETTE)],
-                    label=lab, alpha=alpha)
-    return ax
+    for i, v in enumerate(np.asarray(vs, dtype=float)):
+        draw_vector(fig, v, origin=origin, color=PALETTE[i % len(PALETTE)],
+                    label=None if labels is None else labels[i], alpha=alpha)
+    return fig
 
 
-# ---------------------------------------------------------------- 점·도형
+# ================================================================ 점·도형
 
-@_backend
-def draw_points(ax, P, color='darkorange', size=40, label=None,
-                labels=None, marker='o', s=None):
-    """행마다 점 하나가 담긴 배열 P를 산점도로 찍는다. 2D/3D 공용."""
-    P = np.atleast_2d(np.asarray(P, dtype=float))
-    size = size if s is None else s             # s= 로도 쓸 수 있게
-    if P.shape[1] == 2:
-        ax.scatter(P[:, 0], P[:, 1], s=size, color=color, marker=marker,
-                   label=label, zorder=4)
+def draw_points(fig, P, color='darkorange', size=4, label=None, labels=None,
+                marker='o', s=None):
+    """행마다 점 하나가 담긴 배열 P를 찍는다. 2차원은 z=0 평면 위에 놓인다."""
+    pts = np.array([_to3(p) for p in np.atleast_2d(np.asarray(P, dtype=float))])
+    size = size if s is None else max(s / 10, 2)
+    fig.add_trace(go.Scatter3d(
+        x=pts[:, 0], y=pts[:, 1], z=pts[:, 2],
+        mode='markers+text' if labels else 'markers',
+        marker=dict(size=size, color=color),
+        text=labels, textposition='top center', textfont=dict(size=10),
+        name=label or '', showlegend=False))
+    return fig
+
+
+def draw_points_in_matrix(fig, M, color='crimson', size=4):
+    """열마다 점 하나가 담긴 행렬(2xN 또는 3xN)의 점들을 찍는다."""
+    return draw_points(fig, np.asarray(M, dtype=float).T, color=color, size=size)
+
+
+def draw_curve(fig, X, Y=None, Z=None, color='steelblue', linestyle='-',
+               width=3, alpha=1.0, label=None, mode='lines'):
+    """이어진 곡선을 그린다.
+
+        draw_curve(ax, P)            행마다 점 하나가 담긴 배열
+        draw_curve(ax, xs, ys)       x 좌표 목록과 y 좌표 목록
+        draw_curve(ax, xs, ys, zs)   3차원
+    """
+    if Y is None:
+        pts = np.array([_to3(p) for p in np.asarray(X, dtype=float)])
     else:
-        ax.scatter(P[:, 0], P[:, 1], P[:, 2], s=size, color=color,
-                   marker=marker, label=label)
-    if labels is not None:                      # 점마다 이름표
-        for p, t in zip(P, labels):
-            if P.shape[1] == 2:
-                ax.text(p[0], p[1], f' {t}', fontsize=9, color=color)
-            else:
-                ax.text(p[0], p[1], p[2], f' {t}', fontsize=9, color=color)
-    return ax
+        zs = np.zeros_like(np.asarray(X, dtype=float)) if Z is None \
+            else np.asarray(Z, dtype=float)
+        pts = np.column_stack([np.asarray(X, dtype=float),
+                               np.asarray(Y, dtype=float), zs])
+    fig.add_trace(go.Scatter3d(x=pts[:, 0], y=pts[:, 1], z=pts[:, 2],
+                               mode=mode,
+                               line=dict(color=color, width=width,
+                                         dash=_dash(linestyle)),
+                               marker=dict(size=3, color=color),
+                               opacity=alpha, name=label or '',
+                               showlegend=label is not None))
+    return fig
 
 
-@_backend
-def draw_polygon(ax, P, color='goldenrod', alpha=0.35, edge=True):
-    """꼭짓점 목록 P가 이루는 다각형을 색으로 채운다 (넓이·부피 표현용)."""
-    P = np.asarray(P, dtype=float)
-    if P.shape[1] == 2:
-        ax.fill(P[:, 0], P[:, 1], color=color, alpha=alpha, zorder=1)
-        if edge:
-            loop = np.vstack([P, P[0]])         # 마지막 점을 처음과 이어 닫기
-            ax.plot(loop[:, 0], loop[:, 1], color=color, lw=1.2, zorder=2)
-    else:
-        poly = Poly3DCollection([P], alpha=alpha, facecolor=color,
-                                edgecolor=color if edge else 'none')
-        ax.add_collection3d(poly)
-    return ax
+def draw_text(fig, p, text, color='black', size=12):
+    """한 지점에 글자를 놓는다."""
+    q = _to3(p)
+    fig.add_trace(go.Scatter3d(x=[q[0]], y=[q[1]], z=[q[2]], mode='text',
+                               text=[text], textfont=dict(size=size, color=color),
+                               showlegend=False))
+    return fig
 
 
-@_backend
-def draw_line(ax, p1, p2, kind='segment', color='steelblue', alpha=0.9,
-              scale=3.0, label=None, linestyle='-'):
-    """두 점으로 정해지는 선을 그린다. kind='segment' | 'ray' | 'line'."""
-    p1 = np.asarray(p1, dtype=float)
-    p2 = np.asarray(p2, dtype=float)
-    d = p2 - p1
-    n = np.linalg.norm(d)
-    if n &lt; 1e-12:
-        return ax
-    u = d / n
+def draw_polygon(fig, P, color='goldenrod', alpha=0.35, edge=True):
+    """꼭짓점 목록이 이루는 다각형을 색으로 채운다 (0번 꼭짓점 기준 부채꼴 분할)."""
+    pts = np.array([_to3(p) for p in np.asarray(P, dtype=float)])
+    n = len(pts)
+    if n &lt; 3:
+        return fig
+    i = [0] * (n - 2)
+    j = list(range(1, n - 1))
+    k = list(range(2, n))
+    fig.add_trace(go.Mesh3d(x=pts[:, 0], y=pts[:, 1], z=pts[:, 2],
+                            i=i, j=j, k=k, color=color, opacity=alpha,
+                            showlegend=False))
+    if edge:
+        loop = np.vstack([pts, pts[0]])
+        fig.add_trace(go.Scatter3d(x=loop[:, 0], y=loop[:, 1], z=loop[:, 2],
+                                   mode='lines', line=dict(color=color, width=3),
+                                   showlegend=False))
+    return fig
+
+
+def draw_polygons(fig, polygon_list, facecolors, alpha=0.8):
+    """여러 개의 다각형을 한꺼번에 그린다 (수업용 원래 API)."""
+    for poly, fc in zip(polygon_list, facecolors):
+        draw_polygon(fig, poly, color=fc, alpha=alpha, edge=False)
+    return fig
+
+
+def draw_line(fig, p1, p2, kind='segment', color='steelblue', alpha=0.9,
+              scale=3.0, label=None, linestyle='-', type=None, cone_radius=None):
+    """두 점으로 정해지는 선을 그린다. kind='segment' | 'ray' | 'line'.
+
+    수업용 원래 API의 type= 인자도 그대로 받는다.
+    """
+    kind = type or kind
+    a = _to3(p1); b = _to3(p2)
+    d = b - a
+    L = np.linalg.norm(d)
+    if L &lt; 1e-12:
+        return fig
+    u = d / L
     if kind == 'segment':
-        a, b = p1, p2
+        s, e = a, b
     elif kind == 'ray':
-        a, b = p1, p1 + d * scale
-    else:                                       # 'line' — 양쪽으로 연장
-        mid = (p1 + p2) / 2
-        half = n * scale / 2
-        a, b = mid - u * half, mid + u * half
-    seg = np.vstack([a, b])
-    if seg.shape[1] == 2:
-        ax.plot(seg[:, 0], seg[:, 1], color=color, alpha=alpha,
-                lw=1.6, ls=linestyle, zorder=2)
+        s, e = a, a + d * scale
     else:
-        ax.plot(seg[:, 0], seg[:, 1], seg[:, 2], color=color, alpha=alpha,
-                lw=1.6, ls=linestyle)
+        mid = (a + b) / 2
+        s, e = mid - u * (L * scale / 2), mid + u * (L * scale / 2)
+
+    fig.add_trace(go.Scatter3d(x=[s[0], e[0]], y=[s[1], e[1]], z=[s[2], e[2]],
+                               mode='lines',
+                               line=dict(color=color, width=4, dash=_dash(linestyle)),
+                               opacity=alpha, showlegend=False))
+    heads = []
+    if kind == 'ray':
+        heads = [(e, e - u * L * 0.1)]
+    elif kind == 'line':
+        heads = [(e, e - u * L * 0.1), (s, s + u * L * 0.1)]
+    for tip, base in heads:
+        cx, cy, cz, ci, cj, ck = _cone(
+            tip, base, radius=cone_radius or 0.04 * L)
+        if cx is not None:
+            fig.add_trace(go.Mesh3d(x=cx, y=cy, z=cz, i=ci, j=cj, k=ck,
+                                    color=color, opacity=alpha, showlegend=False))
     if label is not None:
-        m = (p1 + p2) / 2
-        (ax.text(m[0], m[1], f' {label}', color=color, fontsize=9)
-         if len(m) == 2 else
-         ax.text(m[0], m[1], m[2], f' {label}', color=color, fontsize=9))
-    return ax
+        m = (a + b) / 2
+        fig.add_trace(go.Scatter3d(x=[m[0]], y=[m[1]], z=[m[2]], mode='text',
+                                   text=[label], textfont=dict(size=12, color=color),
+                                   showlegend=False))
+    return fig
 
 
-@_backend
-def draw_circle(ax, center=(0, 0), radius=1.0, normal=None, color='steelblue',
-                alpha=1.0, fill=False, n=100, linestyle='-'):
+def draw_circle(fig, center=(0, 0), radius=1.0, normal=None, color='steelblue',
+                alpha=0.5, fill=True, n=64, linestyle='-'):
     """원을 그린다. 3차원에서는 normal에 수직인 평면 위의 원이 된다."""
-    t = np.linspace(0, 2 * np.pi, n)
-    center = np.asarray(center, dtype=float)
-    if len(center) == 2:
-        ring = center + np.column_stack([radius * np.cos(t), radius * np.sin(t)])
-    else:
-        nrm = np.asarray(normal if normal is not None else [0, 0, 1], float)
-        nrm = nrm / np.linalg.norm(nrm)
-        arb = np.array([1., 0., 0.]) if abs(nrm[0]) &lt; 0.9 else np.array([0., 1., 0.])
-        t1 = np.cross(nrm, arb); t1 /= np.linalg.norm(t1)   # 평면 위의 두 축
-        t2 = np.cross(nrm, t1)
-        ring = center + radius * (np.outer(np.cos(t), t1) + np.outer(np.sin(t), t2))
+    c = _to3(center)
+    nrm = np.asarray(normal if normal is not None else [0., 0., 1.], dtype=float)
+    nrm = nrm / np.linalg.norm(nrm)
+    arb = np.array([1., 0., 0.]) if abs(nrm @ np.array([1., 0., 0.])) &lt; 0.9 \
+        else np.array([0., 1., 0.])
+    t1 = np.cross(nrm, arb); t1 /= np.linalg.norm(t1)
+    t2 = np.cross(nrm, t1)
+    th = np.linspace(0, 2 * np.pi, n + 1)[:-1]
+    ring = np.array([c + radius * (np.cos(t) * t1 + np.sin(t) * t2) for t in th])
+
     if fill:
-        draw_polygon(ax, ring, color=color, alpha=alpha * 0.3)
-    if ring.shape[1] == 2:
-        ax.plot(ring[:, 0], ring[:, 1], color=color, alpha=alpha,
-                lw=1.4, ls=linestyle)
-    else:
-        ax.plot(ring[:, 0], ring[:, 1], ring[:, 2], color=color, alpha=alpha,
-                lw=1.4, ls=linestyle)
-    return ax
+        verts = np.vstack([c.reshape(1, 3), ring])
+        i = [0] * n
+        j = list(range(1, n + 1))
+        k = [(idx % n) + 1 for idx in range(1, n + 1)]
+        fig.add_trace(go.Mesh3d(x=verts[:, 0], y=verts[:, 1], z=verts[:, 2],
+                                i=i, j=j, k=k, color=color, opacity=alpha,
+                                showlegend=False))
+    loop = np.vstack([ring, ring[0:1]])
+    fig.add_trace(go.Scatter3d(x=loop[:, 0], y=loop[:, 1], z=loop[:, 2],
+                               mode='lines',
+                               line=dict(color=color, width=3, dash=_dash(linestyle)),
+                               opacity=min(alpha + 0.3, 1.0), showlegend=False))
+    return fig
 
 
-@_backend
-def draw_plane(ax, p, normal, r=2.0, color='goldenrod', alpha=0.25,
-               show_normal=True):
-    """점 p를 지나고 normal에 수직인 평면을 반지름 r인 원판으로 그린다."""
-    draw_circle(ax, center=p, radius=r, normal=normal, color=color,
-                alpha=alpha, fill=True)
+def draw_circle_3d(fig, center, normal, radius, color='steelblue', alpha=0.3,
+                   n_segments=64, lineType='solid'):
+    """수업용 원래 API — draw_circle의 인자 순서만 다른 형태."""
+    return draw_circle(fig, center, radius, normal=normal, color=color,
+                       alpha=alpha, n=n_segments, linestyle=lineType)
+
+
+def draw_circle_2d(fig, center=(0, 0), radius=1.0, color='steelblue', alpha=0.5,
+                   n_segments=64, lineType='solid'):
+    """z=0 평면 위의 원."""
+    return draw_circle(fig, center, radius, normal=[0, 0, 1], color=color,
+                       alpha=alpha, n=n_segments, linestyle=lineType)
+
+
+def draw_plane(fig, a, b, c=None, r=2.0, color='goldenrod', alpha=0.25,
+               show_normal=True, **kw):
+    """평면을 그린다. 두 가지 방식을 모두 받는다.
+
+        draw_plane(fig, p, normal)        점 하나와 법선벡터
+        draw_plane(fig, p1, p2, p3)       세 점 (수업용 원래 API)
+    """
+    if c is None:                                   # 점 + 법선
+        p = np.asarray(a, dtype=float)
+        n = np.asarray(b, dtype=float)
+    else:                                           # 세 점
+        p1, p2, p3 = (np.asarray(t, dtype=float) for t in (a, b, c))
+        p = (p1 + p2 + p3) / 3.0
+        n = np.cross(p2 - p1, p3 - p1)
+        draw_polygon(fig, np.vstack([p1, p2, p3]), color='cyan', alpha=0.6)
+    draw_circle(fig, p, r, normal=n, color=color, alpha=alpha)
     if show_normal:
-        n = np.asarray(normal, dtype=float)
-        draw_vector(ax, n / np.linalg.norm(n), origin=p,
-                    color='crimson', label='n')
-    return ax
+        draw_vector(fig, n / np.linalg.norm(n), origin=p, color='crimson', label='n')
+    return fig
 
 
-# ---------------------------------------------------------------- 격자·행렬
+def draw_plane_from_normal(fig, p, n, r=3, plane_color='goldenrod',
+                           plane_alpha=0.2, lineType='solid'):
+    """수업용 원래 API — 점과 법선으로 평면을 그린다."""
+    return draw_plane(fig, p, n, r=r, color=plane_color, alpha=plane_alpha)
 
-@_backend
-def draw_grid(ax, A=None, n=4, color='steelblue', alpha=0.55, lw=0.7):
+
+# ================================================================ 격자·행렬
+
+def draw_grid(fig, A=None, n=4, color='steelblue', alpha=0.55, lw=1):
     """단위 격자를 그린다. 행렬 A를 주면 A로 변환된 격자를 그린다."""
     A = np.eye(2) if A is None else np.asarray(A, dtype=float)
-    t = np.linspace(-n, n, 2 * n + 1)           # 격자선의 위치
-    s = np.linspace(-n, n, 40)                  # 선 위의 표본점
-    for k in t:
-        horiz = np.vstack([s, np.full_like(s, k)])   # 가로선 (2, 40)
-        vert = np.vstack([np.full_like(s, k), s])    # 세로선 (2, 40)
-        for line in (horiz, vert):
-            q = A @ line                             # 각 점에 A를 적용
-            ax.plot(q[0], q[1], color=color, alpha=alpha, lw=lw, zorder=0)
-    return ax
+    u = _to3(A[:, 0]); v = _to3(A[:, 1])
+    for i in range(-n, n + 1):
+        for base, along in ((u, v), (v, u)):
+            s = base * i - along * n
+            e = s + along * 2 * n
+            fig.add_trace(go.Scatter3d(x=[s[0], e[0]], y=[s[1], e[1]],
+                                       z=[s[2], e[2]], mode='lines',
+                                       line=dict(color=color, width=lw),
+                                       opacity=alpha, showlegend=False,
+                                       hoverinfo='skip'))
+    return fig
 
 
-@_backend
-def draw_matrix(ax, M, label=None, alpha=0.3, ghost=True):
-    """행렬의 열벡터가 만드는 평행사변형(2x2) 또는 평행육면체(3x3)를 그린다.
-
-    각 열벡터를 서로 다른 색의 화살표로, 그 벡터들이 이루는 도형을 옅은
-    면으로 표시한다. 행렬식의 절댓값이 곧 이 도형의 넓이(부피)다.
-    """
+def draw_matrix(fig, M, label=None, alpha=0.3, ghost=True):
+    """행렬의 열벡터가 만드는 평행사변형(2x2) 또는 평행육면체(3x3)를 그린다."""
     M = np.asarray(M, dtype=float)
-    cols = [M[:, j] for j in range(M.shape[1])]
-
     if M.shape == (2, 2):
-        u, v = cols
-        draw_polygon(ax, np.array([[0, 0], u, u + v, v]), alpha=alpha)
-        draw_vector(ax, u, color='crimson')
-        draw_vector(ax, v, color='seagreen')
-        if ghost:                                   # 나머지 두 변
-            draw_vector(ax, u, origin=v, color='gray', alpha=0.3, width=0.006)
-            draw_vector(ax, v, origin=u, color='gray', alpha=0.3, width=0.006)
+        u, v = _to3(M[:, 0]), _to3(M[:, 1])
+        draw_polygon(fig, np.vstack([np.zeros(3), u, u + v, v]), alpha=alpha)
+        draw_vec3d(fig, u, color='crimson')
+        draw_vec3d(fig, v, color='seagreen')
+        if ghost:
+            draw_vec3d(fig, u, color='gray', start_from=v, alpha=0.25,
+                       cone_ratio=0, cone_radius=0)
+            draw_vec3d(fig, v, color='gray', start_from=u, alpha=0.25,
+                       cone_ratio=0, cone_radius=0)
         corner = u + v
     elif M.shape == (3, 3):
-        u, v, w = cols
-        for vec, c in zip(cols, ['crimson', 'seagreen', 'royalblue']):
-            draw_vector(ax, vec, color=c)
-        for a, b in [(u, v), (u, w), (v, w),        # 평행육면체의 나머지 모서리
-                     (u, v + w), (v, u + w), (w, u + v)]:
-            draw_vector(ax, a, origin=b, color='gray', alpha=0.25, width=0.004)
-        for f in [[np.zeros(3), u, u + v, v], [np.zeros(3), u, u + w, w],
-                  [np.zeros(3), v, v + w, w], [w, u + w, u + v + w, v + w],
-                  [v, u + v, u + v + w, v + w], [u, u + v, u + v + w, u + w]]:
-            draw_polygon(ax, np.array(f), alpha=alpha * 0.5, edge=False)
+        u, v, w = M[:, 0], M[:, 1], M[:, 2]
+        for vec, col in zip((u, v, w), ('crimson', 'seagreen', 'royalblue')):
+            draw_vec3d(fig, vec, color=col)
+        if ghost:
+            for vec, org in [(u, v), (u, w), (u, v + w), (v, u), (v, w),
+                             (v, u + w), (w, u), (w, v), (w, u + v)]:
+                draw_vec3d(fig, vec, color='gray', start_from=org, alpha=0.25,
+                           cone_ratio=0, cone_radius=0)
         corner = u + v + w
     else:
         raise ValueError('draw_matrix는 2x2 또는 3x3 행렬만 지원한다')
 
     if label is not None:
-        (ax.text(corner[0], corner[1], f' {label}', fontsize=10)
-         if len(corner) == 2 else
-         ax.text(corner[0], corner[1], corner[2], f' {label}', fontsize=10))
-    return ax
+        fig.add_trace(go.Scatter3d(x=[corner[0]], y=[corner[1]], z=[corner[2]],
+                                   mode='text', text=[label],
+                                   textfont=dict(size=12), showlegend=False))
+    return fig
+
+
+def draw_mat22(fig, M, label=None):
+    """수업용 원래 API — 2x2 행렬을 평행사변형으로."""
+    return draw_matrix(fig, M, label=label)
+
+
+def draw_mat33(fig, M, label=None):
+    """수업용 원래 API — 3x3 행렬을 평행육면체로."""
+    return draw_matrix(fig, M, label=label)
+
+
+def draw_space_mat22(fig, M, label=None, color='gray', alpha=0.2):
+    """수업용 원래 API — 2x2 행렬이 만드는 변환된 격자 공간."""
+    draw_matrix(fig, M, label=label)
+    return draw_grid(fig, M, n=10, color=color, alpha=alpha)
 
 
 def transform(A, P):
     """행마다 점 하나가 담긴 배열 P의 모든 점에 행렬 A를 적용한다."""
-    A = np.asarray(A, dtype=float)
-    P = np.asarray(P, dtype=float)
-    return (A @ P.T).T
+    return (np.asarray(A, dtype=float) @ np.asarray(P, dtype=float).T).T
 
 
-@_backend
-def show_matrix(ax, A, fmt='{:.2f}', cmap='RdBu_r', title=None):
-    """행렬을 색상 격자와 숫자로 함께 보여 준다."""
+def show_matrix(ax, A, fmt='{:.2f}', cmap='RdBu_r', title=None,
+                xticks=None, yticks=None):
+    """행렬을 색상 격자(히트맵)로 보여 준다.
+
+    ax 는 new_matrix_axes 가 돌려준 칸이다. ax=None 이면 칸을 하나 만들어
+    쓰고 그 캔버스를 돌려준다. xticks/yticks 를 주면 행과 열에 이름을 붙인다.
+    """
     A = np.asarray(A, dtype=float)
-    lim = np.abs(A).max()
-    lim = 1.0 if lim == 0 else lim
-    ax.imshow(A, cmap=cmap, vmin=-lim, vmax=lim)
-    if fmt:
-        for i in range(A.shape[0]):
-            for j in range(A.shape[1]):
-                ax.text(j, i, fmt.format(A[i, j]),
-                        ha='center', va='center', fontsize=9)
-    ax.set_xticks(range(A.shape[1]))
-    ax.set_yticks(range(A.shape[0]))
-    ax.set_aspect('equal')
+    if ax is None:
+        fig, ax = new_matrix_axes()
+    lim = np.abs(A).max() or 1.0
+    scale = cmap[:-2] if cmap.endswith('_r') else cmap
+    ax.add_trace(go.Heatmap(
+        z=A, x=xticks, y=yticks, zmin=-lim, zmax=lim, colorscale=scale,
+        reversescale=cmap.endswith('_r'), showscale=False,
+        text=[[fmt.format(v) for v in row] for row in A] if fmt else None,
+        texttemplate='%{text}' if fmt else None,
+        textfont=dict(size=10), hoverinfo='z'))
+    if xticks is not None or yticks is not None:      # 이름이 있으면 축을 보인다
+        xa, ya = _axpair(ax.index)
+        ax.fig.update_layout(**{
+            'xaxis' + xa[1:]: dict(visible=True, side='top', showgrid=False),
+            'yaxis' + ya[1:]: dict(visible=True, autorange='reversed',
+                                   scaleanchor=xa, showgrid=False)})
     if title:
-        ax.set_title(title, fontsize=10)
-    return ax</code></pre></div>
-<h2 id="sec3">대화형 3차원  —  <code>interactive=True</code></h2>
-<p>맷플롯립의 3차원 그림은 정적이라 인쇄에는 좋지만, 보는 각도를 바꿀 수 없어 3차원 개념을 설명하기에는 아쉽다. 외적이 만드는 법선의 방향, 평행육면체의 부피, 부분공간이 이루는 평면 같은 것은 <strong>직접 돌려 보아야</strong> 이해가 빠르다.</p>
-<p>그래서 <code>lautils</code>에는 <strong>대화형 백엔드</strong>가 함께 들어 있다. 쓰는 법은 아주 간단하다. <strong>캔버스를 만들 때 <code>interactive=True</code>를 붙이면 된다.</strong></p>
-<pre class="line-numbers"><code class="language-python">fig, ax = new_axes3d()                    # 정적 (지면·저장용)
-fig, ax = new_axes3d(interactive=True)    # 대화형 (마우스로 돌려 보기)</code></pre>
-<p>그 뒤로는 <strong>코드가 한 글자도 달라지지 않는다.</strong> <code>draw_vector</code>, <code>draw_matrix</code>, <code>draw_points</code>… 모두 그대로 쓴다. 그리기 함수가 넘겨받은 캔버스를 보고 어느 백엔드로 보낼지 스스로 판단하기 때문이다.</p>
-<p>실제 그림은 <code>tuvis.py</code>가 plotly로 그린다. <code>lautils</code>가 필요할 때만 불러오므로, 정적 그림만 쓸 사람은 plotly를 설치하지 않아도 된다.</p>
-<div class="center"><div class="table-wrap"><table><tr><th></th><th> 기본 (정적)</th><th> <code>interactive=True</code></th></tr><tr><td>그리는 곳</td><td><code>lautils.py</code></td><td><code>tuvis.py</code> (내부에서 호출)</td></tr><tr><td>백엔드</td><td>맷플롯립</td><td>plotly</td></tr><tr><td>결과</td><td>정적 이미지</td><td>대화형 HTML</td></tr><tr><td>쓰임</td><td>지면·보고서·저장</td><td>수업·탐색·코랩</td></tr><tr><td>설치</td><td>불필요</td><td><code>pip install plotly</code></td></tr><tr><td>강점</td><td>2차원, 인쇄 품질</td><td><strong>3차원 회전·확대</strong></td></tr></table></div></div>
-<p><code>new_axes</code>, <code>new_axes3d</code>, <code>draw_vector</code>, <code>draw_vectors</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_line</code>, <code>draw_circle</code>, <code>draw_plane</code>, <code>draw_grid</code>, <code>draw_matrix</code>, <code>show_matrix</code>가 모두 두 백엔드를 지원한다.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
-from lautils import *          # 이 한 줄이면 두 백엔드를 모두 쓸 수 있다
+        ax.set_title(title)
+    return ax.fig
 
-M = np.array([[1.0, 0.4, 0.2],
-              [0.3, 1.2, 0.1],
-              [0.1, 0.2, 1.4]])
 
-# interactive=True 만 붙이면 마우스로 돌려 볼 수 있는 그림이 된다
-fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 3), zlim=(-1, 3),
-                     interactive=True)
+# ================================================================ 경계 볼륨
 
-draw_matrix(ax, M, label='M')                 # 평행육면체 (부피 = |det M|)
-draw_points(ax, transform(M, UNIT_CUBE), color='crimson', size=3)
-draw_plane(ax, [0, 0, 0], np.cross(M[:, 0], M[:, 1]), r=1.5)</code></pre>
-<div class="listing-caption">코드 B.1: 같은 코드, 캔버스만 바꾸면 대화형이 된다</div></p>
+def draw_bounding_sphere(fig, center, radius, color='royalblue', alpha=0.3):
+    """경계 구(bounding sphere)를 그린다."""
+    c = np.asarray(center, dtype=float)
+    u = np.linspace(0, 2 * np.pi, 40)
+    v = np.linspace(0, np.pi, 20)
+    fig.add_trace(go.Surface(
+        x=c[0] + radius * np.outer(np.cos(u), np.sin(v)),
+        y=c[1] + radius * np.outer(np.sin(u), np.sin(v)),
+        z=c[2] + radius * np.outer(np.ones_like(u), np.cos(v)),
+        colorscale=[[0, color], [1, color]], opacity=alpha, showscale=False))
+    return fig
+
+
+def _box_faces():
+    faces = [[0, 1, 2, 3], [4, 5, 6, 7], [0, 1, 5, 4],
+             [2, 3, 7, 6], [0, 3, 7, 4], [1, 2, 6, 5]]
+    i, j, k = [], [], []
+    for f in faces:
+        i += [f[0], f[0]]; j += [f[1], f[2]]; k += [f[2], f[3]]
+    return i, j, k
+
+
+def draw_aabb(fig, min_pt, max_pt, color='seagreen', alpha=0.2):
+    """축에 정렬된 경계 상자(AABB)를 그린다."""
+    lo = np.asarray(min_pt, dtype=float)
+    hi = np.asarray(max_pt, dtype=float)
+    V = np.array([[lo[0], lo[1], lo[2]], [hi[0], lo[1], lo[2]],
+                  [hi[0], hi[1], lo[2]], [lo[0], hi[1], lo[2]],
+                  [lo[0], lo[1], hi[2]], [hi[0], lo[1], hi[2]],
+                  [hi[0], hi[1], hi[2]], [lo[0], hi[1], hi[2]]])
+    i, j, k = _box_faces()
+    fig.add_trace(go.Mesh3d(x=V[:, 0], y=V[:, 1], z=V[:, 2], i=i, j=j, k=k,
+                            color=color, opacity=alpha, showlegend=False))
+    return fig
+
+
+def draw_obb(fig, center, half_extents, rotation, color='darkorange', alpha=0.2):
+    """방향을 가진 경계 상자(OBB)를 그린다. rotation의 열이 상자의 축이다."""
+    c = np.asarray(center, dtype=float)
+    h = np.asarray(half_extents, dtype=float)
+    R = np.asarray(rotation, dtype=float)
+    signs = np.array([[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+                      [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]])
+    V = np.array([c + R @ (s * h) for s in signs])
+    i, j, k = _box_faces()
+    fig.add_trace(go.Mesh3d(x=V[:, 0], y=V[:, 1], z=V[:, 2], i=i, j=j, k=k,
+                            color=color, opacity=alpha, showlegend=False))
+    for idx, col in enumerate(('crimson', 'seagreen', 'royalblue')):
+        draw_vec3d(fig, R[:, idx] * h[idx], color=col, start_from=c)
+    return fig</code></pre></div>
+<h2 id="sec4">돌려 보아야 보이는 것들</h2>
+<p>3차원 개념은 <strong>직접 돌려 보아야</strong> 이해가 빠르다. 외적이 만드는 법선의 방향, 평행육면체의 부피, 부분공간이 이루는 평면 같은 것은 한 각도에서만 보면 오해하기 쉽다. 아래 세 예제를 실행한 뒤 마우스로 끌어 보자. 지면에 실린 그림은 그중 한 각도를 저장한 것일 뿐이다.</p>
 <h3>예제 1  —  외적이 만드는 방향 (4장)</h3>
 <p>4장에서 외적 \(\vv{a}\times\vv{b}\)가 두 벡터에 수직인 벡터이고 그 크기가 평행사변형의 넓이라고 배웠다. 종이 위의 그림으로는 "정말 수직인가"를 확인하기 어렵지만, 돌려 보면 한눈에 들어온다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-from lautils import new_axes3d, draw_vector, draw_polygon
+from tuvis import new_axes3d, draw_vector, draw_polygon
 
 a = np.array([2.0, 0.5, 0.0])
 b = np.array([0.5, 2.0, 0.0])
 n = np.cross(a, b)                       # 두 벡터에 수직인 방향
 
-fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 5), zlim=(-1, 5),
-                     interactive=True)
+fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 5), zlim=(-1, 5))
 draw_polygon(ax, np.array([np.zeros(3), a, a + b, b]), alpha=0.35)
 draw_vector(ax, a, color='crimson', label='a')
 draw_vector(ax, b, color='seagreen', label='b')
@@ -502,21 +833,20 @@ fig.show()</code></pre>
 <div class="listing-caption">코드 B.2: 외적을 돌려 가며 확인하기</div></p>
 <figure class="fig">
 <img class="shot" src="img/ch14/ch14_img01.png" alt="figure">
-<p><figcaption>그림 B.1: tuvis로 그린 외적  —  화면에서는 마우스로 돌릴 수 있다</figcaption></figure></p>
+<p><figcaption>그림 B.1: 외적  —  화면에서는 마우스로 돌릴 수 있다</figcaption></figure></p>
 <h3>예제 2  —  행렬식은 평행육면체의 부피 (7장)</h3>
 <p>7장에서 \(3\times3\) 행렬의 행렬식이 세 열벡터가 만드는 평행육면체의 부피라고 했다. <code>draw_matrix</code>는 그 육면체를 그려 준다. 단위 정육면체의 여덟 꼭짓점이 어디로 옮겨 갔는지도 함께 찍어 두면 변환의 모습이 분명해진다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-from lautils import (new_axes3d, draw_matrix, draw_points,
-                     transform, UNIT_CUBE)
+from tuvis import (new_axes3d, draw_matrix, draw_points,
+                   transform, UNIT_CUBE)
 
 M = np.array([[1.0, 0.4, 0.2],
               [0.3, 1.2, 0.1],
               [0.1, 0.2, 1.4]])
 
-fig, ax = new_axes3d(xlim=(-0.5, 2.2), ylim=(-0.5, 2.2),
-                     zlim=(-0.5, 2.2), interactive=True)
+fig, ax = new_axes3d(xlim=(-0.5, 2.2), ylim=(-0.5, 2.2), zlim=(-0.5, 2.2))
 draw_matrix(ax, M, label='M')                       # 평행육면체
-draw_points(ax, transform(M, UNIT_CUBE), color='crimson', size=5)
+draw_points(ax, transform(M, UNIT_CUBE), color='crimson', size=3)
 fig.show()
 
 print('부피 =', abs(np.linalg.det(M)))</code></pre>
@@ -527,14 +857,13 @@ print('부피 =', abs(np.linalg.det(M)))</code></pre>
 <h3>예제 3  —  열공간과 영공간 (8장)</h3>
 <p>8장에서 배운 두 부분공간은 3차원에서 특히 잘 보인다. 랭크가 2인 행렬은 3차원 공간을 <strong>평면</strong>으로 눌러 버리며(열공간), 그 과정에서 원점으로 사라지는 <strong>직선</strong>이 생긴다(영공간). 두 공간이 서로 다른 대상이라는 점이 그림에서 분명해진다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-from lautils import new_axes3d, draw_vector, draw_line, draw_plane
+from tuvis import new_axes3d, draw_vector, draw_line, draw_plane
 
 A = np.array([[1.0, 2.0, 3.0],
               [2.0, 4.0, 6.0],
               [1.0, 1.0, 2.0]])          # 랭크 2
 
-fig, ax = new_axes3d(xlim=(-4, 4), ylim=(-4, 4), zlim=(-4, 4),
-                     interactive=True)
+fig, ax = new_axes3d(xlim=(-4, 4), ylim=(-4, 4), zlim=(-4, 4))
 n = np.cross(A[:, 0], A[:, 2])           # 열공간(평면)의 법선
 draw_plane(ax, [0, 0, 0], n, r=3.2, alpha=0.3, show_normal=False)
 draw_vector(ax, A[:, 0], color='crimson', label='a1')
@@ -551,11 +880,13 @@ print('A @ v   :', A @ v)</code></pre>
 <figure class="fig">
 <img class="shot" src="img/ch14/ch14_img03.png" alt="figure">
 <p><figcaption>그림 B.3: 노란 평면이 열공간, 파란 직선이 영공간이다</figcaption></figure></p>
-<p>이 세 그림은 <code>make_tuvis_figures.py</code>로 캡처한 것이다. 화면에서는 마우스로 끌어 각도를 바꿀 수 있으니, 코랩에서 위 코드를 그대로 실행해 직접 돌려 보기를 권한다. 특히 예제 3은 시선을 평면과 나란히 맞추면 "3차원이 평면으로 눌린다"는 말이 무슨 뜻인지 즉시 이해된다.</p>
-<div class="box note"><span class="chip">잠깐</span><span class="box-title">왜 책의 도판은 맷플롯립인가</span><p>대화형 그림은 종이에 담을 수 없다. 이 책의 모든 도판을 정적 백엔드로 그린 이유다. 독자는 책의 그림으로 개념을 잡고, 코랩에서 같은 코드에 <code>interactive=True</code> 하나만 더해 직접 돌려 보며 확인하면 된다.</p>
-<p>대화형 백엔드(<code>tuvis.py</code>)에는 이 책이 다루지 않는 기능도 들어 있다. 경계 구(<code>draw_bounding_sphere</code>), 축 정렬 경계 상자(<code>draw_aabb</code>), 방향 경계 상자(<code>draw_obb</code>)는 컴퓨터 그래픽스의 충돌 검사에 쓰이는 도형들로, 13장의 내용을 더 깊이 파고들 때 유용하다. 카메라를 직접 조작하는 <code>setCam(fig, eye, target, up)</code>도 13장의 뷰 변환을 실험하기에 좋다.</p></div>
-<h2 id="sec4">확장해 보기</h2>
-<p>두 모듈 모두 최소한의 기능만 담고 있다. 학습이 진행되면서 다음과 같은 함수를 직접 추가해 보면 좋다.</p>
+<p>이 세 그림은 <code>make_tuvis_figures.py</code>로 저장한 것이다. 특히 예제 3은 시선을 평면과 나란히 맞추면 "3차원이 평면으로 눌린다"는 말이 무슨 뜻인지 즉시 이해된다.</p>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">책에 실을 그림으로 저장하기</span><p>대화형 그림을 보고서나 인쇄물에 담으려면 정지 화면이 필요하다.</p>
+<pre class="line-numbers"><code class="language-python">fig.write_image('figure.png', scale=2)    # pip install kaleido 가 한 번 필요</code></pre>
+<p>각도를 코드로 지정하려면 <code>setCam(ax, eye, target, up)</code>으로 카메라를 직접 놓는다. <code>eye</code>가 카메라의 위치, <code>target</code>이 바라보는 지점이다.</p>
+<p>이 모듈에는 이 책이 다루지 않는 기능도 들어 있다. 경계 구(<code>draw_bounding_sphere</code>), 축 정렬 경계 상자(<code>draw_aabb</code>), 방향 경계 상자(<code>draw_obb</code>)는 컴퓨터 그래픽스의 충돌 검사에 쓰이는 도형들로, 13장의 내용을 더 깊이 파고들 때 유용하다.</p></div>
+<h2 id="sec5">확장해 보기</h2>
+<p>이 모듈은 최소한의 기능만 담고 있다. 학습이 진행되면서 다음과 같은 함수를 직접 추가해 보면 좋다.</p>
 <ul>
 <li><code>draw_ellipse(ax, A)</code>  —  행렬 \(\mm{A}\)가 단위원을 보내는 타원을 그린다 (11장)</li>
 <li><code>draw_eigen(ax, A)</code>  —  고유벡터를 고유값 크기만큼의 화살표로 그린다 (9장)</li>
@@ -564,25 +895,21 @@ print('A @ v   :', A @ v)</code></pre>
 </ul>
 <p>마지막 항목은 특히 유용하다. \(\mm{M}(t) = (1-t)\Id + t\mm{A}\)로 중간 단계를 만들면 변환이 일어나는 과정을 연속적으로 볼 수 있다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
-import matplotlib.pyplot as plt
-from lautils import *
+from tuvis import *
 
 def animate_transform(A, shape, steps=5):
-    # 항등변환에서 A까지 서서히 변해 가는 모습을 그린다
-    fig, axes = plt.subplots(1, steps, figsize=(3 * steps, 3.2))
-    for k, ax in enumerate(axes):
+    # 항등변환에서 A까지 서서히 변해 가는 모습을 한 줄로 늘어놓는다
+    fig, axs = new_axes(xlim=(-3, 3), ylim=(-3, 3), ncols=steps)
+    for k, ax in enumerate(axs):
         t = k / (steps - 1)
         M = (1 - t) * np.eye(2) + t * np.asarray(A, float)
-        ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
-        ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
         draw_grid(ax, M, n=2, color='lightsteelblue')
         draw_polygon(ax, transform(M, shape), color='crimson', alpha=0.5)
-        ax.set_title(f't = {t:.2f}', fontsize=9)
-    plt.tight_layout()
+        ax.set_title(f't = {t:.2f}')
     return fig
 
-animate_transform([[0., -1.], [1., 0.]], UNIT_SQUARE)
-plt.show()</code></pre>
+fig = animate_transform([[0., -1.], [1., 0.]], UNIT_SQUARE)
+fig.show()</code></pre>
 <div class="pager-row"><a class="pager prev" href="apxa.html">&larr; 부록 A</a><a class="pager next" href="apxc.html">부록 C &rarr;</a></div>
 </main>
 </div>

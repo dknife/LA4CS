@@ -38,11 +38,11 @@ PYCODE = re.compile(r"\\begin\{pycode\}\n(.*?)\\end\{pycode\}", re.S)
 # 뒷부분만 결과를 보여 준다. 독자에게도 어디까지가 준비 코드인지 알려 준다.
 PRELUDE_MARK = "# ─────────── 여기까지는 앞 예제의 준비 코드입니다 ───────────"
 
-# `from lautils import *` 로 들어오는 이름들
-LAUTILS_NAMES = set()
-_lau = TEX / "code" / "lautils.py"
+# `from tuvis import *` 로 들어오는 이름들
+TUVIS_NAMES = set()
+_lau = TEX / "code" / "tuvis.py"
 if _lau.exists():
-    LAUTILS_NAMES = {m for m in re.findall(r"^(?:def |)([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|\()",
+    TUVIS_NAMES = {m for m in re.findall(r"^(?:def |)([A-Za-z_][A-Za-z0-9_]*)\s*(?:=|\()",
                                            _lau.read_text(encoding="utf-8"), re.M)
                      if not m.startswith("_")}
 
@@ -76,20 +76,21 @@ def source_files():
                            chfile.read_text(encoding="utf-8"))
         files += [d / f"{stem}.tex" for stem in order]
     files += [TEX / "backmatter" / f"{n}.tex" for n in
-              ("appendix_a_setup", "appendix_b_lautils", "appendix_c_reference")]
+              ("appendix_a_setup", "appendix_b_tuvis", "appendix_c_reference")]
     return [f for f in files if f.exists()]
 
 
 def not_runnable(body: str) -> bool:
     """이 실행기에서 돌릴 수 없는 코드인가?
 
-    주피터 매직(%%writefile)과 코랩 전용 코드.
-    준비 코드에 섞이면 뒤따르는 블록까지 문법 오류가 나므로 함께 걸러 낸다.
+    주피터 매직(%%writefile), 코랩 전용 코드, 그리고 kaleido(네이티브 바이너리)가
+    필요한 write_image. 준비 코드에 섞이면 뒤따르는 블록까지 깨지므로 함께 걸러 낸다.
+    대화형(plotly) 그림 자체는 실행할 수 있다 — pyrunner 가 micropip 으로 설치하고
+    결과를 plotly.js 로 그린다.
     """
-    # 대화형(plotly) 그림은 실행할 수 있다 — pyrunner 가 micropip 으로 설치하고
-    # 결과를 plotly.js 로 그린다. 여기서 거르는 것은 정말 못 돌리는 것뿐이다.
     return (body.lstrip().startswith("%%")        # 주피터 매직
-            or "google.colab" in body)            # 코랩 전용
+            or "google.colab" in body             # 코랩 전용
+            or "write_image" in body)             # kaleido 필요
 
 
 def missing_imports(code: str) -> str:
@@ -111,9 +112,9 @@ def missing_imports(code: str) -> str:
         need.append("import numpy as np")
     if lacks(r"\bplt\.", r"import matplotlib"):
         need.append("import matplotlib.pyplot as plt")
-    if lacks(r"\b(draw_\w+|new_axes3?d?|transform|show_matrix"
-             r"|UNIT_SQUARE|UNIT_CUBE|PALETTE)\b", r"lautils"):
-        need.append("from lautils import *")
+    if lacks(r"\b(draw_\w+|new_axes3?d?|new_matrix_axes|transform|show_matrix"
+             r"|setCam|UNIT_SQUARE|UNIT_CUBE|PALETTE)\b", r"tuvis"):
+        need.append("from tuvis import *")
     return "\n".join(need) + "\n\n" if need else ""
 
 
@@ -139,8 +140,8 @@ def unresolved_names(code: str) -> set:
             assigned.add((node.asname or node.name).split(".")[0])
         elif isinstance(node, ast.ExceptHandler) and node.name:
             assigned.add(node.name)
-    if "from lautils import *" in code or "from tuvis import *" in code:
-        assigned |= LAUTILS_NAMES
+    if "from tuvis import *" in code:
+        assigned |= TUVIS_NAMES
     return used - assigned - set(dir(builtins))
 
 

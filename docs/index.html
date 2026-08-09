@@ -147,16 +147,16 @@ footer{
       </div>
       <div class="card">
         <span class="num">02</span>
-        <h3>도구는 둘뿐</h3>
-        <p>넘파이와 맷플롯립만 씁니다. 고수준 라이브러리가 계산 과정을
-           감추지 않도록, 화살표 하나까지 직접 그립니다.</p>
+        <h3>모든 그림이 대화형</h3>
+        <p>마우스로 끌면 돌아가고 휠을 굴리면 확대됩니다. 외적이 왜 수직인지,
+           랭크가 모자란 행렬이 공간을 어떻게 눌러 버리는지 직접 돌려 보세요.</p>
       </div>
       <div class="card">
         <span class="num">03</span>
         <h3>내 손으로 만든 도구</h3>
-        <p>2장에서 <code>lautils</code>를 직접 만들어 끝까지 씁니다.
-           3차원을 마우스로 돌려 보고 싶으면 <code>interactive=True</code> 한 마디면
-           됩니다. 나머지 코드는 그대로입니다.</p>
+        <p>2장에서 <code>tuvis</code>를 직접 만들어 끝까지 씁니다. 평면에서 공간으로
+           갈 때 바뀌는 것은 <code>new_axes()</code>를 <code>new_axes3d()</code>로
+           바꾸는 첫 줄뿐입니다.</p>
       </div>
       <div class="card">
         <span class="num">04</span>
@@ -172,21 +172,23 @@ footer{
   <div class="wrap">
     <h2>맛보기</h2>
     <p class="lead">행렬 하나가 평면을 어떻게 바꾸는지, 열 줄이면 볼 수 있습니다.
-       아래 코드를 고쳐 가며 <b>바로 실행</b>해 보세요.</p>
+       아래 코드를 고쳐 가며 <b>바로 실행</b>해 보세요. 그려진 그림은 마우스로 끌어
+       돌려 볼 수 있습니다.</p>
 
     <div class="demo-wrap">
       <textarea id="demo-code" spellcheck="false" rows="14">import numpy as np
-from lautils import *
+from tuvis import *
 
 A = np.array([[1.2, 0.8],
               [0.3, 1.4]])
 
-fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4), grid=False)
+fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4))
 draw_grid(ax, None, n=3, color='lightgray')   # 원래 격자
 draw_grid(ax, A, n=3)                         # A로 변환된 격자
 draw_polygon(ax, transform(A, UNIT_SQUARE))   # 넓이 = |det A|
 draw_vector(ax, A[:, 0], color='crimson', label='A e1')
 draw_vector(ax, A[:, 1], color='royalblue', label='A e2')
+fig.show()
 
 print('det(A) =', round(float(np.linalg.det(A)), 4))</textarea>
       <div class="demo-bar">
@@ -227,7 +229,7 @@ print('det(A) =', round(float(np.linalg.det(A)), 4))</textarea>
 
 <footer>
   <div class="wrap">
-    <p>쓸모 있는 선형대수 with NumPy · 강영민 지음<br>
+    <p>쓸모 있는 선형대수 with NumPy · 강영민, 박동규 지음 · (주)생능출판사<br>
     웹북의 코드는 브라우저 안에서 실행됩니다(Pyodide). 설치가 필요 없습니다.</p>
   </div>
 </footer>
@@ -256,9 +258,14 @@ async function ensurePyodide() {
   // 브라우저에는 화면이 없다. pyplot 을 부르기 전에 Agg 로 정해 두어야 한다.
   py.runPython('import matplotlib\nmatplotlib.use("Agg")');
 
+  // tuvis 는 plotly 로 그린다. Pyodide 기본 배포에 없으므로 micropip 으로 받는다.
+  status('plotly 를 내려받는 중입니다 (처음 한 번만, 10초쯤)');
+  await py.loadPackage('micropip');
+  await py.runPythonAsync('import micropip\nawait micropip.install("plotly")');
+
   // 이 책의 시각화 모듈을 파이썬 파일시스템에 심는다
   status('시각화 모듈을 준비하는 중입니다');
-  for (const name of ['lautils.py', 'tuvis.py']) {
+  for (const name of ['tuvis.py']) {
     const r = await fetch('book/' + name);
     if (r.ok) py.FS.writeFile(name, await r.text());
   }
@@ -268,7 +275,20 @@ async function ensurePyodide() {
     '    sys.path.insert(0, os.getcwd())'
   ].join('\n'));
 
-  // 그림 수집기 — Agg 로 그린 그림을 PNG 로 뽑는다
+  // fig.show() 를 가로채 그림을 모아 둔다 (plotly 는 JSON 으로 넘긴다)
+  py.runPython([
+    'import plotly.graph_objects as _go',
+    '_algja_plotly = []',
+    'def _algja_show(self, *a, **k):',
+    '    _algja_plotly.append(self.to_json())',
+    '_go.Figure.show = _algja_show',
+    'def _plotly_figs():',
+    '    out = list(_algja_plotly)',
+    '    _algja_plotly.clear()',
+    '    return out'
+  ].join('\n'));
+
+  // 맷플롯립 그림 수집기 — Agg 로 그린 그림을 PNG 로 뽑는다
   py.runPython([
     'import base64, io, sys',
     'def _figs():',
@@ -284,6 +304,20 @@ async function ensurePyodide() {
     '    return out'
   ].join('\n'));
   return py;
+}
+
+let plotlyReady = null;
+function loadPlotly() {
+  // plotly.js 는 그림이 실제로 생겼을 때만 내려받는다
+  if (plotlyReady) return plotlyReady;
+  plotlyReady = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js';
+    s.onload = res;
+    s.onerror = () => rej(new Error('plotly.js 를 불러오지 못했습니다'));
+    document.head.appendChild(s);
+  });
+  return plotlyReady;
 }
 
 function appendOut(t) {
@@ -304,6 +338,15 @@ async function run() {
     const ns = p.runPython('dict(__name__="__main__")');
     try {
       await p.runPythonAsync($('demo-code').value, { globals: ns });
+      const pfigs = p.runPython('_plotly_figs()');
+      const plist = pfigs.toJs(); pfigs.destroy();
+      if (plist.length) await loadPlotly();
+      for (const js of plist) {
+        const div = document.createElement('div');
+        $('demo-figs').appendChild(div);
+        const spec = JSON.parse(js);
+        Plotly.newPlot(div, spec.data, spec.layout, { responsive: true });
+      }
       const figs = p.runPython('_figs()');
       const list = figs.toJs(); figs.destroy();
       for (const b64 of list) {
@@ -312,8 +355,8 @@ async function run() {
         img.alt = '실행 결과 그래프';
         $('demo-figs').appendChild(img);
       }
-      status(list.length ? '완료 — 숫자를 바꿔 다시 실행해 보세요'
-                         : '완료');
+      status((plist.length + list.length) ? '완료 — 그림을 끌어 돌려 보세요'
+                                          : '완료');
     } finally { ns.destroy(); }
   } catch (e) {
     appendOut((e && e.message ? e.message : String(e)) + '\n');
