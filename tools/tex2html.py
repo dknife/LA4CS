@@ -1226,6 +1226,13 @@ def main():
         idx, ach, abody = results[letter]
         (OUT / f"apx{letter.lower()}.html").write_text(
             render_appendix(idx, ach, abody, meta), encoding="utf-8")
+    # 웹 실행기(Pyodide)가 파이썬 파일시스템에 심을 시각화 모듈
+    for name in ("lautils.py", "tuvis.py"):
+        src = TEX / "code" / name
+        if src.exists():
+            shutil.copyfile(src, OUT / name)
+    print("lautils.py · tuvis.py 복사 (웹 실행기용)")
+
     build_cover()
     pre, gu = convert_preface()
     (OUT / "front.html").write_text(render_front(pre, gu, meta), encoding="utf-8")

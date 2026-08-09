@@ -1,4 +1,4 @@
-// 알짜 파이썬 — 코드 실행 워커 (Pyodide / CPython WebAssembly)
+// 쓸모 있는 선형대수 — 코드 실행 워커 (Pyodide / CPython WebAssembly)
 //
 // 메인 스레드가 아니라 워커에서 돌리는 이유:
 //   1) 무한 루프를 만들어도 페이지가 얼지 않는다
@@ -502,6 +502,28 @@ async function ensurePyodide() {
     'exec(_ALGJA_TURTLE_SRC, _m.__dict__)',
     'sys.modules["turtle"] = _m'
   ].join('\n'));
+
+  // 이 책의 시각화 모듈을 파이썬 파일시스템에 심어 둔다.
+  // 본문 예제 대부분이 `from lautils import *` 로 시작하는데, 브라우저 안에는
+  // 그 파일이 없으므로 미리 넣어 주지 않으면 ModuleNotFoundError 가 난다.
+  // (numpy·matplotlib 은 loadPackagesFromImports 가 알아서 받아 온다)
+  try {
+    var r = await fetch('lautils.py');
+    if (r.ok) {
+      var src = await r.text();
+      py.FS.writeFile('lautils.py', src);
+      py.runPython('import os, sys\n'
+                   'if os.getcwd() not in sys.path:\n'
+                   '    sys.path.insert(0, os.getcwd())');
+      await py.loadPackage(['numpy', 'matplotlib']);
+      py.runPython('import matplotlib\nmatplotlib.use("Agg")');
+    } else {
+      post('err', 'lautils.py 를 불러오지 못했습니다 (HTTP ' + r.status + ')\n');
+    }
+  } catch (e) {
+    post('err', 'lautils.py 준비 실패: ' + (e.message || e) + '\n');
+  }
+
   return py;
 }
 

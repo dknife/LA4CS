@@ -83,7 +83,7 @@
 <div class="nav-ch"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
 </div>
 <div class="nav-ch current"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
-<div class="nav-secs"><a class="nav-sec" href="apxb.html#sec1">함수 목록</a><a class="nav-sec" href="apxb.html#sec2">전체 소스</a><a class="nav-sec" href="apxb.html#sec3">대화형 3차원 — tuvis.py</a><a class="nav-sec" href="apxb.html#sec4">확장해 보기</a></div>
+<div class="nav-secs"><a class="nav-sec" href="apxb.html#sec1">함수 목록</a><a class="nav-sec" href="apxb.html#sec2">전체 소스</a><a class="nav-sec" href="apxb.html#sec3">대화형 3차원 — interactive=True</a><a class="nav-sec" href="apxb.html#sec4">확장해 보기</a></div>
 </div>
 <div class="nav-ch"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
 </div>
@@ -99,25 +99,69 @@
 <p>그 밖에 상수 <code>PALETTE</code>(색 목록), <code>UNIT_SQUARE</code>(단위 정사각형의 네 꼭짓점), <code>UNIT_CUBE</code>(단위 정육면체의 여덟 꼭짓점)가 정의되어 있다.</p>
 <div class="box note"><span class="chip">잠깐</span><span class="box-title">2차원과 3차원을 같은 함수로</span><p><code>draw_vector</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_line</code>, <code>draw_circle</code>은 넘겨받은 배열의 길이를 보고 2차원인지 3차원인지 스스로 판단한다. 따라서 캔버스를 만드는 첫 줄만 <code>new_axes()</code>에서 <code>new_axes3d()</code>로 바꾸면 나머지 코드는 그대로 두어도 된다.</p></div>
 <h2 id="sec2">전체 소스</h2>
-<div class="filecode-wrap"><div class="file-label">lautils.py</div><pre class="filecode"><code class="language-python">"""lautils.py — 『쓸모 있는 선형대수』 시각화 도구 (matplotlib 백엔드)
+<div class="filecode-wrap"><div class="file-label">lautils.py</div><pre class="filecode"><code class="language-python">"""lautils.py — 『쓸모 있는 선형대수』 시각화 도구
 
-numpy와 matplotlib만 사용한다. 지면에 실리는 이 책의 모든 그림이 이 모듈로
-그려진다. 대화형 3차원 그림이 필요하면 같은 이름의 함수를 제공하는
-tuvis.py(plotly 백엔드)를 쓰면 된다. 두 모듈은 함수 이름과 인자 규약이
-같으므로 캔버스를 만드는 첫 줄만 바꾸면 코드가 그대로 동작한다.
+이 책의 그림은 모두 이 모듈로 그린다. 넘파이와 맷플롯립만 있으면 동작한다.
 
-    from lautils import *                 # 정적 그림 (지면·저장용)
-    fig, ax = new_axes()                  # 2차원
-    fig, ax = new_axes3d()                # 3차원
+    from lautils import *
 
-    from tuvis import *                   # 대화형 그림 (코랩·수업용)
-    fig = figure2d()  /  figure3d()
+    fig, ax = new_axes()                    # 2차원 (정적)
+    fig, ax = new_axes3d()                  # 3차원 (정적)
+    fig, ax = new_axes3d(interactive=True)  # 3차원 (마우스로 돌려 보기)
 
-모든 그리기 함수는 첫 인자로 캔버스(ax 또는 fig)를 받아 그 위에 그린다.
+    draw_vector(ax, v)                      # 어느 쪽이든 같은 함수를 쓴다
+    draw_matrix(ax, A)
+    draw_points(ax, P)
+
+캔버스를 만들 때 interactive=True 를 주면 plotly 로 그리는 tuvis 백엔드가
+쓰인다(별도 설치: pip install plotly). 그 뒤로는 함수 이름도 인자도 똑같다.
+어떤 캔버스를 받았는지 그리기 함수가 알아서 판단해 넘겨주기 때문이다.
+
+대화형 그림은 마우스로 회전·확대할 수 있어 외적·평행육면체·부분공간처럼
+3차원이라야 보이는 것을 설명할 때 좋다. 다만 결과가 대화형 HTML이라
+인쇄물에는 담을 수 없으므로, 이 책의 지면 도판은 모두 정적 그림이다.
+
+모든 그리기 함수는 첫 인자로 캔버스(ax)를 받아 그 위에 그린다.
 """
+import functools
+
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+# ---------------------------------------------------------------- 백엔드
+
+def _is_interactive(ax):
+    """plotly 캔버스인가? (tuvis 로 만든 것)"""
+    return type(ax).__module__.startswith("plotly")
+
+
+def _tuvis():
+    """대화형 백엔드를 필요할 때만 불러온다."""
+    try:
+        import tuvis
+    except ImportError as e:
+        raise ImportError(
+            "대화형 그림에는 tuvis 와 plotly 가 필요하다.\n"
+            "  pip install plotly\n"
+            "정적 그림만 쓰려면 interactive=True 를 빼면 된다."
+        ) from e
+    return tuvis
+
+
+def _backend(fn):
+    """캔버스가 plotly 이면 tuvis 의 같은 이름 함수로 넘긴다.
+
+    덕분에 독자는 lautils 하나만 import 하면 되고, 캔버스를 어떻게 만들었는지에
+    따라 그리기 함수가 알아서 맞는 백엔드로 간다.
+    """
+    @functools.wraps(fn)
+    def wrapper(ax, *args, **kw):
+        if _is_interactive(ax):
+            return getattr(_tuvis(), fn.__name__)(ax, *args, **kw)
+        return fn(ax, *args, **kw)
+    return wrapper
+
 
 # 벡터를 여러 개 그릴 때 순서대로 사용할 색
 PALETTE = ['crimson', 'royalblue', 'seagreen', 'darkorange',
@@ -133,8 +177,14 @@ UNIT_CUBE = np.array([[x, y, z] for x in (0., 1.)
 
 # ---------------------------------------------------------------- 캔버스
 
-def new_axes(xlim=(-5, 5), ylim=(-5, 5), figsize=(4.5, 4.5), grid=True):
-    """비율이 1:1로 맞춰진 빈 2차원 좌표평면을 만들어 (fig, ax)를 돌려준다."""
+def new_axes(xlim=(-5, 5), ylim=(-5, 5), figsize=(4.5, 4.5), grid=True,
+             interactive=False):
+    """비율이 1:1로 맞춰진 빈 2차원 좌표평면을 만들어 (fig, ax)를 돌려준다.
+
+    interactive=True 이면 마우스로 조작할 수 있는 plotly 캔버스를 돌려준다.
+    """
+    if interactive:
+        return _tuvis().new_axes(xlim=xlim, ylim=ylim)
     fig, ax = plt.subplots(figsize=figsize)
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
@@ -147,8 +197,14 @@ def new_axes(xlim=(-5, 5), ylim=(-5, 5), figsize=(4.5, 4.5), grid=True):
 
 
 def new_axes3d(xlim=(-2, 2), ylim=(-2, 2), zlim=(-2, 2),
-               figsize=(5, 5), axes_on=True):
-    """빈 3차원 좌표공간을 만들어 (fig, ax)를 돌려준다."""
+               figsize=(5, 5), axes_on=True, interactive=False):
+    """빈 3차원 좌표공간을 만들어 (fig, ax)를 돌려준다.
+
+    interactive=True 이면 마우스로 돌려 볼 수 있는 plotly 캔버스를 돌려준다.
+    3차원은 각도를 바꿔 볼 수 있어야 이해가 빠르므로 특히 유용하다.
+    """
+    if interactive:
+        return _tuvis().new_axes3d(xlim=xlim, ylim=ylim, zlim=zlim)
     fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(111, projection='3d')
     ax.set_xlim(*xlim)
@@ -169,6 +225,7 @@ def _is3d(ax):
 
 # ---------------------------------------------------------------- 벡터
 
+@_backend
 def draw_vector(ax, v, origin=None, color='crimson', label=None,
                 width=0.012, alpha=1.0, linestyle='-'):
     """원점(또는 지정한 시작점)에서 v 방향으로 화살표를 그린다. 2D/3D 공용."""
@@ -196,6 +253,7 @@ def draw_vector(ax, v, origin=None, color='crimson', label=None,
     return ax
 
 
+@_backend
 def draw_vectors(ax, vs, origin=None, labels=None, alpha=1.0):
     """여러 벡터를 PALETTE 순서대로 색을 바꿔 가며 그린다."""
     vs = np.asarray(vs, dtype=float)
@@ -208,6 +266,7 @@ def draw_vectors(ax, vs, origin=None, labels=None, alpha=1.0):
 
 # ---------------------------------------------------------------- 점·도형
 
+@_backend
 def draw_points(ax, P, color='darkorange', size=40, label=None,
                 labels=None, marker='o', s=None):
     """행마다 점 하나가 담긴 배열 P를 산점도로 찍는다. 2D/3D 공용."""
@@ -228,6 +287,7 @@ def draw_points(ax, P, color='darkorange', size=40, label=None,
     return ax
 
 
+@_backend
 def draw_polygon(ax, P, color='goldenrod', alpha=0.35, edge=True):
     """꼭짓점 목록 P가 이루는 다각형을 색으로 채운다 (넓이·부피 표현용)."""
     P = np.asarray(P, dtype=float)
@@ -243,6 +303,7 @@ def draw_polygon(ax, P, color='goldenrod', alpha=0.35, edge=True):
     return ax
 
 
+@_backend
 def draw_line(ax, p1, p2, kind='segment', color='steelblue', alpha=0.9,
               scale=3.0, label=None, linestyle='-'):
     """두 점으로 정해지는 선을 그린다. kind='segment' | 'ray' | 'line'."""
@@ -276,6 +337,7 @@ def draw_line(ax, p1, p2, kind='segment', color='steelblue', alpha=0.9,
     return ax
 
 
+@_backend
 def draw_circle(ax, center=(0, 0), radius=1.0, normal=None, color='steelblue',
                 alpha=1.0, fill=False, n=100, linestyle='-'):
     """원을 그린다. 3차원에서는 normal에 수직인 평면 위의 원이 된다."""
@@ -301,6 +363,7 @@ def draw_circle(ax, center=(0, 0), radius=1.0, normal=None, color='steelblue',
     return ax
 
 
+@_backend
 def draw_plane(ax, p, normal, r=2.0, color='goldenrod', alpha=0.25,
                show_normal=True):
     """점 p를 지나고 normal에 수직인 평면을 반지름 r인 원판으로 그린다."""
@@ -315,6 +378,7 @@ def draw_plane(ax, p, normal, r=2.0, color='goldenrod', alpha=0.25,
 
 # ---------------------------------------------------------------- 격자·행렬
 
+@_backend
 def draw_grid(ax, A=None, n=4, color='steelblue', alpha=0.55, lw=0.7):
     """단위 격자를 그린다. 행렬 A를 주면 A로 변환된 격자를 그린다."""
     A = np.eye(2) if A is None else np.asarray(A, dtype=float)
@@ -329,6 +393,7 @@ def draw_grid(ax, A=None, n=4, color='steelblue', alpha=0.55, lw=0.7):
     return ax
 
 
+@_backend
 def draw_matrix(ax, M, label=None, alpha=0.3, ghost=True):
     """행렬의 열벡터가 만드는 평행사변형(2x2) 또는 평행육면체(3x3)를 그린다.
 
@@ -376,6 +441,7 @@ def transform(A, P):
     return (A @ P.T).T
 
 
+@_backend
 def show_matrix(ax, A, fmt='{:.2f}', cmap='RdBu_r', title=None):
     """행렬을 색상 격자와 숫자로 함께 보여 준다."""
     A = np.asarray(A, dtype=float)
@@ -393,38 +459,41 @@ def show_matrix(ax, A, fmt='{:.2f}', cmap='RdBu_r', title=None):
     if title:
         ax.set_title(title, fontsize=10)
     return ax</code></pre></div>
-<h2 id="sec3">대화형 3차원  —  <code>tuvis.py</code></h2>
+<h2 id="sec3">대화형 3차원  —  <code>interactive=True</code></h2>
 <p>맷플롯립의 3차원 그림은 정적이라 인쇄에는 좋지만, 보는 각도를 바꿀 수 없어 3차원 개념을 설명하기에는 아쉽다. 외적이 만드는 법선의 방향, 평행육면체의 부피, 부분공간이 이루는 평면 같은 것은 <strong>직접 돌려 보아야</strong> 이해가 빠르다.</p>
-<p>그래서 같은 함수 이름과 같은 인자 규약을 가지되 <strong>plotly</strong>로 그리는 모듈 <code>tuvis.py</code>를 함께 제공한다. 마우스로 회전·확대할 수 있는 그림이 나오며, 코랩과 주피터에서 그대로 표시된다.</p>
-<div class="center"><div class="table-wrap"><table><tr><th></th><th> lautils.py</th><th> tuvis.py</th></tr><tr><td>백엔드</td><td>맷플롯립</td><td>plotly</td></tr><tr><td>결과</td><td>정적 이미지</td><td>대화형 HTML</td></tr><tr><td>쓰임</td><td>지면·보고서·저장</td><td>수업·탐색·코랩</td></tr><tr><td>설치</td><td>불필요</td><td><code>pip install plotly</code></td></tr><tr><td>강점</td><td>2차원, 인쇄 품질</td><td><strong>3차원 회전·확대</strong></td></tr></table></div></div>
-<p>두 모듈은 <code>new_axes</code>, <code>new_axes3d</code>, <code>draw_vector</code>, <code>draw_vectors</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_line</code>, <code>draw_circle</code>, <code>draw_plane</code>, <code>draw_grid</code>, <code>draw_matrix</code>, <code>transform</code>, <code>show_matrix</code>를 공통으로 제공한다. 따라서 <strong>맨 윗줄의 <code>import</code> 하나만 바꾸면</strong> 같은 코드가 양쪽에서 동작한다.</p>
-<p><pre class="line-numbers"><code class="language-python"># 지면에 실을 정적 그림이 필요할 때
-from lautils import *
-
-# 수업에서 돌려 가며 보여 줄 때 (아래 한 줄만 바꾼다)
-# from tuvis import *
-
-import numpy as np
+<p>그래서 <code>lautils</code>에는 <strong>대화형 백엔드</strong>가 함께 들어 있다. 쓰는 법은 아주 간단하다. <strong>캔버스를 만들 때 <code>interactive=True</code>를 붙이면 된다.</strong></p>
+<pre class="line-numbers"><code class="language-python">fig, ax = new_axes3d()                    # 정적 (지면·저장용)
+fig, ax = new_axes3d(interactive=True)    # 대화형 (마우스로 돌려 보기)</code></pre>
+<p>그 뒤로는 <strong>코드가 한 글자도 달라지지 않는다.</strong> <code>draw_vector</code>, <code>draw_matrix</code>, <code>draw_points</code>… 모두 그대로 쓴다. 그리기 함수가 넘겨받은 캔버스를 보고 어느 백엔드로 보낼지 스스로 판단하기 때문이다.</p>
+<p>실제 그림은 <code>tuvis.py</code>가 plotly로 그린다. <code>lautils</code>가 필요할 때만 불러오므로, 정적 그림만 쓸 사람은 plotly를 설치하지 않아도 된다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th></th><th> 기본 (정적)</th><th> <code>interactive=True</code></th></tr><tr><td>그리는 곳</td><td><code>lautils.py</code></td><td><code>tuvis.py</code> (내부에서 호출)</td></tr><tr><td>백엔드</td><td>맷플롯립</td><td>plotly</td></tr><tr><td>결과</td><td>정적 이미지</td><td>대화형 HTML</td></tr><tr><td>쓰임</td><td>지면·보고서·저장</td><td>수업·탐색·코랩</td></tr><tr><td>설치</td><td>불필요</td><td><code>pip install plotly</code></td></tr><tr><td>강점</td><td>2차원, 인쇄 품질</td><td><strong>3차원 회전·확대</strong></td></tr></table></div></div>
+<p><code>new_axes</code>, <code>new_axes3d</code>, <code>draw_vector</code>, <code>draw_vectors</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_line</code>, <code>draw_circle</code>, <code>draw_plane</code>, <code>draw_grid</code>, <code>draw_matrix</code>, <code>show_matrix</code>가 모두 두 백엔드를 지원한다.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+from lautils import *          # 이 한 줄이면 두 백엔드를 모두 쓸 수 있다
 
 M = np.array([[1.0, 0.4, 0.2],
               [0.3, 1.2, 0.1],
               [0.1, 0.2, 1.4]])
 
-fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 3), zlim=(-1, 3))
+# interactive=True 만 붙이면 마우스로 돌려 볼 수 있는 그림이 된다
+fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 3), zlim=(-1, 3),
+                     interactive=True)
+
 draw_matrix(ax, M, label='M')                 # 평행육면체 (부피 = |det M|)
 draw_points(ax, transform(M, UNIT_CUBE), color='crimson', size=25)
 draw_plane(ax, [0, 0, 0], np.cross(M[:, 0], M[:, 1]), r=1.5)</code></pre>
-<div class="listing-caption">코드 B.1: 같은 코드, 두 가지 백엔드</div></p>
+<div class="listing-caption">코드 B.1: 같은 코드, 캔버스만 바꾸면 대화형이 된다</div></p>
 <h3>예제 1  —  외적이 만드는 방향 (4장)</h3>
 <p>4장에서 외적 \(\vv{a}\times\vv{b}\)가 두 벡터에 수직인 벡터이고 그 크기가 평행사변형의 넓이라고 배웠다. 종이 위의 그림으로는 "정말 수직인가"를 확인하기 어렵지만, 돌려 보면 한눈에 들어온다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-from tuvis import new_axes3d, draw_vector, draw_polygon
+from lautils import new_axes3d, draw_vector, draw_polygon
 
 a = np.array([2.0, 0.5, 0.0])
 b = np.array([0.5, 2.0, 0.0])
 n = np.cross(a, b)                       # 두 벡터에 수직인 방향
 
-fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 3), zlim=(-1, 5))
+fig, ax = new_axes3d(xlim=(-1, 3), ylim=(-1, 5), zlim=(-1, 5),
+                     interactive=True)
 draw_polygon(ax, np.array([np.zeros(3), a, a + b, b]), alpha=0.35)
 draw_vector(ax, a, color='crimson', label='a')
 draw_vector(ax, b, color='seagreen', label='b')
@@ -437,13 +506,15 @@ fig.show()</code></pre>
 <h3>예제 2  —  행렬식은 평행육면체의 부피 (7장)</h3>
 <p>7장에서 \(3\times3\) 행렬의 행렬식이 세 열벡터가 만드는 평행육면체의 부피라고 했다. <code>draw_matrix</code>는 그 육면체를 그려 준다. 단위 정육면체의 여덟 꼭짓점이 어디로 옮겨 갔는지도 함께 찍어 두면 변환의 모습이 분명해진다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-from tuvis import new_axes3d, draw_matrix, draw_points, transform, UNIT_CUBE
+from lautils import (new_axes3d, draw_matrix, draw_points,
+                     transform, UNIT_CUBE)
 
 M = np.array([[1.0, 0.4, 0.2],
               [0.3, 1.2, 0.1],
               [0.1, 0.2, 1.4]])
 
-fig, ax = new_axes3d(xlim=(-0.5, 2.2), ylim=(-0.5, 2.2), zlim=(-0.5, 2.2))
+fig, ax = new_axes3d(xlim=(-0.5, 2.2), ylim=(-0.5, 2.2),
+                     zlim=(-0.5, 2.2), interactive=True)
 draw_matrix(ax, M, label='M')                       # 평행육면체
 draw_points(ax, transform(M, UNIT_CUBE), color='crimson', size=5)
 fig.show()
@@ -456,13 +527,14 @@ print('부피 =', abs(np.linalg.det(M)))</code></pre>
 <h3>예제 3  —  열공간과 영공간 (8장)</h3>
 <p>8장에서 배운 두 부분공간은 3차원에서 특히 잘 보인다. 랭크가 2인 행렬은 3차원 공간을 <strong>평면</strong>으로 눌러 버리며(열공간), 그 과정에서 원점으로 사라지는 <strong>직선</strong>이 생긴다(영공간). 두 공간이 서로 다른 대상이라는 점이 그림에서 분명해진다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
-from tuvis import new_axes3d, draw_vector, draw_line, draw_plane
+from lautils import new_axes3d, draw_vector, draw_line, draw_plane
 
 A = np.array([[1.0, 2.0, 3.0],
               [2.0, 4.0, 6.0],
               [1.0, 1.0, 2.0]])          # 랭크 2
 
-fig, ax = new_axes3d(xlim=(-4, 4), ylim=(-4, 4), zlim=(-4, 4))
+fig, ax = new_axes3d(xlim=(-4, 4), ylim=(-4, 4), zlim=(-4, 4),
+                     interactive=True)
 n = np.cross(A[:, 0], A[:, 2])           # 열공간(평면)의 법선
 draw_plane(ax, [0, 0, 0], n, r=3.2, alpha=0.3, show_normal=False)
 draw_vector(ax, A[:, 0], color='crimson', label='a1')
@@ -480,8 +552,8 @@ print('A @ v   :', A @ v)</code></pre>
 <img class="shot" src="img/ch14/ch14_img03.png" alt="figure">
 <p><figcaption>그림 B.3: 노란 평면이 열공간, 파란 직선이 영공간이다</figcaption></figure></p>
 <p>이 세 그림은 <code>make_tuvis_figures.py</code>로 캡처한 것이다. 화면에서는 마우스로 끌어 각도를 바꿀 수 있으니, 코랩에서 위 코드를 그대로 실행해 직접 돌려 보기를 권한다. 특히 예제 3은 시선을 평면과 나란히 맞추면 "3차원이 평면으로 눌린다"는 말이 무슨 뜻인지 즉시 이해된다.</p>
-<div class="box note"><span class="chip">잠깐</span><span class="box-title">왜 책의 도판은 맷플롯립인가</span><p>대화형 그림은 종이에 담을 수 없다. 이 책의 모든 도판을 <code>lautils.py</code>로 그린 이유이며, 동시에 <code>tuvis.py</code>를 따로 두는 이유이기도 하다. 독자는 책의 그림으로 개념을 잡고, 코랩에서 같은 코드를 <code>tuvis</code>로 돌려 직접 돌려 보며 확인하면 된다.</p>
-<p><code>tuvis.py</code>에는 이 책이 다루지 않는 기능도 들어 있다. 경계 구(<code>draw_bounding_sphere</code>), 축 정렬 경계 상자(<code>draw_aabb</code>), 방향 경계 상자(<code>draw_obb</code>)는 컴퓨터 그래픽스의 충돌 검사에 쓰이는 도형들로, 13장의 내용을 더 깊이 파고들 때 유용하다. 카메라를 직접 조작하는 <code>setCam(fig, eye, target, up)</code>도 13장의 뷰 변환을 실험하기에 좋다.</p></div>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">왜 책의 도판은 맷플롯립인가</span><p>대화형 그림은 종이에 담을 수 없다. 이 책의 모든 도판을 정적 백엔드로 그린 이유다. 독자는 책의 그림으로 개념을 잡고, 코랩에서 같은 코드에 <code>interactive=True</code> 하나만 더해 직접 돌려 보며 확인하면 된다.</p>
+<p>대화형 백엔드(<code>tuvis.py</code>)에는 이 책이 다루지 않는 기능도 들어 있다. 경계 구(<code>draw_bounding_sphere</code>), 축 정렬 경계 상자(<code>draw_aabb</code>), 방향 경계 상자(<code>draw_obb</code>)는 컴퓨터 그래픽스의 충돌 검사에 쓰이는 도형들로, 13장의 내용을 더 깊이 파고들 때 유용하다. 카메라를 직접 조작하는 <code>setCam(fig, eye, target, up)</code>도 13장의 뷰 변환을 실험하기에 좋다.</p></div>
 <h2 id="sec4">확장해 보기</h2>
 <p>두 모듈 모두 최소한의 기능만 담고 있다. 학습이 진행되면서 다음과 같은 함수를 직접 추가해 보면 좋다.</p>
 <ul>

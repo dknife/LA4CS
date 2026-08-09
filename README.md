@@ -43,8 +43,11 @@ export LA4CS_REPO=~/GitRepos/LA4CS                # 이 저장소 위치
 python3 tools/build_figures.py            # 전부
 python3 tools/build_figures.py 7 9        # 특정 장만
 
-# 2) 원고 -> HTML
+# 2) 원고 -> HTML (시각화 모듈 lautils.py·tuvis.py 도 함께 복사된다)
 python3 tools/tex2html.py
+
+# 3) 이어지는 예제의 준비 코드 + 실행 불가 코드 표시
+python3 tools/gen_run_preludes.py
 ```
 
 **원고를 고쳐도 자동으로 빌드·푸시하지 않는다.** 필요할 때 위 두 명령을 직접 돌린다.
@@ -61,6 +64,13 @@ python3 tools/tex2html.py
   `tex2html.py`가 같은 순서로 하나씩 꺼내 쓴다.
 - **박스**: 정의(`defbox`)·정리(`thmbox`)·예제(`exbox`)·한 걸음 더(`stepbox`)가
   이 책에서 새로 쓰이며, 대응 CSS는 `book.css` 끝에 덧붙여 두었다.
+- **코드 실행**: 본문 예제 대부분이 `from lautils import *` 로 시작한다. 브라우저 안에는
+  그 파일이 없으므로 `pyrunner.js` 가 워커를 띄울 때 `lautils.py` 를 받아 파이썬
+  파일시스템에 심고 numpy·matplotlib 을 함께 내려받는다.
+- **이어지는 예제**: 앞 블록의 변수를 쓰는 코드는 `run-preludes.json` 에 준비 코드를
+  담아 둔다(`gen_run_preludes.py` 생성). **코드를 고치면 해시가 바뀌므로 다시 돌려야 한다.**
+- `interactive=True` 로 대화형(plotly) 그림을 그리는 예제는 이 실행기에서 띄울 수 없어
+  `concept-codes.json` 에 올려 '설명을 돕는 개념 코드' 안내만 표시한다.
 
 ## 라이선스
 
