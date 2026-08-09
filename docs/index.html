@@ -79,14 +79,35 @@ h2{font-size:1.5rem; letter-spacing:-.01em; margin:0 0 .2em; color:var(--navy)}
 .toc a.front b{color:var(--sky)}
 
 /* ---------- 코드 미리보기 ---------- */
-.demo{
-  background:#1E293B; color:#F1F5F9; border-radius:var(--radius);
-  padding:20px 22px; overflow-x:auto; font-size:.88rem; line-height:1.65;
+.demo-wrap{
+  background:#1E293B; border-radius:var(--radius); overflow:hidden;
+  border:1px solid #0F172A;
+}
+#demo-code{
+  display:block; width:100%; border:0; resize:vertical;
+  background:#1E293B; color:#F1F5F9;
+  padding:18px 20px; font-size:.88rem; line-height:1.65;
   font-family:"D2Coding",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
-.demo .c{color:#94A3B8}
-.demo .k{color:#7DD3FC}
-.demo .s{color:#FCD34D}
+#demo-code:focus{outline:2px solid var(--sky); outline-offset:-2px}
+.demo-bar{
+  display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:10px 16px; background:#0F172A; border-top:1px solid #334155;
+}
+#demo-run{
+  background:var(--gold); color:#12233F; border:0; border-radius:999px;
+  padding:8px 20px; font-weight:700; font-size:.92rem; cursor:pointer;
+}
+#demo-run:hover{filter:brightness(1.06)}
+#demo-run:disabled{opacity:.55; cursor:default}
+#demo-status{color:#94A3B8; font-size:.85rem}
+#demo-out{
+  margin:0; padding:14px 20px; background:#111C31; color:#E2E8F0;
+  font-size:.85rem; white-space:pre-wrap; overflow-x:auto;
+  font-family:"D2Coding",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+#demo-figs{background:#fff}
+#demo-figs img{display:block; max-width:100%; margin:0 auto; padding:12px}
 
 footer{
   border-top:1px solid var(--line); padding:28px 0 44px;
@@ -133,8 +154,9 @@ footer{
       <div class="card">
         <span class="num">03</span>
         <h3>내 손으로 만든 도구</h3>
-        <p>2장에서 <code>lautils.py</code>를 직접 만들어 끝까지 씁니다.
-           대화형 3차원이 필요하면 같은 API의 <code>tuvis.py</code>로 바꾸면 됩니다.</p>
+        <p>2장에서 <code>lautils</code>를 직접 만들어 끝까지 씁니다.
+           3차원을 마우스로 돌려 보고 싶으면 <code>interactive=True</code> 한 마디면
+           됩니다. 나머지 코드는 그대로입니다.</p>
       </div>
       <div class="card">
         <span class="num">04</span>
@@ -149,19 +171,31 @@ footer{
 <section style="padding-top:0">
   <div class="wrap">
     <h2>맛보기</h2>
-    <p class="lead">행렬 하나가 평면을 어떻게 바꾸는지, 열 줄이면 볼 수 있습니다.</p>
-<pre class="demo"><span class="k">import</span> numpy <span class="k">as</span> np
-<span class="k">from</span> lautils <span class="k">import</span> *
+    <p class="lead">행렬 하나가 평면을 어떻게 바꾸는지, 열 줄이면 볼 수 있습니다.
+       아래 코드를 고쳐 가며 <b>바로 실행</b>해 보세요.</p>
 
-A = np.array([[<span class="s">1.2</span>, <span class="s">0.8</span>],
-              [<span class="s">0.3</span>, <span class="s">1.4</span>]])
+    <div class="demo-wrap">
+      <textarea id="demo-code" spellcheck="false" rows="14">import numpy as np
+from lautils import *
 
-fig, ax = new_axes(xlim=(-<span class="s">4</span>, <span class="s">4</span>), ylim=(-<span class="s">4</span>, <span class="s">4</span>))
-draw_grid(ax, <span class="k">None</span>, n=<span class="s">3</span>, color=<span class="s">'lightgray'</span>)   <span class="c"># 원래 격자</span>
-draw_grid(ax, A, n=<span class="s">3</span>)                        <span class="c"># A로 변환된 격자</span>
-draw_polygon(ax, transform(A, UNIT_SQUARE))    <span class="c"># 넓이 = |det A|</span>
-draw_vector(ax, A[:, <span class="s">0</span>], color=<span class="s">'crimson'</span>)     <span class="c"># e1이 옮겨 간 자리</span>
-draw_vector(ax, A[:, <span class="s">1</span>], color=<span class="s">'royalblue'</span>)   <span class="c"># e2가 옮겨 간 자리</span></pre>
+A = np.array([[1.2, 0.8],
+              [0.3, 1.4]])
+
+fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4), grid=False)
+draw_grid(ax, None, n=3, color='lightgray')   # 원래 격자
+draw_grid(ax, A, n=3)                         # A로 변환된 격자
+draw_polygon(ax, transform(A, UNIT_SQUARE))   # 넓이 = |det A|
+draw_vector(ax, A[:, 0], color='crimson', label='A e1')
+draw_vector(ax, A[:, 1], color='royalblue', label='A e2')
+
+print('det(A) =', round(float(np.linalg.det(A)), 4))</textarea>
+      <div class="demo-bar">
+        <button id="demo-run" type="button">▶ 실행</button>
+        <span id="demo-status">브라우저 안에서 실행됩니다. 설치는 필요 없습니다.</span>
+      </div>
+      <pre id="demo-out" hidden></pre>
+      <div id="demo-figs"></div>
+    </div>
   </div>
 </section>
 
@@ -198,5 +232,98 @@ draw_vector(ax, A[:, <span class="s">1</span>], color=<span class="s">'royalblue
   </div>
 </footer>
 
+
+<script type="module">
+// 맛보기 코드를 브라우저 안에서 실행한다 (Pyodide = CPython 을 WebAssembly 로).
+// 웹북의 pyrunner.js 와 같은 방식이지만, 여기서는 데모 하나만 돌리므로
+// 워커 없이 간단히 처리한다. 파이썬은 [실행]을 누른 뒤에야 내려받는다.
+const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v314.0.2/full/';
+const $ = (id) => document.getElementById(id);
+let py = null;
+
+function status(t) { $('demo-status').textContent = t; }
+
+async function ensurePyodide() {
+  if (py) return py;
+  status('파이썬을 내려받는 중입니다 — 처음 한 번만 걸립니다');
+  const { loadPyodide } = await import(PYODIDE_URL + 'pyodide.mjs');
+  py = await loadPyodide({ indexURL: PYODIDE_URL });
+  py.setStdout({ batched: (t) => appendOut(t + '\n') });
+  py.setStderr({ batched: (t) => appendOut(t + '\n') });
+
+  status('넘파이와 맷플롯립을 준비하는 중입니다');
+  await py.loadPackage(['numpy', 'matplotlib']);
+  // 브라우저에는 화면이 없다. pyplot 을 부르기 전에 Agg 로 정해 두어야 한다.
+  py.runPython('import matplotlib\nmatplotlib.use("Agg")');
+
+  // 이 책의 시각화 모듈을 파이썬 파일시스템에 심는다
+  status('시각화 모듈을 준비하는 중입니다');
+  for (const name of ['lautils.py', 'tuvis.py']) {
+    const r = await fetch('book/' + name);
+    if (r.ok) py.FS.writeFile(name, await r.text());
+  }
+  py.runPython([
+    'import os, sys',
+    'if os.getcwd() not in sys.path:',
+    '    sys.path.insert(0, os.getcwd())'
+  ].join('\n'));
+
+  // 그림 수집기 — Agg 로 그린 그림을 PNG 로 뽑는다
+  py.runPython([
+    'import base64, io, sys',
+    'def _figs():',
+    '    plt = sys.modules.get("matplotlib.pyplot")',
+    '    if plt is None:',
+    '        return []',
+    '    out = []',
+    '    for n in plt.get_fignums():',
+    '        buf = io.BytesIO()',
+    '        plt.figure(n).savefig(buf, format="png", dpi=110, bbox_inches="tight")',
+    '        out.append(base64.b64encode(buf.getvalue()).decode())',
+    '    plt.close("all")',
+    '    return out'
+  ].join('\n'));
+  return py;
+}
+
+function appendOut(t) {
+  const out = $('demo-out');
+  out.hidden = false;
+  out.textContent += t;
+}
+
+async function run() {
+  const btn = $('demo-run');
+  btn.disabled = true;
+  $('demo-out').textContent = '';
+  $('demo-out').hidden = true;
+  $('demo-figs').innerHTML = '';
+  try {
+    const p = await ensurePyodide();
+    status('실행 중…');
+    const ns = p.runPython('dict(__name__="__main__")');
+    try {
+      await p.runPythonAsync($('demo-code').value, { globals: ns });
+      const figs = p.runPython('_figs()');
+      const list = figs.toJs(); figs.destroy();
+      for (const b64 of list) {
+        const img = document.createElement('img');
+        img.src = 'data:image/png;base64,' + b64;
+        img.alt = '실행 결과 그래프';
+        $('demo-figs').appendChild(img);
+      }
+      status(list.length ? '완료 — 숫자를 바꿔 다시 실행해 보세요'
+                         : '완료');
+    } finally { ns.destroy(); }
+  } catch (e) {
+    appendOut((e && e.message ? e.message : String(e)) + '\n');
+    status('오류가 났습니다');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+$('demo-run').addEventListener('click', run);
+</script>
 </body>
 </html>
