@@ -33,6 +33,11 @@ OUT = REPO / "docs" / "book"
 
 PYCODE = re.compile(r"\\begin\{pycode\}\n(.*?)\\end\{pycode\}", re.S)
 
+# 준비 코드와 이번에 실행할 코드의 경계.
+# pyrunner.js 가 이 줄을 찾아 앞부분은 조용히 돌리고(출력·그림을 버린다)
+# 뒷부분만 결과를 보여 준다. 독자에게도 어디까지가 준비 코드인지 알려 준다.
+PRELUDE_MARK = "# ─────────── 여기까지는 앞 예제의 준비 코드입니다 ───────────"
+
 # `from lautils import *` 로 들어오는 이름들
 LAUTILS_NAMES = set()
 _lau = TEX / "code" / "lautils.py"
@@ -160,11 +165,11 @@ def main():
                 if unresolved_names(fix + body):
                     concepts.append(code_key(body))  # 맥락 없는 발췌
                 elif fix:
-                    preludes[code_key(body)] = fix
+                    preludes[code_key(body)] = fix + PRELUDE_MARK + "\n\n"
                 continue
             # book.js 는 `pre + code` 로 그냥 이어 붙인다. 끝에 빈 줄을 두지 않으면
             # 앞 블록의 마지막 줄과 이 블록의 첫 줄이 한 줄로 붙어 SyntaxError 가 난다.
-            prev = "\n\n".join(earlier) + "\n\n"
+            prev = "\n\n".join(earlier) + "\n" + PRELUDE_MARK + "\n\n"
             prev = missing_imports(prev) + prev
             # 앞 블록이 정의한 이름을 쓰지 않는 블록에는 준비 코드가 필요 없다.
             # 판단이 어려우므로 앞 블록을 모두 붙인다(원고 검증과 같은 방식).

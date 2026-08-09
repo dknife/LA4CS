@@ -513,8 +513,16 @@ var PLOTLY_HOOK = [
   '                figs.append(v)',
   '    out = [f.to_json() for f in figs]',
   '    _algja_plotly.clear()',
-  '    return out'
+  '    return out',
+  'def _algja_reset_figs():',
+  '    mod = sys.modules.get("matplotlib.pyplot")',
+  '    if mod is not None:',
+  '        mod.close("all")',
+  '    _algja_plotly.clear()'
 ].join('\n');
+
+// 준비 코드와 이번에 실행할 코드의 경계 (gen_run_preludes.py 가 넣는다)
+var PRELUDE_MARK = '# ─────────── 여기까지는 앞 예제의 준비 코드입니다 ───────────';
 
 
 async function ensurePyodide() {
@@ -669,8 +677,29 @@ self.onmessage = async function (ev) {
     // __name__을 "__main__"으로 두어야 if __name__ == "__main__": 블록이 돈다.
     ns = p.runPython('dict(__name__="__main__")');
 
+    // 이어지는 예제라면 앞부분(준비 코드)은 조용히 돌린다.
+    // 그러지 않으면 앞 예제의 출력과 그림까지 함께 나와 누적된 것처럼 보인다.
+    var body = code;
+    var mi = code.lastIndexOf(PRELUDE_MARK);
+    if (mi >= 0) {
+      var head = code.slice(0, mi);
+      body = code.slice(mi + PRELUDE_MARK.length);
+      if (head.trim()) {
+        post('status', '앞 예제의 준비 코드를 먼저 실행합니다…');
+        p.setStdout({ batched: function () {} });      // 출력 감추기
+        p.setStderr({ batched: function () {} });
+        try {
+          await p.runPythonAsync(head, { globals: ns });
+        } finally {
+          p.setStdout({ batched: function (t) { post('out', t + '\n'); } });
+          p.setStderr({ batched: function (t) { post('err', t + '\n'); } });
+        }
+        p.runPython('_algja_reset_figs()');            // 준비 코드의 그림도 버린다
+      }
+    }
+
     post('status', '실행 중…');
-    await p.runPythonAsync(code, { globals: ns });
+    await p.runPythonAsync(body, { globals: ns });
 
     var figs = p.runPython('_algja_figs()');
     var list = figs && figs.toJs ? figs.toJs() : [];
