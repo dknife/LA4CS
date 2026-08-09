@@ -86,8 +86,15 @@ cd docs/book && python3 ../../tools/check_web_run.py && cd ../..
   `book.js` 는 준비 코드를 `pre + code` 로 **구분자 없이** 이어 붙이므로 준비 코드는
   반드시 빈 줄로 끝나야 한다. 생성기가 그렇게 만들고, 끝에서 실제로 이어 붙여
   문법이 성립하는지 자체 점검한다.
-- `interactive=True` 로 대화형(plotly) 그림을 그리는 예제는 이 실행기에서 띄울 수 없어
-  `concept-codes.json` 에 올려 '설명을 돕는 개념 코드' 안내만 표시한다.
+- **대화형 3차원(plotly)도 웹에서 돌아간다.** `interactive=True` 가 든 코드를 만나면
+  `pyrunner.js` 가 `micropip` 으로 plotly 를 받고(순수 파이썬 휠, 약 10MB, 처음 한 번),
+  `Figure.show()` 를 가로채 두었다가 `to_json()` 으로 뽑아 메인 스레드에 보낸다.
+  실제 그리기는 `book.js` 가 CDN 의 plotly.js 로 한다.
+- `%%writefile` 같은 주피터 매직과 코랩 전용 코드만 `concept-codes.json` 에 올려
+  '설명을 돕는 개념 코드' 안내를 표시한다.
+- **주의**: Pyodide 에서는 pyplot 을 import 하기 전에 `matplotlib.use("Agg")` 를 정해야
+  한다. 워커에는 DOM 이 없어 기본 백엔드가 `js.document` 를 찾다 실패한다.
+  `ensurePyodide()` 가 초기화 때 처리한다.
 
 ## 라이선스
 

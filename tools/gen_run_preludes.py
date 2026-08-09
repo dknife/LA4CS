@@ -78,13 +78,13 @@ def source_files():
 def not_runnable(body: str) -> bool:
     """이 실행기에서 돌릴 수 없는 코드인가?
 
-    대화형(plotly) 그림, 주피터 매직(%%writefile), 코랩 전용 코드.
+    주피터 매직(%%writefile)과 코랩 전용 코드.
     준비 코드에 섞이면 뒤따르는 블록까지 문법 오류가 나므로 함께 걸러 낸다.
     """
-    return ("tuvis" in body or "plotly" in body
-            or "interactive=True" in body
-            or body.lstrip().startswith("%%")
-            or "google.colab" in body)
+    # 대화형(plotly) 그림은 실행할 수 있다 — pyrunner 가 micropip 으로 설치하고
+    # 결과를 plotly.js 로 그린다. 여기서 거르는 것은 정말 못 돌리는 것뿐이다.
+    return (body.lstrip().startswith("%%")        # 주피터 매직
+            or "google.colab" in body)            # 코랩 전용
 
 
 def missing_imports(code: str) -> str:

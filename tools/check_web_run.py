@@ -16,12 +16,13 @@ def key(s):
     return o or "0"
 pre = json.loads(pathlib.Path("run-preludes.json").read_text())
 concepts = set(json.loads(pathlib.Path("concept-codes.json").read_text()))
+# pyrunner.js 초기화와 같은 조건 (Pyodide 에서는 Agg 를 먼저 정해야 한다)
 HEAD = ("import matplotlib\nmatplotlib.use('Agg')\n"
         "import matplotlib.pyplot as _p\n_p.show=lambda *a,**k:None\n"
         "import sys; sys.path.insert(0,'.')\n")
 fails, total = [], 0
 for f in sorted(pathlib.Path('.').glob('ch*.html')) + sorted(pathlib.Path('.').glob('apx*.html')):
-    for c in [html.unescape(m) for m in re.findall(r'<code class="language-python">(.*?)</code>', f.read_text(), re.S)]:
+    for c in [html.unescape(m) for m in re.findall(r'<pre class="line-numbers"><code class="language-python">(.*?)</code>', f.read_text(), re.S)]:
         k = key(c)
         if k in concepts: continue
         total += 1

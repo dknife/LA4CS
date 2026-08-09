@@ -486,6 +486,37 @@ function post(t, m) {
   self.postMessage({ t: t, m: m });
 }
 
+// 대화형(plotly) 그림을 모으는 코드.
+// 워커에는 화면이 없어 fig.show() 가 아무것도 못 하므로, show 를 가로채 두었다가
+// 실행이 끝난 뒤 to_json() 으로 뽑아 메인 스레드에서 plotly.js 로 그린다.
+var PLOTLY_HOOK = [
+  'import sys',
+  '_algja_plotly = []',
+  'def _algja_plotly_patch():',
+  '    go = sys.modules.get("plotly.graph_objects")',
+  '    if go is None or getattr(go.Figure, "_algja", False):',
+  '        return',
+  '    _orig = go.Figure.show',
+  '    def show(self, *a, **k):',
+  '        _algja_plotly.append(self)',
+  '    show._algja = True',
+  '    go.Figure.show = show',
+  '    go.Figure._algja = True',
+  'def _algja_plotly_dump(ns=None):',
+  '    go = sys.modules.get("plotly.graph_objects")',
+  '    if go is None:',
+  '        return []',
+  '    figs = list(_algja_plotly)',
+  '    if not figs and ns:',            // show() 를 부르지 않은 예제도 살린다
+  '        for v in ns.values():',
+  '            if isinstance(v, go.Figure) and v not in figs:',
+  '                figs.append(v)',
+  '    out = [f.to_json() for f in figs]',
+  '    _algja_plotly.clear()',
+  '    return out'
+].join('\n');
+
+
 async function ensurePyodide() {
   if (py) return py;
   post('status', '파이썬을 내려받는 중입니다 — 처음 한 번만 걸립니다');
@@ -493,6 +524,7 @@ async function ensurePyodide() {
   py.setStdout({ batched: function (s) { post('out', s + '\n'); } });
   py.setStderr({ batched: function (s) { post('err', s + '\n'); } });
   await py.runPythonAsync(PRELUDE);
+  py.runPython(PLOTLY_HOOK);
   // 가짜 turtle 모듈 등록 -- import turtle이 이 기록기를 가져가게 된다
   py.globals.set('_ALGJA_TURTLE_SRC', TURTLE_SRC);
   py.runPython([
@@ -555,6 +587,21 @@ self.onmessage = async function (ev) {
 
     post('status', '필요한 패키지를 확인하는 중…');
     await p.loadPackagesFromImports(code);
+
+    // 대화형 3차원 그림(tuvis/plotly)이 필요한 코드인지 본다.
+    // plotly 는 Pyodide 기본 배포에 없으므로 micropip 으로 받는다(순수 파이썬, 약 10MB).
+    if (/interactive\s*=\s*True|\btuvis\b|\bplotly\b/.test(code)) {
+      if (!p._algjaPlotly) {
+        post('status', '대화형 3차원 그림 준비 중입니다 — 처음 한 번만 걸립니다');
+        await p.loadPackage('micropip');
+        await p.runPythonAsync([
+          'import micropip',
+          'await micropip.install("plotly")'
+        ].join('\n'));
+        p._algjaPlotly = true;
+      }
+      p.runPython('_algja_plotly_patch()');
+    }
 
     // Flask는 순수 파이썬이라 브라우저에서도 import된다. 배포판에 없으면
     // micropip으로 PyPI에서 받아 온 뒤, run()을 가로채는 패치를 적용한다.
@@ -624,6 +671,15 @@ self.onmessage = async function (ev) {
     if (figs && figs.destroy) figs.destroy();
 
     post('figs', list);
+
+    // 대화형 그림 (plotly)
+    try {
+      p.globals.set('_algja_ns', ns);
+      var pj = p.runPython('_algja_plotly_dump(_algja_ns)');
+      var plist = pj && pj.toJs ? pj.toJs() : [];
+      if (pj && pj.destroy) pj.destroy();
+      if (plist.length) post('plotly', plist);
+    } catch (e) { /* plotly 를 안 쓴 코드면 그냥 넘어간다 */ }
     var tj = p.runPython('_algja_turtle_dump()');
     if (tj) post('turtle', tj);
     var gf = p.runPython('_algja_fs_diff()');

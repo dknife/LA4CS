@@ -825,3 +825,12 @@ img.tikz {
 .diff .d1 { color: #288C46; }
 .diff .d2 { color: #C8A01E; }
 .diff .d3 { color: #C83232; }
+
+/* 대화형 3차원 그림 (plotly) */
+.runner-plotly {
+  width: 100%; min-height: 460px;
+  margin: 0.6rem 0;
+  border: 1px solid var(--line, #E5E7EB);
+  border-radius: 10px;
+  overflow: hidden;
+}

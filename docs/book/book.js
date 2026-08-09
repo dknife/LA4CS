@@ -594,6 +594,42 @@ window.algjaRunner = (function () {
     if (turtleAnim) { cancelAnimationFrame(turtleAnim.raf); turtleAnim = null; }
   }
 
+  // 대화형 3차원 그림 (plotly)
+  // 워커는 그림의 JSON 만 보내온다. 실제 그리기는 여기서 plotly.js 로 한다.
+  var plotlyReady = null;
+  function loadPlotly() {
+    if (plotlyReady) return plotlyReady;
+    plotlyReady = new Promise(function (resolve, reject) {
+      if (window.Plotly) return resolve();
+      var sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js';
+      sc.onload = function () { resolve(); };
+      sc.onerror = function () { reject(new Error('plotly.js 로드 실패')); };
+      document.head.appendChild(sc);
+    });
+    return plotlyReady;
+  }
+
+  function renderPlotly(list) {
+    loadPlotly().then(function () {
+      (list || []).forEach(function (json) {
+        var spec;
+        try { spec = JSON.parse(json); }
+        catch (e) { append('err', '그림을 읽지 못했습니다\n'); return; }
+        var div = document.createElement('div');
+        div.className = 'runner-plotly';
+        ui.figs.appendChild(div);
+        var layout = spec.layout || {};
+        layout.autosize = true;
+        delete layout.width;                 // 창 너비에 맞춘다
+        window.Plotly.newPlot(div, spec.data || [], layout,
+                              { responsive: true, displaylogo: false });
+      });
+    }).catch(function (e) {
+      append('err', (e.message || e) + '\n');
+    });
+  }
+
   function renderTurtle(json) {
     var data;
     try { data = JSON.parse(json); } catch (e) { return; }
@@ -829,6 +865,8 @@ window.algjaRunner = (function () {
           img.alt = '실행 결과 그래프';
           ui.figs.appendChild(img);
         });
+      } else if (t === 'plotly') {
+        renderPlotly(m);
       } else if (t === 'turtle') {
         renderTurtle(m);
       } else if (t === 'gfiles') {
