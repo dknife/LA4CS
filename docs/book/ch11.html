@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>11장 특이값 분해 — 쓸모 있는 선형대수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="book.css">
+<script>MathJax = {tex: {inlineMath: [['\\(', '\\)']], macros: {
+  vv: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  mm: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  tp: '{^{\\mathsf{T}}}',
+  inv: '{^{-1}}',
+  pinv: '{^{+}}',
+  Id: '{\\boldsymbol{\\mathbf{I}}}',
+  zerovec: '{\\boldsymbol{\\mathbf{0}}}',
+  Real: '{\\mathbb{R}}',
+  Rsp: ['{\\mathbb{R}^{#1}}', 1],
+  Rmat: ['{\\mathbb{R}^{#1 \\times #2}}', 2],
+  norm: ['{\\left\\lVert #1 \\right\\rVert}', 1],
+  abs: ['{\\left\\lvert #1 \\right\\rvert}', 1],
+  sca: ['{#1}', 1],
+  rank: '{\\operatorname{rank}}',
+  trace: '{\\operatorname{tr}}',
+  diag: '{\\operatorname{diag}}',
+  spn: '{\\operatorname{span}}',
+  proj: '{\\operatorname{proj}}',
+  Col: '{\\operatorname{Col}}',
+  Nul: '{\\operatorname{Nul}}',
+  Row: '{\\operatorname{Row}}',
+  adj: '{\\operatorname{adj}}',
+  argmin: '{\\operatorname*{arg\\,min}}',
+  argmax: '{\\operatorname*{arg\\,max}}',
+  mtwo: ['{\\begin{bmatrix}#1 & #2\\\\ #3 & #4\\end{bmatrix}}', 4],
+  vtwo: ['{\\begin{bmatrix}#1\\\\ #2\\end{bmatrix}}', 2],
+  vthree: ['{\\begin{bmatrix}#1\\\\ #2\\\\ #3\\end{bmatrix}}', 3],
+  dash: '{\\;\\unicode{x2014}\\;}',
+  ndash: '{\\unicode{x2013}}'
+}, tags: 'ams'}, svg: {fontCache: 'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="home" href="../index.html">&#8962; 홈</a>
+  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="ch-indicator">11장 특이값 분해</span>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
+</header>
+<div class="layout">
+<nav class="sidebar">
+<div class="nav-ch"><a class="nav-ch-link" href="front.html"><span class="nav-num">&#128214;</span> 표지·머릿말</a></div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch01.html"><span class="nav-num">01</span> 선형대수와 도구</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch02.html"><span class="nav-num">02</span> 대규모 배열을 다루는 고성능 넘파이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch03.html"><span class="nav-num">03</span> 선형대수의 기본 자료: 스칼라, 벡터, 행렬</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch04.html"><span class="nav-num">04</span> 벡터를 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch05.html"><span class="nav-num">05</span> 행렬을 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch06.html"><span class="nav-num">06</span> 역행렬: 되돌리는 변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch07.html"><span class="nav-num">07</span> 행렬식과 선형변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch08.html"><span class="nav-num">08</span> 선형방정식의 풀이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch09.html"><span class="nav-num">09</span> 고유값과 고유벡터</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch10.html"><span class="nav-num">10</span> 행렬의 대각화</a>
+</div>
+<div class="nav-ch current"><a class="nav-ch-link" href="ch11.html"><span class="nav-num">11</span> 특이값 분해</a>
+<div class="nav-secs"><a class="nav-sec" href="ch11.html#sec1">11.1 특이값 분해의 정의</a><a class="nav-sec" href="ch11.html#sec2">11.2 특이값 분해의 기하적 의미</a><a class="nav-sec" href="ch11.html#sec3">11.3 저계수 근사와 데이터 압축</a><a class="nav-sec" href="ch11.html#sec4">11.4 주성분 분석</a><a class="nav-sec" href="ch11.html#labs">실습을 통한 개념 정리</a><a class="nav-sec" href="ch11.html#summary">11장 요약</a><a class="nav-sec" href="ch11.html#exercises">연습문제</a></div>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch12.html"><span class="nav-num">12</span> 다양한 행렬 분해의 활용</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch13.html"><span class="nav-num">13</span> 선형대수의 응용</a>
+</div>
+<div class="nav-part">부록</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
+</div>
+</nav>
+<main class="content">
+<div class="chapter-head">
+  <div class="ch-label">CHAPTER 11</div>
+  <h1>특이값 분해</h1>
+</div>
+<div class="center"><p><br>
+<details class="box goals"><summary class="box-head">이 장을 마치면</summary><div class="goals-body"><ul>
+<li>특이값 분해의 정의를 말하고 고유값 분해와 비교할 수 있다.</li>
+<li>SVD를 "회전 \(\to\) 확대 \(\to\) 회전"으로 해석하고 그림으로 그릴 수 있다.</li>
+<li>특이값의 크기가 정보량을 뜻함을 이해하고 저계수 근사를 수행할 수 있다.</li>
+<li>SVD로 이미지를 압축하고 압축률과 품질을 비교할 수 있다.</li>
+<li>주성분 분석의 원리를 설명하고 직접 구현하여 차원을 축소할 수 있다.</li>
+</ul></div></details></p></div>
+<p>10장의 고유값 분해에는 두 가지 제약이 있었다. <strong>정방행렬이어야</strong> 하고, <strong>고유벡터가 충분해야</strong> 한다. 그런데 실제 데이터 행렬은 대개 정방이 아니다. 1000명의 사람에 대해 50개의 특징을 기록한 행렬은 \(1000\times50\)이다.</p>
+<p><strong class="term-ko">특이값 분해</strong><sup class="term">singular value decomposition</sup>, 줄여서 SVD는 이 제약을 모두 없앤다. <strong>모든 행렬이</strong>  —  정방이든 아니든, 랭크가 얼마든, 결손이든 아니든  —  SVD를 가진다. 그러면서도 고유값 분해가 주던 좋은 성질을 거의 그대로 유지한다.</p>
+<p>이 때문에 SVD는 선형대수에서 가장 강력하고 실용적인 도구로 꼽힌다. 데이터 압축, 노이즈 제거, 추천 시스템, 주성분 분석, 그리고 최소제곱 문제의 안정적인 해결이 모두 SVD 위에 서 있다.</p>
+<h2 id="sec1">11.1 특이값 분해의 정의</h2>
+<h3>정의</h3>
+<div class="box defbox"><span class="chip">정의 11.1</span><span class="box-title">특이값 분해</span><p>임의의 행렬 \(\mm{A} \in \Rmat{m}{n}\)은 다음과 같이 분해된다.
+<div class="mathblock">\begin{equation}
+\mm{A} = \mm{U}\mm{\Sigma}\mm{V}\tp
+\label{eq:ch11_svd}
+\end{equation}</div>
+여기서
+<ul>
+<li>\(\mm{U} \in \Rmat{m}{m}\)은 직교행렬 (열을 <strong class="term-ko">왼쪽 특이벡터</strong><sup class="term">left singular vector</sup>라 한다)</li>
+<li>\(\mm{V} \in \Rmat{n}{n}\)은 직교행렬 (열을 <strong class="term-ko">오른쪽 특이벡터</strong><sup class="term">right singular vector</sup>라 한다)</li>
+<li>\(\mm{\Sigma} \in \Rmat{m}{n}\)은 대각 위치에만 값이 있는 행렬이며, 그 값 \(\sigma_1 \geq \sigma_2 \geq \cdots \geq 0\)을 <strong class="term-ko">특이값</strong><sup class="term">singular value</sup>이라 한다</li>
+</ul></p></div>
+<figure class="fig">
+<img class="tikz" src="img/ch11/fig01.svg" alt="figure">
+<p><figcaption>그림 11.1: 특이값 분해의 구조</figcaption></figure></p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[3., 1., 1.],
+              [-1., 3., 1.]])          # 2x3 (정방이 아니다!)
+
+U, s, Vt = np.linalg.svd(A)
+print('U  shape :', U.shape)
+print('s        :', np.round(s, 6))     # 특이값은 1차원 배열로 나온다
+print('Vt shape :', Vt.shape)
+
+# Sigma를 직접 만들어 복원해 보기
+Sigma = np.zeros(A.shape)
+np.fill_diagonal(Sigma, s)
+print('복원 확인 :', np.allclose(U @ Sigma @ Vt, A))
+print('U 직교    :', np.allclose(U.T @ U, np.eye(2)))
+print('V 직교    :', np.allclose(Vt @ Vt.T, np.eye(3)))</code></pre>
+<p><pre class="pyout">U  shape : (2, 2)
+s        : [3.464102 3.162278]
+Vt shape : (3, 3)
+복원 확인 : True
+U 직교    : True
+V 직교    : True</pre>
+<div class="listing-caption">코드 11.1: <code>np.linalg.svd</code>로 분해하고 복원하기</div></p>
+<div class="box caution"><span class="chip">주의</span><p><code>np.linalg.svd</code>는 세 가지를 유의해야 한다.
+<ul>
+<li><strong>특이값을 1차원 배열 <code>s</code>로</strong> 돌려준다. 행렬 \(\mm{\Sigma}\)가 아니다.</li>
+<li><strong>세 번째 반환값이 \(\mm{V}\)가 아니라 \(\mm{V}\tp\)다.</strong> 변수명을 <code>Vt</code>로 두는 것이 안전하다.</li>
+<li>큰 행렬에서는 <code>full_matrices=False</code>를 주는 것이 좋다. 불필요한 부분을 만들지 않아 메모리와 시간을 아낀다.</li>
+</ul></p></div>
+<h3>고유값 분해와의 비교</h3>
+<div class="center"><div class="table-wrap"><table><tr><th></th><th> 고유값 분해</th><th> 특이값 분해</th></tr><tr><td>형태</td><td>\(\mm{A} = \mm{V}\mm{\Lambda}\mm{V}\inv\)</td><td>\(\mm{A} = \mm{U}\mm{\Sigma}\mm{V}\tp\)</td></tr><tr><td>적용 대상</td><td>정방 + 대각화 가능</td><td><strong>모든 행렬</strong></td></tr><tr><td>양쪽 행렬</td><td>같다 (\(\mm{V}\)와 \(\mm{V}\inv\))</td><td>다르다 (\(\mm{U}\)와 \(\mm{V}\tp\))</td></tr><tr><td>직교성</td><td>대칭행렬일 때만</td><td><strong>항상</strong></td></tr><tr><td>대각 성분</td><td>실수 또는 복소수</td><td>항상 <strong>0 이상의 실수</strong></td></tr><tr><td>정렬</td><td>정해진 순서 없음</td><td>내림차순</td></tr><tr><td>수치 안정성</td><td>결손이면 불안정</td><td><strong>항상 안정</strong></td></tr></table></div></div>
+<p>표를 보면 SVD가 고유값 분해의 모든 약점을 보완한다는 것을 알 수 있다. 다만 SVD는 \(\mm{A}\)를 자기 자신에게 되돌리는 분해가 아니므로, 거듭제곱 \(\mm{A}^k\) 계산에는 쓸 수 없다(가운데 \(\mm{V}\tp\mm{U}\)가 소거되지 않는다). <strong>반복 동역학에는 고유값, 데이터 분석에는 특이값</strong>이 대체로 맞는 선택이다.</p>
+<h3>특이값은 어디서 오는가</h3>
+<p>SVD와 고유값 분해는 무관하지 않다. 식 \(\eqref{eq:ch11_svd}\)을 이용해 \(\mm{A}\tp\mm{A}\)를 계산해 보자.</p>
+<div class="mathblock">\begin{equation}
+\mm{A}\tp\mm{A} = (\mm{U}\mm{\Sigma}\mm{V}\tp)\tp(\mm{U}\mm{\Sigma}\mm{V}\tp)
+= \mm{V}\mm{\Sigma}\tp\underbrace{\mm{U}\tp\mm{U}}_{\Id}\mm{\Sigma}\mm{V}\tp
+= \mm{V}(\mm{\Sigma}\tp\mm{\Sigma})\mm{V}\tp
+\end{equation}</div>
+<p>\(\mm{\Sigma}\tp\mm{\Sigma}\)는 대각성분이 \(\sigma_i^2\)인 대각행렬이다. 그런데 이 식은 정확히 대칭행렬 \(\mm{A}\tp\mm{A}\)의 직교 대각화 형태다.</p>
+<div class="box thmbox"><span class="chip">정리 11.1</span><span class="box-title">특이값과 고유값의 관계</span><p><div class="mathblock">\begin{align}
+&\mm{V}\text{의 열} = \mm{A}\tp\mm{A}\text{의 고유벡터} \nonumber\\
+&\mm{U}\text{의 열} = \mm{A}\mm{A}\tp\text{의 고유벡터} \nonumber\\
+&\sigma_i = \sqrt{\lambda_i(\mm{A}\tp\mm{A})} \nonumber
+\end{align}</div>
+\(\mm{A}\tp\mm{A}\)는 언제나 대칭이고 고유값이 0 이상이므로, 특이값은 반드시 실수이고 음수가 아니다.</p></div>
+<p>3장 연습문제에서 "\(\mm{A}\tp\mm{A}\)는 항상 대칭"임을 확인했던 것이 여기서 결실을 맺는다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(0)
+A = rng.normal(0, 1, (5, 3))
+
+U, s, Vt = np.linalg.svd(A, full_matrices=False)
+w, V = np.linalg.eigh(A.T @ A)          # 대칭이므로 eigh
+
+print('특이값의 제곱 :', np.round(np.sort(s ** 2)[::-1], 6))
+print('A.T A의 고유값:', np.round(np.sort(w)[::-1], 6))
+print('일치 :', np.allclose(np.sort(s ** 2)[::-1], np.sort(w)[::-1]))</code></pre>
+<p><pre class="pyout">특이값의 제곱 : [9.928184 2.921811 0.112128]
+A.T A의 고유값: [9.928184 2.921811 0.112128]
+일치 : True</pre>
+<div class="listing-caption">코드 11.2: 특이값은 \(\mm{A}\tp\mm{A}\) 고유값의 제곱근</div></p>
+<div class="box caution"><span class="chip">주의</span><p>개념적으로는 \(\mm{A}\tp\mm{A}\)의 고유값을 구해 특이값을 얻을 수 있지만, <strong>실제 계산에서 이렇게 하면 안 된다.</strong> \(\mm{A}\tp\mm{A}\)를 만드는 순간 조건수가 제곱이 되어 정밀도가 절반으로 떨어지기 때문이다. 작은 특이값은 아예 사라져 버릴 수도 있다. 반드시 <code>np.linalg.svd</code>를 직접 쓰자.</p></div>
+<h3>특이값이 알려 주는 것</h3>
+<p>특이값은 그 행렬의 "성격"을 압축한 숫자들이다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 값</th><th> 의미</th></tr><tr><td>\(\sigma_1\) (최대)</td><td>벡터를 최대 몇 배까지 늘이는가</td></tr><tr><td>0이 아닌 특이값의 개수</td><td>\(\rank(\mm{A})\)</td></tr><tr><td>\(\sigma_1/\sigma_{\min}\)</td><td>조건수 (수치적 민감도)</td></tr><tr><td>\(\prod \sigma_i\) (정방일 때)</td><td>\(\abs{\det(\mm{A})}\)</td></tr><tr><td>\(\sum \sigma_i^2\)</td><td>프로베니우스 노름의 제곱 (전체 에너지)</td></tr></table></div></div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[4., 0.],
+              [3., -5.]])
+s = np.linalg.svd(A, compute_uv=False)
+
+print('특이값     :', np.round(s, 6))
+print('rank       :', np.sum(s &gt; 1e-10), np.linalg.matrix_rank(A))
+print('조건수     :', round(s[0] / s[-1], 6), round(np.linalg.cond(A), 6))
+print('|det|      :', round(np.prod(s), 6), round(abs(np.linalg.det(A)), 6))
+print('Frobenius  :', round(np.sqrt((s ** 2).sum()), 6),
+      round(np.linalg.norm(A, 'fro'), 6))</code></pre>
+<p><pre class="pyout">특이값     : [6.324555 3.162278]
+rank       : 2 2
+조건수     : 2.0 2.0
+|det|      : 20.0 20.0
+Frobenius  : 7.071068 7.071068</pre>
+<div class="listing-caption">코드 11.3: 특이값 하나로 여러 지표를 얻는다</div></p>
+<div class="box keypoint"><span class="chip">요점</span><p><strong>랭크를 판정할 때는 행렬식이 아니라 특이값을 보아야 한다.</strong> 부동소수점 오차 때문에 이론적으로 0이어야 할 특이값이 \(10^{-16}\) 같은 작은 값으로 나오는데, 적절한 문턱값(보통 \(\sigma_1 \times\) 기계 정밀도)보다 작으면 0으로 간주한다. <code>np.linalg.matrix_rank</code>가 내부적으로 하는 일이 정확히 이것이다.</p></div>
+<h2 id="sec2">11.2 특이값 분해의 기하적 의미</h2>
+<h3>모든 행렬은 회전 \(\to\) 확대 \(\to\) 회전이다</h3>
+<p>\(\mm{A}\vv{x} = \mm{U}\mm{\Sigma}\mm{V}\tp\vv{x}\)를 오른쪽부터 읽어 보자.</p>
+<div class="center"><img class="tikz" src="img/ch11/fig02.svg" alt="figure"></div>
+<p>10장의 대각화와 구조가 같지만 결정적인 차이가 하나 있다. 대각화에서는 앞뒤가 \(\mm{V}\inv\)과 \(\mm{V}\)로 <strong>서로 반대인 같은 회전</strong>이었지만, SVD에서는 \(\mm{V}\tp\)와 \(\mm{U}\)로 <strong>서로 다른 회전</strong>이다. 이 자유도 덕분에 모든 행렬을 다룰 수 있게 된다.</p>
+<div class="box keypoint"><span class="chip">요점</span><p><strong>단위원은 어떤 행렬을 통과해도 타원이 된다.</strong> 그 타원의 축 방향이 \(\mm{U}\)의 열이고, 축의 길이가 특이값 \(\sigma_i\)다. 그리고 그 축으로 가게 될 원래 방향이 \(\mm{V}\)의 열이다.</p></div>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[2., 1.5],
+              [0.5, 1.]])
+U, s, Vt = np.linalg.svd(A)
+
+t = np.linspace(0, 2 * np.pi, 200)
+circle = np.column_stack([np.cos(t), np.sin(t)])
+dots = circle[::20]
+
+stages = [(np.eye(2), 'start (unit circle)'),
+          (Vt, 'step 1: V.T (rotate)'),
+          (np.diag(s) @ Vt, 'step 2: Sigma (stretch)'),
+          (U @ np.diag(s) @ Vt, 'step 3: U (rotate) = A')]
+
+fig, axes = plt.subplots(1, 4, figsize=(14, 3.6))
+for ax, (M, title) in zip(axes, stages):
+    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    ax.axhline(0, color='black', lw=0.5); ax.axvline(0, color='black', lw=0.5)
+    C = transform(M, circle)
+    ax.plot(C[:, 0], C[:, 1], color='steelblue', lw=1.5)
+    draw_points(ax, transform(M, dots), color='crimson', s=18)
+    ax.set_title(title, fontsize=9)
+plt.tight_layout(); plt.show()
+
+print('특이값 :', np.round(s, 4))
+print('타원의 반장축, 반단축과 같다')</code></pre>
+<div class="listing-caption">코드 11.4: SVD를 세 단계로 나누어 보기</div></p>
+<figure class="fig">
+<img class="tikz" src="img/ch11/fig03.svg" alt="figure">
+<p><figcaption>그림 11.2: SVD의 세 단계: 회전 \(\to\) 확대 \(\to\) 회전</figcaption></figure></p>
+<h3>\(\mm{V}\)와 \(\mm{U}\)가 짝을 이룬다</h3>
+<p>식 \(\eqref{eq:ch11_svd}\)을 오른쪽에서 \(\mm{V}\)를 곱하면 (\(\mm{V}\tp\mm{V}=\Id\)이므로)</p>
+<div class="mathblock">\begin{equation}
+\mm{A}\mm{V} = \mm{U}\mm{\Sigma}
+\quad\Longrightarrow\quad
+\mm{A}\vv{v}_i = \sigma_i\vv{u}_i
+\label{eq:ch11_pair}
+\end{equation}</div>
+<p>를 얻는다. 아주 깔끔한 관계다. <strong>\(\mm{A}\)는 \(i\)번째 오른쪽 특이벡터를 \(\sigma_i\)배 하여 \(i\)번째 왼쪽 특이벡터로 보낸다.</strong></p>
+<p>이것은 고유값 방정식 \(\mm{A}\vv{v} = \lambda\vv{v}\)와 닮았지만 결정적으로 다르다. 고유값에서는 들어간 벡터와 나온 벡터의 <strong>방향이 같아야</strong> 했지만, 여기서는 <strong>서로 다른 벡터</strong>여도 된다. 그 완화 덕분에 모든 행렬이 SVD를 갖게 되는 것이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[2., 1.5],
+              [0.5, 1.]])
+U, s, Vt = np.linalg.svd(A)
+V = Vt.T
+
+for i in range(2):
+    print(f'A v{i} == sigma{i} u{i} :',
+          np.allclose(A @ V[:, i], s[i] * U[:, i]))
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.8))
+for ax in (ax1, ax2):
+    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    ax.axhline(0, color='black', lw=0.5); ax.axvline(0, color='black', lw=0.5)
+
+t = np.linspace(0, 2 * np.pi, 200)
+circle = np.column_stack([np.cos(t), np.sin(t)])
+ax1.plot(circle[:, 0], circle[:, 1], color='lightgray', lw=1.2)
+draw_vector(ax1, V[:, 0], color='crimson', label='v1')
+draw_vector(ax1, V[:, 1], color='royalblue', label='v2')
+ax1.set_title('input: orthogonal v1, v2')
+
+E = transform(A, circle)
+ax2.plot(E[:, 0], E[:, 1], color='steelblue', lw=1.2)
+draw_vector(ax2, s[0] * U[:, 0], color='crimson', label='s1 u1')
+draw_vector(ax2, s[1] * U[:, 1], color='royalblue', label='s2 u2')
+ax2.set_title('output: still orthogonal!')
+plt.tight_layout(); plt.show()</code></pre>
+<p><pre class="pyout">A v0 == sigma0 u0 : True
+A v1 == sigma1 u1 : True</pre>
+<div class="listing-caption">코드 11.5: \(\mm{A}\vv{v}_i = \sigma_i\vv{u}_i\) 관계 확인</div></p>
+<p><blockquote class="bodyquote"><p>SVD가 말하는 것: 어떤 행렬이든, 서로 직교하는 입력 방향들을 골라 넣으면 출력도 서로 직교하도록 만들 수 있다.</p></blockquote></p>
+<p>이것이 SVD의 기하적 본질이다. 직교성이 입력에서도 출력에서도 유지되는 특별한 방향 쌍이 반드시 존재하며, 그것을 찾아 주는 것이 SVD다.</p>
+<h3>랭크-1 조각의 합</h3>
+<p>5장에서 배운 네 번째 관점(랭크-1 조각의 합)을 SVD에 적용하면 다음 표현을 얻는다.</p>
+<div class="box thmbox"><span class="chip">정리 11.2</span><span class="box-title">SVD의 전개 형태</span><p><div class="mathblock">\begin{equation}
+\mm{A} = \sum_{i=1}^{r} \sigma_i\,\vv{u}_i\vv{v}_i\tp
+\qquad (r = \rank(\mm{A}))
+\label{eq:ch11_sum}
+\end{equation}</div>
+각 항 \(\sigma_i\vv{u}_i\vv{v}_i\tp\)는 랭크가 1인 행렬이며, \(\sigma_i\)가 그 조각의 "세기"다.</p></div>
+<p>특이값이 내림차순으로 정렬되어 있다는 사실이 여기서 결정적으로 중요해진다. <strong>앞쪽 조각일수록 원래 행렬을 더 많이 설명한다.</strong> 그렇다면 뒤쪽 조각을 버려도 되지 않을까? 이것이 다음 절의 주제다.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+rng = np.random.default_rng(0)
+A = rng.normal(0, 1, (6, 6))
+U, s, Vt = np.linalg.svd(A)
+
+fig, axes = plt.subplots(1, 4, figsize=(12, 3.2))
+partial = np.zeros_like(A)
+for k, ax in enumerate(axes[:3]):
+    piece = s[k] * np.outer(U[:, k], Vt[k, :])
+    partial += piece
+    show_matrix(ax, piece, fmt='', title=f'sigma{k} u{k} v{k}.T')
+show_matrix(axes[3], A, fmt='', title='A (sum of all 6)')
+plt.tight_layout(); plt.show()
+
+full = sum(s[i] * np.outer(U[:, i], Vt[i, :]) for i in range(6))
+print('모든 조각의 합 == A :', np.allclose(full, A))
+print('특이값 :', np.round(s, 4))</code></pre>
+<div class="listing-caption">코드 11.6: 행렬을 랭크-1 조각으로 분해하기</div></p>
+<h2 id="sec3">11.3 저계수 근사와 데이터 압축</h2>
+<h3>앞쪽 몇 개만 남기기</h3>
+<p>식 \(\eqref{eq:ch11_sum}\)에서 앞의 \(k\)개 항만 남기고 나머지를 버려 보자.</p>
+<div class="mathblock">\begin{equation}
+\mm{A}_k = \sum_{i=1}^{k} \sigma_i\,\vv{u}_i\vv{v}_i\tp
+\end{equation}</div>
+<p>이 \(\mm{A}_k\)는 랭크가 \(k\)인 행렬이며, 원래 행렬 \(\mm{A}\)의 근사다. 놀라운 사실은 이것이 <strong>가능한 모든 랭크-\(k\) 행렬 중 최선의 근사</strong>라는 점이다.</p>
+<div class="box thmbox"><span class="chip">정리 11.3</span><span class="box-title">에카트–영 정리</span><p>랭크가 \(k\) 이하인 모든 행렬 \(\mm{B}\)에 대하여
+<div class="mathblock">\begin{equation}
+\norm{\mm{A} - \mm{A}_k}_F \leq \norm{\mm{A} - \mm{B}}_F
+\end{equation}</div>
+이 성립한다. 즉 \(\mm{A}_k\)가 최적의 랭크-\(k\) 근사이며, 그때의 오차는
+<div class="mathblock">\begin{equation}
+\norm{\mm{A}-\mm{A}_k}_F = \sqrt{\sigma_{k+1}^2 + \cdots + \sigma_r^2}
+\end{equation}</div>
+이다.</p></div>
+<p>이 정리가 SVD를 데이터 과학의 필수 도구로 만든 이유다. <strong>"가장 중요한 \(k\)개의 성분만 남긴다"</strong>는 직관적인 조작이 수학적으로 최적임을 보장해 준다.</p>
+<h3>에너지와 설명력</h3>
+<p>버려진 정보의 양을 재는 자연스러운 척도가 있다. 특이값의 제곱을 "에너지"로 보고, 앞쪽 \(k\)개가 전체의 몇 퍼센트를 차지하는지 계산하는 것이다.</p>
+<div class="mathblock">\begin{equation}
+\text{설명 비율}(k) = \frac{\sigma_1^2 + \cdots + \sigma_k^2}{\sigma_1^2 + \cdots + \sigma_r^2}
+\end{equation}</div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(0)
+# 랭크가 사실상 3인 행렬 만들기 (약간의 잡음 포함)
+B = rng.normal(0, 1, (50, 3)) @ rng.normal(0, 1, (3, 40))
+A = B + 0.05 * rng.normal(0, 1, (50, 40))
+
+s = np.linalg.svd(A, compute_uv=False)
+energy = np.cumsum(s ** 2) / np.sum(s ** 2)
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 3.6))
+ax1.semilogy(s, 'o-', ms=4)
+ax1.set_xlabel('index'); ax1.set_ylabel('singular value')
+ax1.grid(True, alpha=0.3); ax1.set_title('singular values (log)')
+
+ax2.plot(np.arange(1, len(s) + 1), energy * 100, 'o-', ms=4)
+ax2.axhline(99, ls='--', color='gray')
+ax2.set_xlabel('k'); ax2.set_ylabel('explained %')
+ax2.grid(True, alpha=0.3); ax2.set_title('cumulative energy')
+plt.tight_layout(); plt.show()
+
+print('상위 3개가 설명하는 비율 :', round(energy[2] * 100, 4), '%')
+print('rank (수치적)            :', np.linalg.matrix_rank(A))</code></pre>
+<p><pre class="pyout">상위 3개가 설명하는 비율 : 99.9295 %
+rank (수치적)            : 40</pre>
+<div class="listing-caption">코드 11.7: 특이값의 감쇠와 누적 설명력</div></p>
+<p>수치적 랭크는 40이지만, 실제로는 3개의 성분이 99.9%를 설명한다. <strong>나머지 37개는 잡음</strong>이다. 특이값 그래프를 로그 눈금으로 그리면 3번째 이후로 뚝 떨어지는 "무릎"이 보이는데, 이 지점이 신호와 잡음의 경계다. SVD가 노이즈 제거에 쓰이는 이유가 여기에 있다.</p>
+<h3>이미지 압축 실습</h3>
+<p>이미지 한 장은 행렬이다(3장). 그렇다면 SVD로 압축할 수 있다. 외부 이미지 파일 없이, 넘파이로 그림을 하나 만들어 실험해 보자.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+def make_image(n=128):
+    """넘파이만으로 테스트 이미지를 만든다 (원, 사각형, 줄무늬)."""
+    y, x = np.mgrid[0:n, 0:n] / n            # 0~1 좌표 격자
+    img = np.zeros((n, n))
+    img += 0.6 * (((x - 0.35) ** 2 + (y - 0.35) ** 2) &lt; 0.04)   # 원
+    img += 0.9 * ((x &gt; 0.55) &amp; (x &lt; 0.9) &amp; (y &gt; 0.55) &amp; (y &lt; 0.85))  # 사각형
+    img += 0.4 * (np.sin(30 * x) &gt; 0) * (y &gt; 0.9)                # 줄무늬
+    img += 0.25 * y                                              # 그러데이션
+    return np.clip(img, 0, 1)
+
+img = make_image(128)
+U, s, Vt = np.linalg.svd(img, full_matrices=False)
+
+ranks = [1, 5, 20, 128]
+fig, axes = plt.subplots(1, 5, figsize=(15, 3.2))
+axes[0].imshow(img, cmap='gray'); axes[0].set_title('original')
+for ax, k in zip(axes[1:], ranks):
+    approx = U[:, :k] @ np.diag(s[:k]) @ Vt[:k, :]
+    ax.imshow(np.clip(approx, 0, 1), cmap='gray')
+    ratio = k * (128 + 128 + 1) / (128 * 128) * 100
+    ax.set_title(f'k={k}  ({ratio:.0f}% size)', fontsize=9)
+for ax in axes:
+    ax.set_xticks([]); ax.set_yticks([])
+plt.tight_layout(); plt.show()
+
+for k in ranks:
+    approx = U[:, :k] @ np.diag(s[:k]) @ Vt[:k, :]
+    err = np.linalg.norm(img - approx, 'fro') / np.linalg.norm(img, 'fro')
+    print(f'k={k:4d}: 상대 오차 {err:.4f}, '
+          f'저장 성분 {k*(128+128+1):6d} / {128*128}')</code></pre>
+<p><pre class="pyout">k=   1: 상대 오차 0.5497, 저장 성분    257 / 16384
+k=   5: 상대 오차 0.0904, 저장 성분   1285 / 16384
+k=  20: 상대 오차 0.0259, 저장 성분   5140 / 16384
+k= 128: 상대 오차 0.0000, 저장 성분  32896 / 16384</pre>
+<div class="listing-caption">코드 11.8: SVD를 이용한 이미지 압축</div></p>
+<figure class="fig">
+<img class="tikz" src="img/ch11/fig04.svg" alt="figure">
+<p><figcaption>그림 11.3: 랭크를 올릴수록 이미지가 복원된다</figcaption></figure></p>
+<p>\(k=1\)일 때는 거의 알아볼 수 없지만 \(k=20\)이면 원본과 구별하기 어렵다. 그런데 저장해야 할 숫자는 5140개로 원본 16384개의 약 31%다. <strong>데이터의 3분의 1만 가지고도 눈에는 거의 같은 그림</strong>을 만들 수 있는 것이다.</p>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">압축률 계산</span><p>\(m\times n\) 이미지를 랭크 \(k\)로 근사하면 저장해야 할 숫자는 \(\mm{U}\)의 \(mk\)개, \(\mm{V}\)의 \(nk\)개, 특이값 \(k\)개를 합해 \(k(m+n+1)\)개다. 원본이 \(mn\)개이므로 압축이 되려면
+<div class="mathblock">\[
+k(m+n+1) < mn \quad\Longleftrightarrow\quad k < \frac{mn}{m+n+1}
+\]</div>
+이어야 한다. \(128\times128\)이면 \(k < 63.7\)이므로 \(k=64\) 이상에서는 오히려 손해다. 코드 출력에서 \(k=128\)일 때 저장 성분이 원본보다 많아진 이유가 이것이다.</p></div>
+<div class="box caution"><span class="chip">주의</span><p>실제 JPEG는 SVD가 아니라 이산 코사인 변환(DCT)을 쓴다. SVD는 이미지마다 \(\mm{U}\)와 \(\mm{V}\)를 따로 저장해야 해서 비효율적이기 때문이다. 그럼에도 SVD 압축을 배우는 이유는 <strong>"중요한 성분만 남긴다"는 아이디어의 가장 순수한 형태</strong>이기 때문이다. 이 아이디어는 이미지가 아니라 추천 시스템의 평점 행렬, 문서-단어 행렬, 신경망의 가중치 행렬에서 훨씬 큰 위력을 발휘한다.</p></div>
+<div class="box step"><span class="chip">한 걸음 더</span><span class="box-title">LoRA  —  대규모 모델을 저계수로 미세조정하기</span><p>거대 언어 모델을 특정 용도에 맞게 미세조정하려면 수십억 개의 가중치를 모두 갱신해야 한다. 비용이 엄청나다.</p>
+<p><strong class="term-ko">LoRA</strong><sup class="term">Low-Rank Adaptation</sup>는 이 문제를 저계수 근사로 해결한다. 가중치 행렬 \(\mm{W}\)를 통째로 바꾸는 대신, 변화량만 저계수 행렬로 표현하는 것이다.
+<div class="mathblock">\[
+\mm{W}_{\text{new}} = \mm{W} + \mm{B}\mm{A}, \qquad \mm{B}\in\Rmat{d}{r},\ \mm{A}\in\Rmat{r}{d},\ r \ll d
+\]</div>
+\(\mm{B}\mm{A}\)는 랭크가 \(r\) 이하인 행렬이다. \(d=4096\), \(r=8\)이면 갱신할 파라미터가 \(4096^2 \approx 1600\)만 개에서 \(2\times4096\times8 \approx 6.5\)만 개로 <strong>250분의 1</strong>이 된다.</p>
+<p>이 방법이 통하는 이유는 미세조정에 필요한 변화가 실제로 저계수 구조를 갖기 때문이다. 이 장에서 배운 "특이값이 빠르게 감쇠하면 앞쪽 몇 개로 충분하다"는 관찰이 수천억 규모 모델에서도 그대로 성립하는 것이다.</p></div>
+<h2 id="sec4">11.4 주성분 분석</h2>
+<h3>데이터가 가장 많이 퍼진 방향</h3>
+<p>1000명의 (키, 몸무게, 발 크기, 앉은키) 데이터가 있다고 하자. 네 개의 특징은 서로 강하게 연관되어 있다. 키가 큰 사람은 대체로 몸무게도 많이 나가고 발도 크다. 그렇다면 이 데이터를 <strong>하나의 축</strong>으로 요약할 수 있지 않을까? "체격"이라는 이름을 붙일 수 있는 축 말이다.</p>
+<p><strong class="term-ko">주성분 분석</strong><sup class="term">Principal Component Analysis</sup>, 줄여서 PCA는 바로 이런 축을 찾는 방법이다. 정확히 말하면 <strong>데이터가 가장 많이 퍼져 있는 방향</strong>을 차례로 찾는다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch11/fig05.svg" alt="figure">
+<p><figcaption>그림 11.4: 주성분은 데이터가 가장 넓게 퍼진 방향이다</figcaption></figure></p>
+<h3>공분산행렬과 SVD</h3>
+<p>"퍼진 정도"를 재는 척도는 분산이다. 여러 특징 사이의 관계까지 담으려면 <strong class="term-ko">공분산행렬</strong><sup class="term">covariance matrix</sup>이 필요하다.</p>
+<div class="box defbox"><span class="chip">정의 11.2</span><span class="box-title">공분산행렬</span><p>데이터 행렬 \(\mm{X} \in \Rmat{n}{d}\)(행이 샘플, 열이 특징)에서 각 열의 평균을 뺀 <strong class="term-ko">중심화</strong><sup class="term">centering</sup> 행렬을 \(\mm{X}_c\)라 할 때
+<div class="mathblock">\begin{equation}
+\mm{C} = \frac{1}{n-1}\mm{X}_c\tp\mm{X}_c \in \Rmat{d}{d}
+\end{equation}</div>
+을 공분산행렬이라 한다. \((i,j)\) 성분은 \(i\)번째와 \(j\)번째 특징의 공분산이고, 대각성분은 각 특징의 분산이다.</p></div>
+<p>공분산행렬은 대칭이므로 10장의 스펙트럼 정리에 따라 직교 대각화된다. 그리고 그 <strong>고유벡터가 주성분, 고유값이 그 방향의 분산</strong>이다.</p>
+<p>그런데 굳이 \(\mm{C}\)를 만들 필요가 없다. 11.1절에서 보았듯 \(\mm{X}_c\tp\mm{X}_c\)의 고유벡터는 \(\mm{X}_c\)의 오른쪽 특이벡터이기 때문이다.</p>
+<div class="box keypoint"><span class="chip">요점</span><p><strong>PCA = 중심화한 데이터 행렬의 SVD</strong>
+<div class="mathblock">\begin{align}
+&\mm{X}_c = \mm{U}\mm{\Sigma}\mm{V}\tp \nonumber\\
+&\text{주성분 방향} = \mm{V}\text{의 열} \nonumber\\
+&\text{그 방향의 분산} = \frac{\sigma_i^2}{n-1} \nonumber\\
+&\text{저차원 좌표} = \mm{X}_c\mm{V}_k = \mm{U}_k\mm{\Sigma}_k \nonumber
+\end{align}</div>
+공분산행렬을 만들지 않는 편이 수치적으로 더 안정적이다.</p></div>
+<h3>PCA 직접 구현하기</h3>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+def pca(X, k=None):
+    """주성분 분석. X는 (샘플 x 특징) 행렬."""
+    X = np.asarray(X, dtype=float)
+    mean = X.mean(axis=0)
+    Xc = X - mean                            # ① 중심화
+    U, s, Vt = np.linalg.svd(Xc, full_matrices=False)   # ② SVD
+    n = X.shape[0]
+    var = s ** 2 / (n - 1)                   # ③ 각 주성분의 분산
+    ratio = var / var.sum()                  # ④ 설명 비율
+    if k is None:
+        k = len(s)
+    Z = Xc @ Vt[:k].T                        # ⑤ 저차원 좌표
+    return Z, Vt[:k], var[:k], ratio[:k], mean
+
+# 상관관계가 강한 2차원 데이터 만들기
+rng = np.random.default_rng(42)
+n = 200
+t = rng.normal(0, 2.5, n)
+X = np.column_stack([t + rng.normal(0, 0.5, n),
+                     0.6 * t + rng.normal(0, 0.4, n)])
+
+Z, PCs, var, ratio, mean = pca(X)
+print('주성분 방향 :\n', np.round(PCs, 4))
+print('분산        :', np.round(var, 4))
+print('설명 비율   :', np.round(ratio * 100, 2), '%')
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.5))
+ax1.scatter(X[:, 0], X[:, 1], s=12, alpha=0.6, color='steelblue')
+for i in range(2):
+    v = PCs[i] * np.sqrt(var[i]) * 2
+    ax1.arrow(mean[0], mean[1], v[0], v[1], color=PALETTE[i],
+              width=0.05, head_width=0.25, zorder=5)
+ax1.set_aspect('equal'); ax1.grid(True, alpha=0.3)
+ax1.set_title('original data with PC directions')
+
+ax2.scatter(Z[:, 0], Z[:, 1], s=12, alpha=0.6, color='crimson')
+ax2.set_aspect('equal'); ax2.grid(True, alpha=0.3)
+ax2.set_xlabel('PC1'); ax2.set_ylabel('PC2')
+ax2.set_title('rotated to PC coordinates')
+plt.tight_layout(); plt.show()</code></pre>
+<p><pre class="pyout">주성분 방향 :
+ [[-0.8601 -0.5101]
+ [-0.5101  0.8601]]
+분산        : [6.6445 0.184 ]
+설명 비율   : [97.31  2.69] %</pre>
+<div class="listing-caption">코드 11.9: PCA 구현과 시각화</div></p>
+<p>첫 번째 주성분이 분산의 97% 이상을 설명한다. 즉 이 2차원 데이터는 사실상 <strong>1차원</strong>이며, PC1 좌표 하나만 남겨도 정보의 대부분을 지킬 수 있다.</p>
+<h3>고차원 데이터를 2차원으로 보기</h3>
+<p>PCA의 가장 흔한 용도는 눈으로 볼 수 없는 고차원 데이터를 2차원 평면에 그리는 것이다. 네 개의 특징을 가진 세 그룹의 데이터를 만들어 시험해 보자.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(0)
+
+# 4차원 공간에 세 개의 덩어리 만들기
+centers = np.array([[0., 0., 0., 0.],
+                    [4., 3., -1., 2.],
+                    [-3., 4., 2., -2.]])
+X, y = [], []
+for c, center in enumerate(centers):
+    X.append(rng.normal(center, 1.0, (60, 4)))
+    y.append(np.full(60, c))
+X = np.vstack(X); y = np.concatenate(y)
+
+Xc = X - X.mean(axis=0)
+U, s, Vt = np.linalg.svd(Xc, full_matrices=False)
+Z = Xc @ Vt[:2].T                              # 2차원으로 투영
+
+ratio = s ** 2 / (s ** 2).sum()
+print('설명 비율 :', np.round(ratio * 100, 2), '%')
+print('상위 2개  :', round(ratio[:2].sum() * 100, 2), '%')
+
+plt.figure(figsize=(5.5, 4.5))
+for c, color in enumerate(['crimson', 'royalblue', 'seagreen']):
+    plt.scatter(Z[y == c, 0], Z[y == c, 1], s=18, alpha=0.7,
+                color=color, label=f'group {c}')
+plt.xlabel('PC1'); plt.ylabel('PC2')
+plt.gca().set_aspect('equal'); plt.grid(True, alpha=0.3); plt.legend()
+plt.show()</code></pre>
+<p><pre class="pyout">설명 비율 : [70.19 18.81  5.6   5.39] %
+상위 2개  : 89.0 %</pre>
+<div class="listing-caption">코드 11.10: 4차원 데이터를 2차원으로 축소해 시각화하기</div></p>
+<p>4차원 데이터를 2차원으로 줄였는데도 세 덩어리가 뚜렷이 구분된다. 정보의 89%를 지켰기 때문이다. 원래 특징 중 아무 두 개를 골라 그렸다면 이렇게 깔끔하게 나뉘지 않았을 것이다. <strong>PCA는 "가장 잘 보이는 각도"를 찾아 주는 도구</strong>인 셈이다.</p>
+<div class="box caution"><span class="chip">주의</span><p><strong>PCA 전에 반드시 중심화해야 한다.</strong> 평균을 빼지 않으면 첫 번째 주성분이 데이터의 퍼짐이 아니라 원점에서 데이터 덩어리까지의 방향을 가리키게 되어 완전히 엉뚱한 결과가 나온다.</p>
+<p>또한 특징들의 <strong>단위가 다르면 표준화</strong>도 필요하다. 키를 mm로, 몸무게를 kg으로 기록했다면 키의 분산이 압도적으로 커서 PC1이 사실상 키만 반영하게 된다. 이럴 때는 각 열을 표준편차로도 나누어야 한다.</p></div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(1)
+X = np.column_stack([rng.normal(1700, 80, 100),    # 키 (mm)
+                     rng.normal(65, 10, 100)])     # 몸무게 (kg)
+
+for name, D in [('중심화만', X - X.mean(axis=0)),
+                ('표준화', (X - X.mean(axis=0)) / X.std(axis=0))]:
+    Vt = np.linalg.svd(D, full_matrices=False)[2]
+    print(f'{name:8s} PC1 = {np.round(Vt[0], 4)}')</code></pre>
+<p><pre class="pyout">중심화만     PC1 = [-1.     0.004]
+표준화      PC1 = [-0.7071  0.7071]</pre>
+<div class="listing-caption">코드 11.11: 표준화 없이 PCA를 하면 단위가 큰 특징이 지배한다</div></p>
+<p>중심화만 했을 때 PC1은 거의 키 축(첫 성분)이다. 표준화한 뒤에는 두 특징이 균형 있게 반영된다.</p>
+<div class="box step"><span class="chip">한 걸음 더</span><span class="box-title">PCA와 관련된 기법들</span><p>PCA는 매우 오래된 기법이지만 여전히 널리 쓰이며, 여러 변형과 후속 기법의 출발점이기도 하다.
+<ul>
+<li><strong>잠재 의미 분석</strong>(LSA)  문서-단어 행렬에 SVD를 적용해 단어의 의미적 유사성을 포착한다. 현대 단어 임베딩의 조상이다.</li>
+<li><strong>잠재 요인 모델</strong>  사용자-상품 평점 행렬을 저계수로 근사해 빈칸을 채운다. 넷플릭스 추천 대회에서 위력을 발휘했다.</li>
+<li><strong>화이트닝</strong>  데이터를 주성분 방향으로 회전한 뒤 각 축을 분산 1로 맞춘다. 신경망 학습을 안정시키는 전처리로 쓰인다.</li>
+<li><strong>t-SNE, UMAP</strong>  비선형 차원 축소 기법으로, 주로 PCA로 먼저 50차원 정도까지 줄인 뒤 적용한다.</li>
+</ul></p></div>
+<p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 주성분 분석을 이용한 데이터 차원 축소</div><ol>
+<li><strong>SVD의 세 단계를 그려 보자.</strong> 임의의 \(2\times2\) 행렬에 대해 단위원이 타원이 되는 과정을 네 장으로 나누어 그리시오.
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[1.5, 1.2],
+              [-0.8, 1.0]])
+U, s, Vt = np.linalg.svd(A)
+
+t = np.linspace(0, 2 * np.pi, 200)
+circle = np.column_stack([np.cos(t), np.sin(t)])
+dots = circle[::16]
+
+steps = [(np.eye(2), 'unit circle'), (Vt, 'V.T'),
+         (np.diag(s) @ Vt, 'Sigma V.T'), (A, 'A = U Sigma V.T')]
+
+fig, axes = plt.subplots(1, 4, figsize=(14, 3.6))
+for ax, (M, name) in zip(axes, steps):
+    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    C = transform(M, circle)
+    ax.plot(C[:, 0], C[:, 1], color='steelblue', lw=1.5)
+    draw_points(ax, transform(M, dots), color='crimson', s=16)
+    ax.set_title(name, fontsize=9)
+plt.tight_layout(); plt.show()
+print('특이값 :', np.round(s, 4))</code></pre></li>
+<li><strong>특이값의 감쇠를 관찰하자.</strong> 랭크가 낮은 행렬과 무작위 행렬의 특이값 분포를 비교하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(0)
+noise = rng.normal(0, 1, (60, 60))
+lowrank = rng.normal(0, 1, (60, 4)) @ rng.normal(0, 1, (4, 60))
+mixed = lowrank + 0.3 * noise
+
+plt.figure(figsize=(6, 3.8))
+for M, name in [(noise, 'random'), (lowrank, 'rank 4'),
+                (mixed, 'rank 4 + noise')]:
+    s = np.linalg.svd(M, compute_uv=False)
+    plt.semilogy(s, 'o-', ms=3, label=name)
+plt.xlabel('index'); plt.ylabel('singular value')
+plt.legend(); plt.grid(True, alpha=0.3)
+plt.show()</code></pre>
+<p>랭크 4인 행렬은 5번째부터 특이값이 급락한다. 잡음이 섞이면 완전히 0이 되지는 않지만 뚜렷한 "무릎"이 남는다.</li>
+<li><strong>이미지를 압축하고 오차를 재자.</strong> 여러 \(k\)에 대해 근사 이미지와 상대 오차를 함께 그리시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+def make_image(n=160):
+    y, x = np.mgrid[0:n, 0:n] / n
+    img = 0.3 * y + 0.15 * np.sin(12 * np.pi * x)
+    img += 0.5 * (((x - 0.3) ** 2 + (y - 0.7) ** 2) &lt; 0.03)
+    img += 0.7 * ((x &gt; 0.55) &amp; (x &lt; 0.9) &amp; (y &gt; 0.15) &amp; (y &lt; 0.45))
+    return np.clip(img, 0, 1)
+
+img = make_image()
+U, s, Vt = np.linalg.svd(img, full_matrices=False)
+
+ks = [2, 5, 10, 20, 40]
+fig, axes = plt.subplots(1, 6, figsize=(16, 3))
+axes[0].imshow(img, cmap='gray'); axes[0].set_title('original', fontsize=9)
+for ax, k in zip(axes[1:], ks):
+    approx = U[:, :k] @ np.diag(s[:k]) @ Vt[:k]
+    err = np.linalg.norm(img - approx) / np.linalg.norm(img)
+    ax.imshow(np.clip(approx, 0, 1), cmap='gray')
+    ax.set_title(f'k={k}, err={err:.3f}', fontsize=9)
+for ax in axes:
+    ax.set_xticks([]); ax.set_yticks([])
+plt.tight_layout(); plt.show()</code></pre></li>
+<li><strong>에카트–영 정리를 확인하자.</strong> 무작위 랭크-\(k\) 행렬을 여러 개 만들어, SVD 근사보다 더 좋은 것이 있는지 확인하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(3)
+A = rng.normal(0, 1, (20, 15))
+k = 5
+
+U, s, Vt = np.linalg.svd(A, full_matrices=False)
+Ak = U[:, :k] @ np.diag(s[:k]) @ Vt[:k]
+best = np.linalg.norm(A - Ak, 'fro')
+print(f'SVD 근사 오차      : {best:.6f}')
+print(f'이론값 sqrt(sum s^2): {np.sqrt((s[k:] ** 2).sum()):.6f}')
+
+better = 0
+for _ in range(2000):
+    B = rng.normal(0, 1, (20, k)) @ rng.normal(0, 1, (k, 15))
+    if np.linalg.norm(A - B, 'fro') &lt; best:
+        better += 1
+print(f'2000번 중 더 나은 랭크-{k} 행렬 : {better}개')</code></pre>
+<p><pre class="pyout">SVD 근사 오차      : 10.007537
+이론값 sqrt(sum s^2): 10.007537
+2000번 중 더 나은 랭크-5 행렬 : 0개</pre></li>
+<li><strong>PCA를 구현하고 검증하자.</strong> 앞 절의 <code>pca()</code> 함수를 만들고, 주성분이 공분산행렬의 고유벡터와 일치하는지 확인하시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+
+def pca(X, k=None):
+    X = np.asarray(X, float)
+    mean = X.mean(axis=0)
+    Xc = X - mean
+    U, s, Vt = np.linalg.svd(Xc, full_matrices=False)
+    n = X.shape[0]
+    var = s ** 2 / (n - 1)
+    k = len(s) if k is None else k
+    return Xc @ Vt[:k].T, Vt[:k], var[:k], var / var.sum(), mean
+
+rng = np.random.default_rng(7)
+X = rng.normal(0, 1, (300, 4)) @ rng.normal(0, 1, (4, 4))
+
+Z, PCs, var, ratio, mean = pca(X)
+C = np.cov(X, rowvar=False)               # 공분산행렬
+w, V = np.linalg.eigh(C)
+print('PCA 분산       :', np.round(var, 6))
+print('공분산 고유값  :', np.round(np.sort(w)[::-1], 6))
+print('방향 일치      :', np.allclose(np.abs(PCs[0]),
+                                      np.abs(V[:, np.argmax(w)])))</code></pre></li>
+<li><strong>고차원 데이터를 2차원으로 줄여 보자.</strong> 8차원 공간의 세 덩어리를 만들고 PCA로 시각화하시오. 원래 특징 두 개를 골라 그린 것과 비교하시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(0)
+d = 8
+centers = rng.normal(0, 4, (3, d))
+X = np.vstack([rng.normal(c, 1.2, (70, d)) for c in centers])
+y = np.repeat([0, 1, 2], 70)
+
+Xc = X - X.mean(axis=0)
+U, s, Vt = np.linalg.svd(Xc, full_matrices=False)
+Z = Xc @ Vt[:2].T
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.5, 4.2))
+colors = ['crimson', 'royalblue', 'seagreen']
+for c in range(3):
+    ax1.scatter(X[y == c, 0], X[y == c, 1], s=14, alpha=0.6, color=colors[c])
+    ax2.scatter(Z[y == c, 0], Z[y == c, 1], s=14, alpha=0.6, color=colors[c])
+ax1.set_title('raw features 0 and 1'); ax2.set_title('PC1 and PC2')
+for ax in (ax1, ax2):
+    ax.grid(True, alpha=0.3); ax.set_aspect('equal')
+plt.tight_layout(); plt.show()
+
+print('상위 2개 설명 비율 :',
+      round((s[:2] ** 2).sum() / (s ** 2).sum() * 100, 2), '%')</code></pre></li>
+<li><strong>PCA로 잡음을 제거하자.</strong> 저계수 신호에 잡음을 섞은 뒤, 상위 몇 개 성분만 남겨 복원하고 원래 신호와 비교하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(1)
+clean = rng.normal(0, 1, (80, 3)) @ rng.normal(0, 1, (3, 60))
+noisy = clean + 0.5 * rng.normal(0, 1, clean.shape)
+
+U, s, Vt = np.linalg.svd(noisy, full_matrices=False)
+errors = []
+for k in range(1, 16):
+    approx = U[:, :k] @ np.diag(s[:k]) @ Vt[:k]
+    errors.append(np.linalg.norm(clean - approx) / np.linalg.norm(clean))
+
+plt.figure(figsize=(5.5, 3.6))
+plt.plot(range(1, 16), errors, 'o-', ms=4)
+plt.axvline(3, ls='--', color='gray')
+plt.xlabel('k'); plt.ylabel('relative error vs clean signal')
+plt.grid(True, alpha=0.3); plt.show()
+
+print('최적 k :', np.argmin(errors) + 1)
+print('잡음 낀 원본과의 오차 :',
+      round(np.linalg.norm(clean - noisy) / np.linalg.norm(clean), 4))
+print('k=3 복원 오차         :', round(errors[2], 4))</code></pre>
+<p>\(k\)를 3보다 크게 하면 오히려 오차가 늘어난다. <strong>잡음까지 복원해 버리기 때문</strong>이다. 적절한 지점에서 자르는 것이 노이즈 제거의 핵심이다.</li>
+</ol></p></div></p>
+<details class="box summary" id="summary"><summary class="box-head">11장 요약</summary><div class="sum-body"><ul>
+<li><strong>특이값 분해</strong>: 모든 행렬 \(\mm{A}\in\Rmat{m}{n}\)은 \(\mm{A} = \mm{U}\mm{\Sigma}\mm{V}\tp\)로 분해된다. \(\mm{U}\)와 \(\mm{V}\)는 직교행렬, \(\mm{\Sigma}\)는 대각 위치에 특이값 \(\sigma_1\geq\sigma_2\geq\cdots\geq0\)이 놓인 행렬이다.</li>
+<li>고유값 분해와 달리 SVD는 <strong>정방행렬이 아니어도, 대각화가 불가능해도</strong> 언제나 존재하며 수치적으로 안정적이다. 다만 거듭제곱 계산에는 쓸 수 없다.</li>
+<li><code>np.linalg.svd</code>는 특이값을 <strong>1차원 배열</strong>로, 세 번째 값을 \(\mm{V}\)가 아닌 <strong>\(\mm{V}\tp\)</strong>로 돌려준다. 큰 행렬에는 <code>full_matrices=False</code>를 주자.</li>
+<li>\(\mm{V}\)의 열은 \(\mm{A}\tp\mm{A}\)의 고유벡터, \(\mm{U}\)의 열은 \(\mm{A}\mm{A}\tp\)의 고유벡터이며 \(\sigma_i = \sqrt{\lambda_i}\)다. 다만 실제 계산에서 \(\mm{A}\tp\mm{A}\)를 만들면 조건수가 제곱되어 정밀도를 잃으므로 <code>svd</code>를 직접 써야 한다.</li>
+<li>특이값 하나로 여러 지표를 얻는다: 최대 특이값은 최대 확대 비율, 0이 아닌 개수는 <strong>랭크</strong>, \(\sigma_1/\sigma_{\min}\)은 <strong>조건수</strong>, 곱은 \(\abs{\det}\), 제곱합은 프로베니우스 노름의 제곱이다.</li>
+<li>기하적으로 SVD는 <strong>회전(\(\mm{V}\tp\)) \(\to\) 축별 확대(\(\mm{\Sigma}\)) \(\to\) 회전(\(\mm{U}\))</strong>이다. 대각화와 구조가 같지만 앞뒤 회전이 서로 다르며, 그 자유도 덕분에 모든 행렬에 적용된다.</li>
+<li>\(\mm{A}\vv{v}_i = \sigma_i\vv{u}_i\)  —  \(\mm{A}\)는 \(i\)번째 오른쪽 특이벡터를 \(\sigma_i\)배 하여 \(i\)번째 왼쪽 특이벡터로 보낸다. <strong>직교하는 입력이 직교하는 출력으로</strong> 간다는 것이 SVD의 본질이다.</li>
+<li><strong>전개 형태</strong>: \(\mm{A} = \sum_i \sigma_i\vv{u}_i\vv{v}_i\tp\). 랭크-1 조각들의 가중합이며, 특이값이 각 조각의 세기다.</li>
+<li>앞의 \(k\)개만 남긴 \(\mm{A}_k\)는 <strong>에카트–영 정리</strong>에 의해 가능한 모든 랭크-\(k\) 근사 중 최적이며, 오차는 \(\sqrt{\sigma_{k+1}^2+\cdots+\sigma_r^2}\)이다.</li>
+<li>특이값의 제곱을 에너지로 보아 <strong>누적 설명 비율</strong>을 계산하면 몇 개를 남길지 정할 수 있다. 로그 그래프에서 특이값이 급락하는 "무릎" 지점이 신호와 잡음의 경계다.</li>
+<li><strong>이미지 압축</strong>: \(m\times n\) 이미지를 랭크 \(k\)로 근사하면 \(k(m+n+1)\)개의 숫자만 저장하면 된다. \(k < mn/(m+n+1)\)일 때만 실제로 압축이 된다.</li>
+<li>이 아이디어는 이미지보다 <strong>추천 시스템의 평점 행렬, 문서-단어 행렬, 신경망 가중치</strong>에서 더 큰 위력을 발휘한다. 거대 모델의 <strong>LoRA</strong> 미세조정도 저계수 근사의 응용이다.</li>
+<li><strong>주성분 분석(PCA)</strong>은 데이터가 가장 많이 퍼진 방향을 차례로 찾는다. <strong>중심화한 데이터 행렬의 SVD</strong>가 곧 PCA이며, \(\mm{V}\)의 열이 주성분 방향, \(\sigma_i^2/(n-1)\)이 그 방향의 분산이다.</li>
+<li>공분산행렬을 명시적으로 만들지 않고 SVD를 바로 쓰는 것이 수치적으로 더 안정적이다.</li>
+<li>PCA 전에 <strong>반드시 중심화</strong>해야 하며, 특징들의 단위가 다르면 <strong>표준화</strong>도 필요하다. 그렇지 않으면 값이 큰 특징이 첫 번째 주성분을 지배한다.</li>
+<li>PCA는 고차원 데이터의 시각화, 노이즈 제거, 전처리에 널리 쓰이며 LSA, 잠재 요인 모델, 화이트닝, t-SNE의 전처리 등으로 이어진다.</li>
+</ul></div></details>
+<details class="box exercise" id="exercises"><summary class="box-head">11장 연습문제</summary><div class="ex-body"><ol>
+<li class="ex-item" data-ex="1"><span class="diff"><span class="d1">★</span></span>  특이값 분해와 고유값 분해의 차이를 다섯 가지 이상 나열하시오.</li>
+<li class="ex-item" data-ex="2"><span class="diff"><span class="d1">★</span></span>  \(\mm{A} = \mtwo{3}{0}{0}{-2}\)의 SVD를 손으로 구하시오. 특이값은 왜 \(3\)과 \(2\)인가?</li>
+<li class="ex-item" data-ex="3"><span class="diff"><span class="d2">★★</span></span>  \(3\times5\) 행렬의 SVD에서 \(\mm{U}\), \(\mm{\Sigma}\), \(\mm{V}\)의 크기를 각각 쓰시오. <code>full_matrices=False</code>로 하면 어떻게 달라지는가?</li>
+<li class="ex-item" data-ex="4"><span class="diff"><span class="d2">★★</span></span>  다음 코드의 잘못된 점을 찾아 고치시오.
+<pre class="line-numbers"><code class="language-python">U, S, V = np.linalg.svd(A)
+print(np.allclose(U @ np.diag(S) @ V.T, A))</code></pre></li>
+<li class="ex-item" data-ex="5"><span class="diff"><span class="d2">★★</span></span>  어떤 행렬의 특이값이 \([10, 6, 3, 0.01, 0.001]\)일 때 다음을 구하시오.
+<ol>
+<li>조건수   (2) 수치적 랭크(문턱값 0.1)  
+  (3) 상위 3개의 누적 설명 비율</li>
+</ol></li>
+<li class="ex-item" data-ex="6"><span class="diff"><span class="d2">★★</span></span>  특이값이 모두 1인 행렬은 어떤 행렬인가? 그런 행렬이 도형에 하는 일을 설명하시오.</li>
+<li class="ex-item" data-ex="7"><span class="diff"><span class="d3">★★★</span></span>  임의의 \(2\times2\) 행렬 세 개에 대해 단위원이 타원으로 변하는 과정을 SVD의 세 단계로 나누어 그리시오. 특이값이 타원의 반축 길이와 일치함을 확인하시오.</li>
+<li class="ex-item" data-ex="8"><span class="diff"><span class="d3">★★★</span></span>  \(\mm{A}\vv{v}_i = \sigma_i\vv{u}_i\)를 여러 행렬에 대해 검증하는 코드를 작성하시오. 정방이 아닌 행렬에서는 어떤 인덱스까지 성립하는가?</li>
+<li class="ex-item" data-ex="9"><span class="diff"><span class="d3">★★★</span></span>  넘파이만으로 \(200\times200\) 크기의 테스트 이미지를 만들고 SVD로 압축하시오. \(k\)를 바꿔 가며 (1) 상대 오차, (2) 저장 성분 수를 그래프로 그리고, 압축이 유리해지는 \(k\)의 범위를 구하시오.</li>
+<li class="ex-item" data-ex="10"><span class="diff"><span class="d3">★★★</span></span>  에카트–영 정리를 실험으로 확인하시오. 무작위 랭크-\(k\) 행렬을 5000개 만들어 SVD 근사보다 나은 것이 있는지 세어 보시오.</li>
+<li class="ex-item" data-ex="11"><span class="diff"><span class="d2">★★</span></span>  PCA를 수행하기 전에 중심화를 하지 않으면 어떤 일이 생기는지 실험으로 보이시오. 중심에서 멀리 떨어진 데이터 덩어리를 만들어 비교하시오.</li>
+<li class="ex-item" data-ex="12"><span class="diff"><span class="d3">★★★</span></span>  6차원 공간에 네 개의 덩어리를 만들고 PCA로 2차원으로 축소해 시각화하시오. 각 주성분의 설명 비율을 막대그래프로 그리시오.</li>
+<li class="ex-item" data-ex="13"><span class="diff"><span class="d3">★★★</span></span>  단위가 크게 다른 두 특징(예: 연봉 만원 단위, 근속 연수)으로 데이터를 만들어, 표준화 전후의 주성분 방향을 비교하시오.</li>
+<li class="ex-item" data-ex="14"><span class="diff"><span class="d3">★★★</span></span>  저계수 신호에 잡음을 섞은 행렬을 만들고, 남기는 성분 수 \(k\)에 따른 (1) 잡음 낀 데이터와의 오차, (2) 원래 신호와의 오차를 함께 그리시오. 두 곡선이 왜 다른 지점에서 최소가 되는지 설명하시오.</li>
+<li class="ex-item" data-ex="15"><span class="diff"><span class="d3">★★★</span></span>  사용자 5명 \(\times\) 영화 6편의 평점 행렬을 만들고 랭크 2로 근사하시오. 근사 결과가 빈칸(0으로 둔 곳)에 어떤 값을 채워 넣는지 관찰하고, 이것이 추천 시스템의 원리와 어떻게 연결되는지 서술하시오.</li>
+</ol></div></details>
+<div class="pager-row"><a class="pager prev" href="ch10.html">&larr; 10장</a><a class="pager next" href="ch12.html">12장 &rarr;</a></div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script src="book.js"></script>
+<script src="grader.js"></script>
+</body>
+</html>

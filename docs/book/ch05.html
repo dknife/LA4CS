@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>5장 행렬을 다루는 기본적인 연산 — 쓸모 있는 선형대수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="book.css">
+<script>MathJax = {tex: {inlineMath: [['\\(', '\\)']], macros: {
+  vv: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  mm: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  tp: '{^{\\mathsf{T}}}',
+  inv: '{^{-1}}',
+  pinv: '{^{+}}',
+  Id: '{\\boldsymbol{\\mathbf{I}}}',
+  zerovec: '{\\boldsymbol{\\mathbf{0}}}',
+  Real: '{\\mathbb{R}}',
+  Rsp: ['{\\mathbb{R}^{#1}}', 1],
+  Rmat: ['{\\mathbb{R}^{#1 \\times #2}}', 2],
+  norm: ['{\\left\\lVert #1 \\right\\rVert}', 1],
+  abs: ['{\\left\\lvert #1 \\right\\rvert}', 1],
+  sca: ['{#1}', 1],
+  rank: '{\\operatorname{rank}}',
+  trace: '{\\operatorname{tr}}',
+  diag: '{\\operatorname{diag}}',
+  spn: '{\\operatorname{span}}',
+  proj: '{\\operatorname{proj}}',
+  Col: '{\\operatorname{Col}}',
+  Nul: '{\\operatorname{Nul}}',
+  Row: '{\\operatorname{Row}}',
+  adj: '{\\operatorname{adj}}',
+  argmin: '{\\operatorname*{arg\\,min}}',
+  argmax: '{\\operatorname*{arg\\,max}}',
+  mtwo: ['{\\begin{bmatrix}#1 & #2\\\\ #3 & #4\\end{bmatrix}}', 4],
+  vtwo: ['{\\begin{bmatrix}#1\\\\ #2\\end{bmatrix}}', 2],
+  vthree: ['{\\begin{bmatrix}#1\\\\ #2\\\\ #3\\end{bmatrix}}', 3],
+  dash: '{\\;\\unicode{x2014}\\;}',
+  ndash: '{\\unicode{x2013}}'
+}, tags: 'ams'}, svg: {fontCache: 'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="home" href="../index.html">&#8962; 홈</a>
+  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="ch-indicator">5장 행렬을 다루는 기본적인 연산</span>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
+</header>
+<div class="layout">
+<nav class="sidebar">
+<div class="nav-ch"><a class="nav-ch-link" href="front.html"><span class="nav-num">&#128214;</span> 표지·머릿말</a></div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch01.html"><span class="nav-num">01</span> 선형대수와 도구</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch02.html"><span class="nav-num">02</span> 대규모 배열을 다루는 고성능 넘파이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch03.html"><span class="nav-num">03</span> 선형대수의 기본 자료: 스칼라, 벡터, 행렬</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch04.html"><span class="nav-num">04</span> 벡터를 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch current"><a class="nav-ch-link" href="ch05.html"><span class="nav-num">05</span> 행렬을 다루는 기본적인 연산</a>
+<div class="nav-secs"><a class="nav-sec" href="ch05.html#sec1">5.1 행렬의 덧셈, 뺄셈, 스칼라 곱</a><a class="nav-sec" href="ch05.html#sec2">5.2 행렬의 곱셈과 아다마르 곱</a><a class="nav-sec" href="ch05.html#sec3">5.3 행렬 곱을 보는 네 가지 관점</a><a class="nav-sec" href="ch05.html#sec4">5.4 벡터를 다른 벡터로 바꾸는 도구, 행렬곱</a><a class="nav-sec" href="ch05.html#labs">실습을 통한 개념 정리</a><a class="nav-sec" href="ch05.html#summary">5장 요약</a><a class="nav-sec" href="ch05.html#exercises">연습문제</a></div>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch06.html"><span class="nav-num">06</span> 역행렬: 되돌리는 변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch07.html"><span class="nav-num">07</span> 행렬식과 선형변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch08.html"><span class="nav-num">08</span> 선형방정식의 풀이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch09.html"><span class="nav-num">09</span> 고유값과 고유벡터</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch10.html"><span class="nav-num">10</span> 행렬의 대각화</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch11.html"><span class="nav-num">11</span> 특이값 분해</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch12.html"><span class="nav-num">12</span> 다양한 행렬 분해의 활용</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch13.html"><span class="nav-num">13</span> 선형대수의 응용</a>
+</div>
+<div class="nav-part">부록</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
+</div>
+</nav>
+<main class="content">
+<div class="chapter-head">
+  <div class="ch-label">CHAPTER 05</div>
+  <h1>행렬을 다루는 기본적인 연산</h1>
+</div>
+<div class="center"><p><br>
+<details class="box goals"><summary class="box-head">이 장을 마치면</summary><div class="goals-body"><ul>
+<li>행렬의 덧셈·뺄셈·스칼라 곱을 수행하고 성립 조건을 말할 수 있다.</li>
+<li>행렬 곱의 정의를 이해하고 크기 조건을 판단할 수 있다.</li>
+<li>행렬 곱을 네 가지 관점으로 해석할 수 있다.</li>
+<li>행렬 곱이 교환법칙을 만족하지 않는 이유를 예로 들 수 있다.</li>
+<li>행렬을 "벡터를 다른 벡터로 바꾸는 장치"로 보고 그 작용을 그림으로 그릴 수 있다.</li>
+</ul></div></details></p></div>
+<p>앞 장에서 벡터의 연산을 배웠으니 이제 행렬의 차례다. 덧셈과 스칼라 곱은 벡터와 다를 것이 없다. 성분끼리 하면 그만이다.</p>
+<p>문제는 곱셈이다. 행렬의 곱셈은 성분끼리 곱하는 것이 <strong>아니다.</strong> 규칙이 낯설고 계산도 번거롭다. 왜 이렇게 이상한 규칙을 만들었을까? 답은 이 장의 후반부에 있다. 행렬 곱은 계산의 편의를 위해 만든 규칙이 아니라, <strong>"변환을 이어서 적용한다"는 개념을 그대로 옮긴 것</strong>이다. 그 사실을 이해하고 나면 낯선 규칙이 필연으로 보이기 시작한다.</p>
+<h2 id="sec1">5.1 행렬의 덧셈, 뺄셈, 스칼라 곱</h2>
+<h3>겹쳐 놓고 더한다</h3>
+<p>두 행렬의 덧셈은 <strong>크기가 같을 때만</strong> 정의된다. \(\Rmat{m}{n}\)에 속한 행렬은 같은 \(\Rmat{m}{n}\)의 행렬과만 더할 수 있고, 결과 역시 \(\Rmat{m}{n}\)에 속한다.</p>
+<div class="box defbox"><span class="chip">정의 5.1</span><span class="box-title">행렬의 덧셈, 뺄셈, 스칼라 곱</span><p>\(\mm{A}, \mm{B} \in \Rmat{m}{n}\)이고 \(c\)가 스칼라일 때
+<div class="mathblock">\begin{equation}
+(\mm{A}+\mm{B})_{ij} = a_{ij} + b_{ij}, \qquad
+(\mm{A}-\mm{B})_{ij} = a_{ij} - b_{ij}, \qquad
+(c\mm{A})_{ij} = c\,a_{ij}
+\end{equation}</div></p></div>
+<p>그림으로 이해하면 간단하다. 두 행렬을 겹쳐 놓고 같은 자리의 숫자끼리 더하면 된다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch05/fig01.svg" alt="figure">
+<p><figcaption>그림 5.1: 행렬의 덧셈은 겹쳐 놓고 더하는 것</figcaption></figure></p>
+<div class="box caution"><span class="chip">주의</span><p>두 행렬의 <strong>크기가 같다</strong>는 말과 두 행렬이 <strong>같다</strong>는 말은 다르다. 크기가 같다는 것은 행과 열의 수가 일치한다는 뜻이고, 같다(\(\mm{A}=\mm{B}\))는 것은 크기가 같으면서 대응하는 모든 성분까지 일치한다는 뜻이다.</p></div>
+<div class="box exbox"><span class="chip">예제 5.1</span><span class="box-title">행렬의 덧셈과 스칼라 곱</span><p>\(\mm{A} = \mtwo{1}{2}{3}{4}\), \(\mm{B} = \mtwo{5}{6}{7}{8}\)일 때 \(\mm{A}+\mm{B}\)와 \(2\mm{A}\)를 구하시오.
+<div class="solution-label">풀이</div>
+<div class="mathblock">\[
+\mm{A}+\mm{B} = \mtwo{6}{8}{10}{12}, \qquad
+2\mm{A} = \mtwo{2}{4}{6}{8}
+\]</div></p></div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1., 2.], [3., 4.]])
+B = np.array([[5., 6.], [7., 8.]])
+
+print('A + B =\n', A + B)
+print('A - B =\n', A - B)
+print('2 * A =\n', 2 * A)
+
+# 분배법칙 확인: 2(A+B) = 2A + 2B
+print('분배법칙 :', np.allclose(2 * (A + B), 2 * A + 2 * B))</code></pre>
+<p><pre class="pyout">A + B =
+ [[ 6.  8.]
+ [10. 12.]]
+A - B =
+ [[-4. -4.]
+ [-4. -4.]]
+2 * A =
+ [[2. 4.]
+ [6. 8.]]
+분배법칙 : True</pre>
+<div class="listing-caption">코드 5.1: 행렬의 덧셈, 뺄셈, 스칼라 곱</div></p>
+<h3>성질</h3>
+<div class="box thmbox"><span class="chip">정리 5.1</span><span class="box-title">행렬 덧셈과 스칼라 곱의 성질</span><p>\(\mm{A}, \mm{B}, \mm{C} \in \Rmat{m}{n}\)이고 \(c, d\)가 스칼라일 때
+<div class="mathblock">\begin{align}
+&\text{(1) } \mm{A}+\mm{B} = \mm{B}+\mm{A} && \text{(2) } (\mm{A}+\mm{B})+\mm{C} = \mm{A}+(\mm{B}+\mm{C}) \nonumber\\
+&\text{(3) } \mm{A}+\mm{O} = \mm{A} && \text{(4) } \mm{A}+(-\mm{A}) = \mm{O} \nonumber\\
+&\text{(5) } c(\mm{A}+\mm{B}) = c\mm{A}+c\mm{B} && \text{(6) } (c+d)\mm{A} = c\mm{A}+d\mm{A} \nonumber\\
+&\text{(7) } c(d\mm{A}) = (cd)\mm{A} && \text{(8) } (\mm{A}+\mm{B})\tp = \mm{A}\tp+\mm{B}\tp \nonumber
+\end{align}</div>
+여기서 \(\mm{O}\)는 모든 성분이 0인 <strong class="term-ko">영행렬</strong><sup class="term">zero matrix</sup>이다.</p></div>
+<p>4장의 벡터 성질과 판박이다. 그럴 수밖에 없다. 행렬의 덧셈과 스칼라 곱은 성분별 연산이고, 성분은 실수이기 때문이다. <strong>\(m \times n\) 행렬은 사실 \(mn\)차원 벡터를 직사각형으로 접어 놓은 것</strong>이라고 봐도 무방하다. 이 관점은 8장의 벡터공간에서 정식으로 다룬다.</p>
+<p>여기서 (8)만 새롭다. 덧셈과 전치는 순서를 바꿔도 된다는 뜻이다. 뒤에서 보겠지만 <strong>곱셈과 전치는 그렇지 않다.</strong></p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(0)
+A = rng.normal(0, 1, (3, 4))
+B = rng.normal(0, 1, (3, 4))
+
+print('(A+B).T == A.T + B.T :', np.allclose((A + B).T, A.T + B.T))
+print('영행렬 :\n', np.zeros((2, 3)))</code></pre>
+<p><pre class="pyout">(A+B).T == A.T + B.T : True
+영행렬 :
+ [[0. 0. 0.]
+ [0. 0. 0.]]</pre>
+<div class="listing-caption">코드 5.2: 전치는 덧셈과 순서를 바꿔도 된다</div></p>
+<h3>행렬 연산을 그림으로 확인하기</h3>
+<p>숫자만으로는 행렬 연산의 효과를 실감하기 어렵다. <code>show_matrix()</code>로 확인해 보자.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+rng = np.random.default_rng(7)
+A = rng.normal(0, 1, (6, 6))
+B = np.eye(6) * 2                        # 대각선만 2인 행렬
+
+fig, axes = plt.subplots(1, 4, figsize=(12, 3.2))
+show_matrix(axes[0], A, fmt='', title='A')
+show_matrix(axes[1], B, fmt='', title='B = 2I')
+show_matrix(axes[2], A + B, fmt='', title='A + B')
+show_matrix(axes[3], -A, fmt='', title='-A')
+plt.tight_layout(); plt.show()</code></pre>
+<div class="listing-caption">코드 5.3: 행렬 연산의 효과를 색으로 보기</div></p>
+<p><code>A + B</code>에서는 대각선만 색이 진해지고 나머지는 그대로다. <code>-A</code>에서는 모든 색이 정반대로 뒤집힌다(붉은 칸은 파랗게, 파란 칸은 붉게). 숫자를 하나하나 확인하지 않아도 연산이 무엇을 했는지 알 수 있다.</p>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title"><code>fmt=''</code>로 숫자 숨기기</span><p><code>show_matrix()</code>의 <code>fmt</code> 인자에 빈 문자열을 주면 숫자가 표시되지 않고 색만 남는다. 행렬이 커서 숫자를 읽을 수 없을 때 유용하다. 이 책에서는 \(6 \times 6\)을 넘어가면 대체로 숫자를 숨긴다.</p></div>
+<h2 id="sec2">5.2 행렬의 곱셈과 아다마르 곱</h2>
+<h3>행렬 곱의 정의</h3>
+<p>두 행렬 \(\mm{A}\)와 \(\mm{B}\)의 곱은 \(\mm{A}\mm{B}\)로 쓰며, 특별한 연산자 기호를 쓰지 않는다. 그런데 아무 두 행렬이나 곱할 수 있는 것은 아니다.</p>
+<div class="box defbox"><span class="chip">정의 5.2</span><span class="box-title">행렬의 곱</span><p>\(\mm{A} \in \Rmat{m}{p}\), \(\mm{B} \in \Rmat{p}{n}\)일 때  —  즉 <strong>\(\mm{A}\)의 열의 수와 \(\mm{B}\)의 행의 수가 같을 때</strong>  —  곱 \(\mm{C} = \mm{A}\mm{B} \in \Rmat{m}{n}\)의 각 성분은 다음과 같다.
+<div class="mathblock">\begin{equation}
+c_{ij} = \sum_{k=1}^{p} a_{ik}\,b_{kj}
+= a_{i1}b_{1j} + a_{i2}b_{2j} + \cdots + a_{ip}b_{pj}
+\label{eq:ch05_matmul}
+\end{equation}</div></p></div>
+<p>말로 옮기면 이렇다. <strong>결과의 \((i,j)\) 성분은 \(\mm{A}\)의 \(i\)번째 <em>행</em>과 \(\mm{B}\)의 \(j\)번째 <em>열</em>의 내적</strong>이다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch05/fig02.svg" alt="figure">
+<p><figcaption>그림 5.2: 행렬 곱의 구조: 행과 열의 내적</figcaption></figure></p>
+<p>크기 조건을 외우는 요령이 있다. 두 행렬의 크기를 나란히 적어 보자.</p>
+<div class="mathblock">\begin{equation*}
+(m \times \underbrace{p) \quad (p}_{\text{같아야 한다}} \times n) \quad \longrightarrow \quad m \times n
+\end{equation*}</div>
+<p><strong>안쪽 두 숫자가 같아야 곱할 수 있고, 바깥쪽 두 숫자가 결과의 크기</strong>가 된다.</p>
+<div class="box exbox"><span class="chip">예제 5.2</span><span class="box-title">행렬 곱 계산</span><p>\(\mm{A} = \begin{bmatrix} 1&2&3 \\ 4&5&6 \end{bmatrix}\), \(\mm{B} = \begin{bmatrix} 7&8 \\ 9&10 \\ 11&12 \end{bmatrix}\)일 때 \(\mm{A}\mm{B}\)를 구하시오.
+<div class="solution-label">풀이</div>
+\(\mm{A}\)는 \(2\times3\), \(\mm{B}\)는 \(3\times2\)이므로 안쪽 숫자가 3으로 같아 곱이 가능하고 결과는 \(2\times2\)다.
+<div class="mathblock">\begin{align*}
+c_{11} &= 1\cdot7 + 2\cdot9 + 3\cdot11 = 7+18+33 = 58 \\
+c_{12} &= 1\cdot8 + 2\cdot10 + 3\cdot12 = 8+20+36 = 64 \\
+c_{21} &= 4\cdot7 + 5\cdot9 + 6\cdot11 = 28+45+66 = 139 \\
+c_{22} &= 4\cdot8 + 5\cdot10 + 6\cdot12 = 32+50+72 = 154
+\end{align*}</div>
+따라서 \(\mm{A}\mm{B} = \begin{bmatrix} 58&64 \\ 139&154 \end{bmatrix}\)이다.</p></div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1., 2., 3.],
+              [4., 5., 6.]])
+B = np.array([[7., 8.],
+              [9., 10.],
+              [11., 12.]])
+
+print('A @ B =\n', A @ B)
+print('shape :', (A @ B).shape)
+
+# 정의 그대로 구현해 확인하기
+C = np.zeros((A.shape[0], B.shape[1]))
+for i in range(A.shape[0]):
+    for j in range(B.shape[1]):
+        C[i, j] = A[i, :] @ B[:, j]      # i행과 j열의 내적
+print('직접 구현 :', np.allclose(C, A @ B))</code></pre>
+<p><pre class="pyout">A @ B =
+ [[ 58.  64.]
+ [139. 154.]]
+shape : (2, 2)
+직접 구현 : True</pre>
+<div class="listing-caption">코드 5.4: 행렬 곱과 그 정의를 그대로 구현한 코드</div></p>
+<div class="box caution"><span class="chip">주의</span><p>크기가 맞지 않으면 넘파이는 오류를 낸다.
+<pre class="pyout pyerr">ValueError: matmul: Input operand 1 has a mismatch in its core dimension 0,
+with gufunc signature (n?,k),(k,m?)-&gt;(n?,m?) (size 2 is different from 3)</pre>
+메시지가 복잡해 보이지만 요지는 "안쪽 숫자가 다르다"는 것이다. 이 오류를 만나면 두 배열의 <code>shape</code>을 출력해 보는 것이 가장 빠른 해결책이다.</p></div>
+<h3>아다마르 곱과의 구별</h3>
+<p>행렬에도 성분별 곱, 즉 <strong class="term-ko">아다마르 곱</strong><sup class="term">Hadamard product</sup>이 있다. 넘파이에서는 <code>*</code>로 계산되며 크기가 같은 행렬끼리만 가능하다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1., 2.], [3., 4.]])
+B = np.array([[10., 20.], [30., 40.]])
+
+print('A * B (아다마르) =\n', A * B)
+print('A @ B (행렬 곱)  =\n', A @ B)</code></pre>
+<p><pre class="pyout">A * B (아다마르) =
+ [[ 10.  40.]
+ [ 90. 160.]]
+A @ B (행렬 곱)  =
+ [[ 70. 100.]
+ [150. 220.]]</pre>
+<div class="listing-caption">코드 5.5: 아다마르 곱과 행렬 곱은 전혀 다른 연산</div></p>
+<div class="box caution"><span class="chip">주의</span><p><strong>수식의 \(\mm{A}\mm{B}\)를 코드로 옮길 때 <code>A * B</code>라고 쓰는 것은 이 책에서 가장 흔한 실수다.</strong> 반드시 <code>A @ B</code> 또는 <code>np.matmul(A, B)</code>를 써야 한다. 두 행렬이 모두 정방행렬이면 크기 오류도 나지 않으므로 조용히 틀린 답이 나온다.</p></div>
+<h3>단위행렬과 곱셈의 성질</h3>
+<div class="box thmbox"><span class="chip">정리 5.2</span><span class="box-title">행렬 곱의 성질</span><p>크기가 맞는 행렬 \(\mm{A}, \mm{B}, \mm{C}\)와 스칼라 \(c\)에 대하여
+<div class="mathblock">\begin{align}
+&\text{(1) } (\mm{A}\mm{B})\mm{C} = \mm{A}(\mm{B}\mm{C}) && \text{(결합법칙)} \nonumber\\
+&\text{(2) } \mm{A}(\mm{B}+\mm{C}) = \mm{A}\mm{B} + \mm{A}\mm{C} && \text{(분배법칙)} \nonumber\\
+&\text{(3) } c(\mm{A}\mm{B}) = (c\mm{A})\mm{B} = \mm{A}(c\mm{B}) && \nonumber\\
+&\text{(4) } \mm{A}\Id = \Id\mm{A} = \mm{A} && \text{(단위행렬은 곱셈의 항등원)} \nonumber\\
+&\text{(5) } (\mm{A}\mm{B})\tp = \mm{B}\tp\mm{A}\tp && \text{(순서가 뒤바뀐다!)} \nonumber\\
+&\text{(6) } \mm{A}\mm{B} \neq \mm{B}\mm{A} && \text{(교환법칙은 \textbf{성립하지 않는다})} \nonumber
+\end{align}</div></p></div>
+<p>(5)와 (6)이 스칼라와 다른 점이며, 반드시 기억해야 한다.</p>
+<h4>교환법칙이 성립하지 않는다</h4>
+<p>실수에서는 \(3 \times 5 = 5 \times 3\)이 당연하지만, 행렬에서는 \(\mm{A}\mm{B}\)와 \(\mm{B}\mm{A}\)가 다르다. 애초에 크기가 맞지 않아 한쪽만 계산되는 경우도 흔하다. 크기가 같은 정방행렬이어도 값이 다르다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1., 2.], [3., 4.]])
+B = np.array([[0., 1.], [1., 0.]])       # 행과 열을 바꾸는 행렬
+
+print('A @ B =\n', A @ B)
+print('B @ A =\n', B @ A)
+print('같은가 :', np.allclose(A @ B, B @ A))</code></pre>
+<p><pre class="pyout">A @ B =
+ [[2. 1.]
+ [4. 3.]]
+B @ A =
+ [[3. 4.]
+ [1. 2.]]
+같은가 : False</pre>
+<div class="listing-caption">코드 5.6: 행렬 곱은 교환법칙을 만족하지 않는다</div></p>
+<p>왜 이런 일이 벌어질까? 다음 절에서 밝혀지겠지만, 행렬 곱은 <strong>변환을 이어서 적용하는 것</strong>이기 때문이다. "90도 회전한 뒤 옆으로 늘이기"와 "옆으로 늘인 뒤 90도 회전하기"는 결과가 다르다. 옷을 입을 때 양말을 신고 신발을 신는 것과 신발을 신고 양말을 신는 것이 다른 것과 같은 이치다.</p>
+<h4>전치의 순서가 뒤바뀐다</h4>
+<p>\((\mm{A}\mm{B})\tp = \mm{B}\tp\mm{A}\tp\)는 처음에는 어색하지만 크기를 따져 보면 자연스럽다. \(\mm{A}\)가 \(m\times p\), \(\mm{B}\)가 \(p\times n\)이면 \((\mm{A}\mm{B})\tp\)는 \(n\times m\)이다. 이 크기를 만들려면 \(n\times p\)인 \(\mm{B}\tp\)가 먼저 오고 \(p\times m\)인 \(\mm{A}\tp\)가 뒤에 와야 한다. 순서를 지키면 크기가 맞지 않는다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(1)
+A = rng.normal(0, 1, (2, 3))
+B = rng.normal(0, 1, (3, 4))
+
+print('(AB).T shape  :', (A @ B).T.shape)
+print('B.T @ A.T     :', np.allclose((A @ B).T, B.T @ A.T))</code></pre>
+<p><pre class="pyout">(AB).T shape  : (4, 2)
+B.T @ A.T     : True</pre>
+<div class="listing-caption">코드 5.7: 전치는 곱의 순서를 뒤집는다</div></p>
+<div class="box keypoint"><span class="chip">요점</span><ul>
+<li>행렬 곱은 <strong>안쪽 크기가 같아야</strong> 가능하고, 결과는 <strong>바깥쪽 크기</strong>가 된다.</li>
+<li>\(c_{ij}\)는 \(\mm{A}\)의 \(i\)행과 \(\mm{B}\)의 \(j\)열의 내적이다.</li>
+<li><code>A * B</code>는 아다마르 곱, <code>A @ B</code>가 행렬 곱이다. 절대 혼동하지 말 것.</li>
+<li>행렬 곱은 결합·분배법칙은 만족하지만 <strong>교환법칙은 만족하지 않는다.</strong></li>
+<li>\((\mm{A}\mm{B})\tp = \mm{B}\tp\mm{A}\tp\)로 전치는 순서를 뒤집는다.</li>
+</ul></div>
+<h2 id="sec3">5.3 행렬 곱을 보는 네 가지 관점</h2>
+<p>식 \(\eqref{eq:ch05_matmul}\)은 행렬 곱을 계산하는 방법을 알려 주지만, 그것이 <strong>무엇인지</strong>는 알려 주지 않는다. 같은 계산을 네 가지 방식으로 바라보면 행렬 곱의 정체가 훨씬 선명해진다. 이 절은 이 책에서 가장 중요한 절 가운데 하나다.</p>
+<h3>관점 1: 행과 열의 내적 (성분 하나씩)</h3>
+<p>이미 배운 관점이다. \(c_{ij}\)는 \(\mm{A}\)의 \(i\)행과 \(\mm{B}\)의 \(j\)열의 내적이다. 계산할 때는 이 관점이 가장 편하다.</p>
+<div class="mathblock">\begin{equation}
+c_{ij} = \vv{a}_{i,:} \cdot \vv{b}_{:,j}
+\end{equation}</div>
+<h3>관점 2: 열의 선형결합  —  가장 중요한 관점</h3>
+<p>이제 특별한 경우를 보자. \(\mm{B}\)가 열벡터 하나뿐인 경우, 즉 \(\mm{A}\vv{x}\)를 생각해 보자.</p>
+<div class="mathblock">\begin{equation}
+\mm{A}\vv{x}
+= \begin{bmatrix} 1&2 \\ 3&4 \end{bmatrix} \begin{bmatrix} 5 \\ 6 \end{bmatrix}
+= \begin{bmatrix} 1\cdot5 + 2\cdot6 \\ 3\cdot5 + 4\cdot6 \end{bmatrix}
+= 5\begin{bmatrix} 1 \\ 3 \end{bmatrix} + 6\begin{bmatrix} 2 \\ 4 \end{bmatrix}
+\end{equation}</div>
+<p>마지막 등호를 눈여겨보라. 결과는 <strong>\(\mm{A}\)의 열벡터들을 \(\vv{x}\)의 성분만큼 섞은 것</strong>이다.</p>
+<div class="box thmbox"><span class="chip">정리 5.3</span><span class="box-title">행렬-벡터 곱은 열의 선형결합이다</span><p>\(\mm{A} = [\vv{a}_1\ \vv{a}_2\ \cdots\ \vv{a}_n]\)의 열벡터를 \(\vv{a}_j\)라 하면
+<div class="mathblock">\begin{equation}
+\mm{A}\vv{x} = x_1\vv{a}_1 + x_2\vv{a}_2 + \cdots + x_n\vv{a}_n
+\label{eq:ch05_lincomb}
+\end{equation}</div>
+이다. 즉 \(\mm{A}\vv{x}\)는 \(\mm{A}\)의 열벡터들의 <strong class="term-ko">선형결합</strong><sup class="term">linear combination</sup>이며, \(\vv{x}\)의 성분이 그 계수가 된다.</p></div>
+<p>이 관점이 왜 중요한가? <strong>연립방정식 \(\mm{A}\vv{x} = \vv{b}\)를 완전히 새로운 눈으로 보게 해 주기 때문</strong>이다. 이 식은 이제 "미지수를 구하라"가 아니라 다음 질문이 된다.</p>
+<p><blockquote class="bodyquote"><p>\(\mm{A}\)의 열벡터들을 적당히 섞어서 \(\vv{b}\)를 만들 수 있는가? 만들 수 있다면 그 비율은 얼마인가?</p></blockquote></p>
+<p>이 질문의 답이 "만들 수 없다"이면 방정식에 해가 없는 것이고, "여러 방법으로 만들 수 있다"이면 해가 무수히 많은 것이다. 8장에서 이 관점이 결정적인 역할을 한다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch05/fig03.svg" alt="figure">
+<p><figcaption>그림 5.3: \(\mm{A}\vv{x}\)는 \(\mm{A}\)의 열벡터를 섞어 만든 벡터다</figcaption></figure></p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1., 2.],
+              [3., 4.]])
+x = np.array([5., 6.])
+
+print('A @ x        :', A @ x)
+print('열의 선형결합:', x[0] * A[:, 0] + x[1] * A[:, 1])</code></pre>
+<p><pre class="pyout">A @ x        : [17. 39.]
+열의 선형결합: [17. 39.]</pre>
+<div class="listing-caption">코드 5.8: 행렬-벡터 곱을 열의 선형결합으로 계산</div></p>
+<div class="box keypoint"><span class="chip">요점</span><p><strong>\(\mm{A}\vv{x}\)는 \(\mm{A}\)의 열벡터들의 선형결합이다.</strong> 이 문장은 이 책 전체에서 가장 자주 되풀이될 문장이다. 연립방정식(8장), 열공간과 랭크(8장), 최소제곱(12장)이 모두 이 관점에서 출발한다.</p></div>
+<h3>관점 3: 열 단위로 처리하기</h3>
+<p>\(\mm{B}\)가 여러 개의 열을 가진 일반적인 경우로 돌아가자. \(\mm{B} = [\vv{b}_1\ \vv{b}_2\ \cdots\ \vv{b}_n]\)이라 하면</p>
+<div class="mathblock">\begin{equation}
+\mm{A}\mm{B} = \mm{A}[\vv{b}_1\ \vv{b}_2\ \cdots\ \vv{b}_n]
+= [\mm{A}\vv{b}_1\ \ \mm{A}\vv{b}_2\ \ \cdots\ \ \mm{A}\vv{b}_n]
+\end{equation}</div>
+<p>즉 <strong>\(\mm{B}\)의 각 열에 \(\mm{A}\)를 따로따로 적용한 결과를 나란히 놓은 것</strong>이 행렬 곱이다. 이 관점은 데이터를 한꺼번에 변환할 때 유용하다. 100개의 점에 같은 회전을 적용하고 싶다면, 점들을 열로 쌓아 놓고 회전행렬을 한 번 곱하면 된다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[0., -1.],      # 90도 회전행렬 (7장에서 배운다)
+              [1., 0.]])
+P = np.array([[1., 2., 3.],   # 세 점을 열로 쌓음
+              [0., 1., 2.]])
+
+print('A @ P =\n', A @ P)
+print('첫 열만  :', A @ P[:, 0])    # 같은 결과의 첫 열</code></pre>
+<p><pre class="pyout">A @ P =
+ [[ 0. -1. -2.]
+ [ 1.  2.  3.]]
+첫 열만  : [0. 1.]</pre>
+<div class="listing-caption">코드 5.9: 행렬 곱은 각 열을 따로 변환한 것</div></p>
+<h3>관점 4: 외적의 합 (랭크-1 조각들)</h3>
+<p>마지막 관점은 조금 낯설지만 11장의 특이값 분해를 이해하는 열쇠다. 행렬 곱은 다음과 같이 여러 개의 <strong>랭크-1 행렬</strong>의 합으로도 쓸 수 있다.</p>
+<div class="mathblock">\begin{equation}
+\mm{A}\mm{B} = \sum_{k=1}^{p} \vv{a}_k\, \vv{b}_{k}\tp
+\end{equation}</div>
+<p>여기서 \(\vv{a}_k\)는 \(\mm{A}\)의 \(k\)번째 <strong>열</strong>이고 \(\vv{b}_k\tp\)는 \(\mm{B}\)의 \(k\)번째 <strong>행</strong>이다. 열벡터와 행벡터를 곱하면 (내적이 아니라) 행렬이 나오는데, 이것을 <strong class="term-ko">외적</strong><sup class="term">outer product</sup>이라 한다. 4장의 3차원 외적(cross product)과는 다른 개념이니 주의하자.</p>
+<div class="mathblock">\begin{equation}
+\begin{bmatrix} 1 \\ 3 \end{bmatrix}\begin{bmatrix} 7 & 8 \end{bmatrix}
+= \begin{bmatrix} 7 & 8 \\ 21 & 24 \end{bmatrix}
+\end{equation}</div>
+<p>이렇게 만들어진 행렬은 모든 열이 서로 상수배 관계이므로 "정보량"이 매우 적다. 이런 행렬을 랭크가 1이라고 한다. 행렬 곱을 이런 얇은 조각들의 합으로 보는 관점이, <strong>"큰 행렬을 몇 개의 조각으로 근사한다"</strong>는 11장의 아이디어로 이어진다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[1., 2., 3.],
+              [4., 5., 6.]])
+B = np.array([[7., 8.],
+              [9., 10.],
+              [11., 12.]])
+
+total = np.zeros((2, 2))
+fig, axes = plt.subplots(1, 4, figsize=(11, 3))
+for k in range(3):
+    piece = np.outer(A[:, k], B[k, :])      # k번째 랭크-1 조각
+    total += piece
+    show_matrix(axes[k], piece, fmt='{:.0f}', title=f'piece {k}')
+show_matrix(axes[3], total, fmt='{:.0f}', title='sum = A @ B')
+plt.tight_layout(); plt.show()
+
+print('조각의 합 == A @ B :', np.allclose(total, A @ B))</code></pre>
+<p><pre class="pyout">조각의 합 == A @ B : True</pre>
+<div class="listing-caption">코드 5.10: 행렬 곱을 랭크-1 조각들의 합으로 분해하기</div></p>
+<h3>네 관점의 정리</h3>
+<div class="center"><div class="table-wrap"><table><tr><th></th><th> 관점</th><th> 보는 방식</th><th> 쓰이는 곳</th></tr><tr><td>1</td><td>행 \(\cdot\) 열</td><td>성분을 하나씩 계산</td><td>손 계산</td></tr><tr><td>2</td><td>열의 선형결합</td><td>\(\mm{A}\vv{x} = \sum x_j \vv{a}_j\)</td><td>8장, 12장</td></tr><tr><td>3</td><td>열 단위 처리</td><td>각 열에 같은 변환 적용</td><td>데이터 일괄 변환</td></tr><tr><td>4</td><td>랭크-1의 합</td><td>\(\sum_k \vv{a}_k\vv{b}_k\tp\)</td><td>11장 (SVD)</td></tr></table></div></div>
+<p>같은 숫자를 놓고 네 가지 이야기를 할 수 있다는 것  —  이것이 선형대수의 힘이다. 어떤 문제를 만나면 <strong>"어느 관점에서 보면 쉬워지는가"</strong>를 먼저 묻는 것이 좋은 습관이다.</p>
+<h2 id="sec4">5.4 벡터를 다른 벡터로 바꾸는 도구, 행렬곱</h2>
+<h3>행렬은 함수다</h3>
+<p>\(\mm{A} \in \Rmat{2}{2}\)와 벡터 \(\vv{x} \in \Rsp{2}\)가 있을 때 \(\mm{A}\vv{x}\)는 다시 \(\Rsp{2}\)의 벡터다. 즉 행렬 곱은 벡터를 넣으면 벡터가 나오는 <strong>함수</strong>다.</p>
+<div class="mathblock">\begin{equation}
+T(\vv{x}) = \mm{A}\vv{x}, \qquad T: \Rsp{2} \to \Rsp{2}
+\end{equation}</div>
+<p>이 관점이 3부 전체를 지배한다. 행렬을 숫자 덩어리가 아니라 <strong>공간을 통째로 옮기는 장치</strong>로 보는 것이다.</p>
+<h3>기저벡터가 어디로 가는지만 보면 된다</h3>
+<p>행렬 \(\mm{A}\)가 평면을 어떻게 바꾸는지 알려면 무엇을 확인해야 할까? 모든 점을 다 옮겨 볼 필요는 없다. 놀랍게도 <strong>표준기저벡터 두 개가 어디로 가는지만 알면 전부 알 수 있다.</strong></p>
+<p>식 \(\eqref{eq:ch05_lincomb}\)에서 \(\vv{x} = \vv{e}_1 = (1,0)\)을 넣어 보자.</p>
+<div class="mathblock">\begin{equation}
+\mm{A}\vv{e}_1 = 1\cdot\vv{a}_1 + 0\cdot\vv{a}_2 = \vv{a}_1
+\end{equation}</div>
+<p>즉 \(\mm{A}\vv{e}_1\)은 \(\mm{A}\)의 <strong>첫 번째 열</strong>이다. 마찬가지로 \(\mm{A}\vv{e}_2\)는 두 번째 열이다.</p>
+<div class="box keypoint"><span class="chip">요점</span><p><strong>행렬의 각 열은 그 열 번호에 해당하는 기저벡터가 옮겨 가는 자리다.</strong>
+<div class="mathblock">\[
+\mm{A} = \begin{bmatrix} \vv{a}_1 & \vv{a}_2 \end{bmatrix}
+\quad\Longleftrightarrow\quad
+\vv{e}_1 \mapsto \vv{a}_1, \quad \vv{e}_2 \mapsto \vv{a}_2
+\]</div>
+그리고 나머지 모든 벡터는 이 둘의 조합이므로 자동으로 결정된다.</p></div>
+<p>이 사실 덕분에 우리는 행렬을 보자마자 그것이 무슨 일을 하는지 그림으로 떠올릴 수 있다. 예를 들어</p>
+<div class="mathblock">\begin{equation}
+\mm{A} = \begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}
+\end{equation}</div>
+<p>에서 첫 열은 \((0,1)\)이므로 \(\vv{e}_1\)(오른쪽)이 위쪽으로 갔고, 둘째 열은 \((-1,0)\)이므로 \(\vv{e}_2\)(위쪽)가 왼쪽으로 갔다. 이것은 <strong>반시계 방향 90도 회전</strong>이다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch05/fig04.svg" alt="figure">
+<p><figcaption>그림 5.4: 행렬의 열은 기저벡터가 옮겨 가는 자리다</figcaption></figure></p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[0., -1.],
+              [1., 0.]])
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
+for ax in (ax1, ax2):
+    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
+    ax.set_aspect('equal')
+    ax.axhline(0, color='black', lw=0.8); ax.axvline(0, color='black', lw=0.8)
+
+# 변환 전
+draw_grid(ax1, None, n=2, color='lightgray')
+draw_polygon(ax1, UNIT_SQUARE)
+draw_vector(ax1, [1, 0], color='crimson', label='e1')
+draw_vector(ax1, [0, 1], color='royalblue', label='e2')
+ax1.set_title('before')
+
+# 변환 후
+draw_grid(ax2, A, n=2, color='steelblue')
+draw_polygon(ax2, transform(A, UNIT_SQUARE))
+draw_vector(ax2, A[:, 0], color='crimson', label='A e1')
+draw_vector(ax2, A[:, 1], color='royalblue', label='A e2')
+ax2.set_title('after')
+plt.show()</code></pre>
+<div class="listing-caption">코드 5.11: 행렬이 평면을 어떻게 바꾸는지 확인하기</div></p>
+<h3>여러 개의 점을 한꺼번에 변환하기</h3>
+<p>이 책에서 앞으로 계속 쓰게 될 패턴을 여기서 확립해 두자. 점들을 <strong>행마다 하나씩</strong> 담은 배열 \(\mm{P}\)가 있을 때, 모든 점에 \(\mm{A}\)를 적용하는 방법은 두 가지로 적을 수 있다.</p>
+<div class="mathblock">\begin{equation}
+\mm{P}' = (\mm{A}\mm{P}\tp)\tp = \mm{P}\mm{A}\tp
+\end{equation}</div>
+<p><code>lautils</code>의 <code>transform()</code>이 하는 일이 정확히 이것이다. 행에 점을 담는 방식은 데이터 분석의 관례(\(n\)개의 샘플 \(\times\) \(d\)개의 특징)와 일치하므로 이 책 전체에서 이 방식을 쓴다.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+# 집 모양 다각형 (각 행이 한 점)
+house = np.array([[0., 0.], [2., 0.], [2., 1.5],
+                  [1., 2.5], [0., 1.5]])
+
+mats = {
+    'identity'  : np.array([[1., 0.], [0., 1.]]),
+    'scale x2'  : np.array([[2., 0.], [0., 1.]]),
+    'shear'     : np.array([[1., 0.8], [0., 1.]]),
+    'rotate 45' : np.array([[0.707, -0.707], [0.707, 0.707]]),
+}
+
+fig, axes = plt.subplots(1, 4, figsize=(13, 3.5))
+for ax, (name, A) in zip(axes, mats.items()):
+    ax.set_xlim(-3, 4); ax.set_ylim(-1, 4)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
+    draw_polygon(ax, house, color='lightgray', alpha=0.4)      # 원래 모양
+    draw_polygon(ax, transform(A, house), color='crimson', alpha=0.4)
+    ax.set_title(name, fontsize=10)
+plt.tight_layout(); plt.show()</code></pre>
+<div class="listing-caption">코드 5.12: 집 모양에 여러 행렬을 적용해 보기</div></p>
+<figure class="fig">
+<img class="tikz" src="img/ch05/fig05.svg" alt="figure">
+<p><figcaption>그림 5.5: 같은 도형에 서로 다른 행렬을 적용한 결과</figcaption></figure></p>
+<p>회색이 원래 모양, 붉은색이 변환된 모양이다. 행렬의 숫자 네 개가 도형 전체의 운명을 결정한다. 7장에서는 이 변환들에 이름을 붙이고 체계적으로 분류할 것이다.</p>
+<h3>행렬 곱은 변환의 합성이다</h3>
+<p>이제 이 장의 첫머리에서 던진 질문에 답할 차례다. 왜 행렬 곱은 그런 복잡한 규칙을 가질까?</p>
+<p>변환 \(\mm{B}\)를 먼저 적용하고 그 결과에 \(\mm{A}\)를 적용한다고 하자.</p>
+<div class="mathblock">\begin{equation}
+\vv{x} \;\xrightarrow{\ \mm{B}\ }\; \mm{B}\vv{x} \;\xrightarrow{\ \mm{A}\ }\; \mm{A}(\mm{B}\vv{x})
+\end{equation}</div>
+<p>결합법칙에 의해 \(\mm{A}(\mm{B}\vv{x}) = (\mm{A}\mm{B})\vv{x}\)이므로, <strong>두 변환을 이어서 적용하는 것은 곱 행렬 \(\mm{A}\mm{B}\) 하나를 적용하는 것과 같다.</strong> 행렬 곱의 규칙은 이 성질이 성립하도록 만들어진 것이다. 계산의 편의가 아니라 필연이었던 셈이다.</p>
+<p>이 관점에서 보면 교환법칙이 성립하지 않는 이유도 자명하다. 순서를 바꾸면 다른 결과가 나오는 변환이 얼마든지 있기 때문이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+R = np.array([[0., -1.], [1., 0.]])       # 90도 회전
+S = np.array([[2., 0.], [0., 1.]])        # 가로로 2배
+
+house = np.array([[0., 0.], [2., 0.], [2., 1.5], [1., 2.5], [0., 1.5]])
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
+for ax, M, title in [(ax1, R @ S, 'R @ S : 늘인 뒤 회전'),
+                     (ax2, S @ R, 'S @ R : 회전한 뒤 늘임')]:
+    ax.set_xlim(-5, 5); ax.set_ylim(-2, 5)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
+    draw_polygon(ax, house, color='lightgray', alpha=0.4)
+    draw_polygon(ax, transform(M, house), color='crimson', alpha=0.4)
+    ax.set_title(title, fontsize=10)
+plt.show()
+
+print('R @ S =\n', R @ S)
+print('S @ R =\n', S @ R)</code></pre>
+<p><pre class="pyout">R @ S =
+ [[ 0. -1.]
+ [ 2.  0.]]
+S @ R =
+ [[ 0. -2.]
+ [ 1.  0.]]</pre>
+<div class="listing-caption">코드 5.13: 순서를 바꾸면 결과가 달라진다</div></p>
+<p>두 그림은 눈에 띄게 다르다. 왼쪽은 가로로 늘인 집이 세워진 모양이고, 오른쪽은 세워진 집이 가로로 늘어난 모양이다. <strong>\(\mm{A}\mm{B} \neq \mm{B}\mm{A}\)는 계산상의 특이 사항이 아니라 기하학적 사실이다.</strong></p>
+<div class="box caution"><span class="chip">주의</span><p>\(\mm{A}\mm{B}\)에서 <strong>오른쪽 행렬이 먼저 적용된다.</strong> \(\mm{A}\mm{B}\vv{x}\)를 읽을 때는 \(\vv{x}\)에 가장 가까운 \(\mm{B}\)부터 작용한다고 생각해야 한다. 함수 합성 \(f(g(x))\)에서 \(g\)가 먼저 적용되는 것과 같은 이치다. 여러 변환을 연달아 적용하는 그래픽스 코드에서 이 순서를 헷갈리면 물체가 엉뚱한 곳으로 날아간다.</p></div>
+<div class="box keypoint"><span class="chip">요점</span><ul>
+<li>행렬은 벡터를 벡터로 보내는 함수다. \(T(\vv{x}) = \mm{A}\vv{x}\).</li>
+<li><strong>행렬의 \(j\)번째 열 = \(\vv{e}_j\)가 옮겨 가는 자리</strong>다. 열만 보면 변환의 정체를 알 수 있다.</li>
+<li>행렬 곱 \(\mm{A}\mm{B}\)는 <strong>변환의 합성</strong>이며, 오른쪽부터 적용된다.</li>
+<li>교환법칙이 성립하지 않는 것은 변환의 순서가 결과를 바꾸기 때문이다.</li>
+</ul></div>
+<p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 행렬 연산의 수행</div><ol>
+<li><strong>행렬 곱을 세 가지 방법으로 계산하자.</strong> 같은 곱을 정의대로, 열의 선형결합으로, 외적의 합으로 각각 계산하고 결과가 일치함을 확인하시오.
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1., 2., 3.], [4., 5., 6.]])
+B = np.array([[7., 8.], [9., 10.], [11., 12.]])
+
+# ① 정의대로
+C1 = np.zeros((2, 2))
+for i in range(2):
+    for j in range(2):
+        C1[i, j] = A[i, :] @ B[:, j]
+
+# ② 열 단위로
+C2 = np.column_stack([A @ B[:, j] for j in range(2)])
+
+# ③ 랭크-1 조각의 합
+C3 = sum(np.outer(A[:, k], B[k, :]) for k in range(3))
+
+print(np.allclose(C1, A @ B), np.allclose(C2, A @ B), np.allclose(C3, A @ B))</code></pre>
+<p><pre class="pyout">True True True</pre></li>
+<li><strong>교환법칙이 깨지는 것을 확인하자.</strong> 무작위 정방행렬 100쌍에 대해 \(\mm{A}\mm{B} = \mm{B}\mm{A}\)가 성립하는 경우가 몇 번이나 있는지 세어 보시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(42)
+count = 0
+for _ in range(100):
+    A = rng.normal(0, 1, (3, 3))
+    B = rng.normal(0, 1, (3, 3))
+    if np.allclose(A @ B, B @ A):
+        count += 1
+print('교환법칙이 성립한 횟수 :', count)
+
+# 그러나 다음 경우에는 항상 성립한다
+A = rng.normal(0, 1, (3, 3))
+print('A와 I  :', np.allclose(A @ np.eye(3), np.eye(3) @ A))
+print('A와 2A :', np.allclose(A @ (2 * A), (2 * A) @ A))
+print('대각행렬끼리:', np.allclose(np.diag([1., 2., 3.]) @ np.diag([4., 5., 6.]),
+                                  np.diag([4., 5., 6.]) @ np.diag([1., 2., 3.])))</code></pre>
+<pre class="pyout">교환법칙이 성립한 횟수 : 0
+A와 I  : True
+A와 2A : True
+대각행렬끼리: True</pre>
+<p>무작위로는 100번 중 한 번도 성립하지 않는다. 그러나 단위행렬, 자기 자신의 배수, 대각행렬끼리는 언제나 교환된다. <strong>교환되는 행렬 쌍은 특별한 관계에 있다</strong>는 뜻이며, 이 사실이 10장의 동시 대각화로 이어진다.</li>
+<li><strong>행렬의 열이 기저의 상(image)임을 확인하자.</strong> 임의의 행렬에 대해 \(\mm{A}\vv{e}_1\)과 \(\mm{A}\)의 첫 열이 같은지 확인하고 그림으로 그리시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[1.5, -0.5], [0.5, 1.2]])
+e1, e2 = np.eye(2)
+
+print('A @ e1 :', A @ e1, ' A의 0열 :', A[:, 0])
+print('A @ e2 :', A @ e2, ' A의 1열 :', A[:, 1])
+
+fig, ax = new_axes(xlim=(-2, 3), ylim=(-2, 3))
+draw_grid(ax, None, n=2, color='lightgray')
+draw_grid(ax, A, n=2, color='steelblue')
+draw_vector(ax, e1, color='lightcoral', width=0.010)
+draw_vector(ax, e2, color='lightskyblue', width=0.010)
+draw_vector(ax, A[:, 0], color='crimson', label='A e1')
+draw_vector(ax, A[:, 1], color='royalblue', label='A e2')
+plt.show()</code></pre></li>
+<li><strong>변환을 이어 붙여 보자.</strong> 회전과 확대를 두 가지 순서로 합성하여 결과가 다름을 그림으로 보이시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+def rot(deg):
+    t = np.radians(deg)
+    return np.array([[np.cos(t), -np.sin(t)],
+                     [np.sin(t),  np.cos(t)]])
+
+R = rot(30)
+S = np.diag([2.0, 0.5])
+shape = np.array([[0., 0.], [2., 0.], [2., 1.], [0., 1.]])
+
+fig, axes = plt.subplots(1, 3, figsize=(12, 3.8))
+for ax, M, t in [(axes[0], np.eye(2), 'original'),
+                 (axes[1], R @ S, 'R @ S'),
+                 (axes[2], S @ R, 'S @ R')]:
+    ax.set_xlim(-2, 5); ax.set_ylim(-2, 3)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    draw_polygon(ax, shape, color='lightgray', alpha=0.4)
+    draw_polygon(ax, transform(M, shape), color='crimson', alpha=0.45)
+    ax.set_title(t, fontsize=10)
+plt.tight_layout(); plt.show()</code></pre></li>
+<li><strong>신경망 두 층을 계산해 보자.</strong> 입력 4차원, 은닉 3차원, 출력 2차원인 신경망의 순전파를 행렬 곱으로 구현하시오. 활성화 함수는 ReLU를 쓴다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(0)
+x = np.array([0.5, -1.2, 2.0, 0.3])          # 입력 (4,)
+W1 = rng.normal(0, 0.5, (4, 3))              # 1층 가중치
+b1 = np.zeros(3)
+W2 = rng.normal(0, 0.5, (3, 2))              # 2층 가중치
+b2 = np.zeros(2)
+
+h = np.maximum(0, x @ W1 + b1)               # ReLU
+y = h @ W2 + b2
+
+print('은닉층 :', np.round(h, 3))
+print('출력   :', np.round(y, 3))
+
+# 활성화 함수를 빼면 두 층이 한 층으로 합쳐진다
+W_combined = W1 @ W2
+print('합쳐진 가중치 shape :', W_combined.shape)
+print('같은 결과인가 :', np.allclose(x @ W1 @ W2, x @ W_combined))</code></pre>
+<p>마지막 두 줄이 1장에서 말한 사실을 확인해 준다. 활성화 함수가 없으면 \(\mm{W}_1\mm{W}_2\)라는 하나의 행렬로 합쳐져 버린다.</li>
+<li><strong>큰 행렬 곱의 비용을 재어 보자.</strong> 크기를 바꿔 가며 행렬 곱 시간을 측정하고, 연산량이 \(n^3\)에 비례한다는 것을 확인하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import time
+
+for n in [200, 400, 800]:
+    A = np.random.rand(n, n)
+    B = np.random.rand(n, n)
+    start = time.time()
+    A @ B
+    print(f'n={n:4d} : {time.time() - start:.4f} sec')</code></pre>
+<p>크기가 두 배가 되면 시간은 대략 여덟 배가 되어야 한다(\(2^3 = 8\)). 실제로는 캐시 효율 등의 이유로 정확히 여덟 배는 아니지만 경향은 확인된다.</li>
+<li><strong>전치의 순서 규칙을 확인하자.</strong> \((\mm{A}\mm{B}\mm{C})\tp = \mm{C}\tp\mm{B}\tp\mm{A}\tp\)가 성립하는지 확인하시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(3)
+A = rng.normal(0, 1, (2, 3))
+B = rng.normal(0, 1, (3, 4))
+C = rng.normal(0, 1, (4, 5))
+
+print(np.allclose((A @ B @ C).T, C.T @ B.T @ A.T))
+print('(ABC).T shape :', (A @ B @ C).T.shape)</code></pre></li>
+</ol></p></div></p>
+<details class="box summary" id="summary"><summary class="box-head">5장 요약</summary><div class="sum-body"><ul>
+<li>행렬의 <strong>덧셈·뺄셈</strong>은 크기가 같을 때만 정의되며 성분별로 이루어진다. <strong>스칼라 곱</strong>은 모든 성분에 스칼라를 곱한다. 이 연산들은 4장의 벡터 성질과 똑같은 여덟 가지 성질을 만족한다.</li>
+<li>\((\mm{A}+\mm{B})\tp = \mm{A}\tp + \mm{B}\tp\)이다. 덧셈과 전치는 순서를 바꿔도 된다.</li>
+<li><strong>행렬 곱</strong>은 \(\mm{A} \in \Rmat{m}{p}\), \(\mm{B} \in \Rmat{p}{n}\)일 때, 즉 <strong>안쪽 크기가 같을 때</strong>만 가능하며 결과는 <strong>바깥쪽 크기</strong> \(m \times n\)이다. \(c_{ij} = \sum_k a_{ik}b_{kj}\)는 \(\mm{A}\)의 \(i\)행과 \(\mm{B}\)의 \(j\)열의 내적이다.</li>
+<li>넘파이에서 <code>A * B</code>는 <strong>아다마르 곱</strong>(성분별), <code>A @ B</code>가 <strong>행렬 곱</strong>이다. 정방행렬끼리는 크기 오류도 나지 않으므로 혼동하면 조용히 틀린 답을 얻는다.</li>
+<li>행렬 곱은 결합법칙과 분배법칙을 만족하고 단위행렬이 항등원이지만, <strong>교환법칙은 성립하지 않는다</strong>(\(\mm{A}\mm{B} \neq \mm{B}\mm{A}\)). 또 \((\mm{A}\mm{B})\tp = \mm{B}\tp\mm{A}\tp\)로 전치는 곱의 순서를 뒤집는다.</li>
+<li>행렬 곱을 보는 <strong>네 가지 관점</strong>:
+    <strong>①</strong> 행과 열의 내적(손 계산),
+    <strong>②</strong> 열의 선형결합 \(\mm{A}\vv{x} = \sum_j x_j\vv{a}_j\),
+    <strong>③</strong> \(\mm{B}\)의 각 열을 따로 변환(\(\mm{A}\mm{B} = [\mm{A}\vv{b}_1\ \cdots]\)),
+    <strong>④</strong> 랭크-1 외적의 합 \(\sum_k \vv{a}_k\vv{b}_k\tp\).</li>
+<li>관점 ②가 특히 중요하다. \(\mm{A}\vv{x} = \vv{b}\)는 <strong>"\(\mm{A}\)의 열들을 섞어 \(\vv{b}\)를 만들 수 있는가"</strong>라는 질문이 되며, 이 관점이 8장(연립방정식, 열공간, 랭크)과 12장(최소제곱)의 출발점이다.</li>
+<li>관점 ④는 11장의 특이값 분해로 이어진다. 큰 행렬을 몇 개의 얇은 조각으로 근사한다는 아이디어가 여기서 나온다.</li>
+<li>행렬은 벡터를 벡터로 보내는 <strong>함수</strong>다. \(T(\vv{x}) = \mm{A}\vv{x}\)로 보면 행렬은 공간 전체를 옮기는 장치가 된다.</li>
+<li><strong>행렬의 \(j\)번째 열은 기저벡터 \(\vv{e}_j\)가 옮겨 가는 자리</strong>다. \(\mm{A}\vv{e}_j = \vv{a}_j\)이므로, 열만 확인하면 그 행렬이 무슨 변환인지 알 수 있다. 나머지 벡터는 기저의 조합이므로 자동으로 결정된다.</li>
+<li>행렬 곱 \(\mm{A}\mm{B}\)는 <strong>변환의 합성</strong>이다. \((\mm{A}\mm{B})\vv{x} = \mm{A}(\mm{B}\vv{x})\)이므로 \(\mm{B}\)가 <strong>먼저</strong> 적용되고 \(\mm{A}\)가 나중에 적용된다. 교환법칙이 성립하지 않는 이유도 변환의 순서가 결과를 바꾸기 때문이다.</li>
+<li>여러 점을 한꺼번에 변환할 때는 점을 행으로 담고 \(\mm{P}\mm{A}\tp\)를 계산한다(<code>lautils</code>의 <code>transform()</code>).</li>
+</ul></div></details>
+<details class="box exercise" id="exercises"><summary class="box-head">5장 연습문제</summary><div class="ex-body"><ol>
+<li class="ex-item" data-ex="1"><span class="diff"><span class="d1">★</span></span>  \(\mm{A} = \mtwo{2}{-1}{0}{3}\), \(\mm{B} = \mtwo{1}{4}{-2}{5}\)일 때 \(\mm{A}+\mm{B}\), \(\mm{A}-\mm{B}\), \(3\mm{A}\)를 구하시오.</li>
+<li class="ex-item" data-ex="2"><span class="diff"><span class="d1">★</span></span>  다음 곱셈이 가능한지 판단하고, 가능하다면 결과의 크기를 쓰시오.
+<ol>
+<li>\((3\times4)(4\times2)\)   (2) \((2\times5)(2\times5)\)   (3) \((1\times3)(3\times1)\)   (4) \((3\times1)(1\times3)\)</li>
+</ol>
+(3)과 (4)의 결과가 왜 그렇게 다른지 설명하시오.</li>
+<li class="ex-item" data-ex="3"><span class="diff"><span class="d2">★★</span></span>  \(\mm{A} = \begin{bmatrix} 1&2 \\ 3&4 \\ 5&6 \end{bmatrix}\), \(\mm{B} = \begin{bmatrix} 1&0&2 \\ 0&1&3 \end{bmatrix}\)일 때 \(\mm{A}\mm{B}\)와 \(\mm{B}\mm{A}\)를 각각 손으로 구하시오. 두 결과의 크기가 왜 다른가?</li>
+<li class="ex-item" data-ex="4"><span class="diff"><span class="d2">★★</span></span>  \(\mm{A}\vv{x}\)를 열의 선형결합으로 나타내시오.
+<div class="mathblock">\[
+\mm{A} = \begin{bmatrix} 1&-1&2 \\ 0&3&1 \end{bmatrix}, \qquad
+\vv{x} = \begin{bmatrix} 2 \\ 1 \\ -1 \end{bmatrix}
+\]</div></li>
+<li class="ex-item" data-ex="5"><span class="diff"><span class="d2">★★</span></span>  다음 행렬이 표준기저벡터를 어디로 보내는지 쓰고, 어떤 변환인지 이름을 붙이시오.
+<ol>
+<li>\(\mtwo{1}{0}{0}{-1}\)   (2) \(\mtwo{3}{0}{0}{3}\)   (3) \(\mtwo{1}{2}{0}{1}\)   (4) \(\mtwo{0}{1}{1}{0}\)</li>
+</ol></li>
+<li class="ex-item" data-ex="6"><span class="diff"><span class="d2">★★</span></span>  \(\mm{A}\mm{B} \neq \mm{B}\mm{A}\)인 \(2\times2\) 행렬의 예를 하나 만들고, 두 결과를 도형에 적용한 그림으로 차이를 보이시오.</li>
+<li class="ex-item" data-ex="7"><span class="diff"><span class="d2">★★</span></span>  \(\mm{A}\mm{B} = \mm{B}\mm{A}\)가 항상 성립하는 경우를 세 가지 이상 제시하시오.</li>
+<li class="ex-item" data-ex="8"><span class="diff"><span class="d3">★★★</span></span>  \(\mm{A} \in \Rmat{2}{3}\), \(\mm{B} \in \Rmat{3}{2}\)일 때 \(\mm{A}\mm{B}\)를 랭크-1 조각의 합으로 분해하는 코드를 작성하고, 각 조각을 <code>show_matrix()</code>로 그리시오.</li>
+<li class="ex-item" data-ex="9"><span class="diff"><span class="d2">★★</span></span>  \((\mm{A}\mm{B}\mm{C})\tp\)를 전치 규칙을 이용해 전개하시오. 각 행렬의 크기가 \(\mm{A}\in\Rmat{2}{3}\), \(\mm{B}\in\Rmat{3}{4}\), \(\mm{C}\in\Rmat{4}{2}\)일 때 결과의 크기는?</li>
+<li class="ex-item" data-ex="10"><span class="diff"><span class="d3">★★★</span></span>  다음 코드가 왜 틀렸는지 설명하고 고치시오.
+<pre class="line-numbers"><code class="language-python">A = np.array([[1., 2.], [3., 4.]])
+B = np.array([[5., 6.], [7., 8.]])
+print('AB =', A * B)      # 행렬 곱을 계산하려는 의도</code></pre></li>
+<li class="ex-item" data-ex="11"><span class="diff"><span class="d3">★★★</span></span>  다음 세 변환을 순서대로 합성하는 하나의 행렬을 구하고, 삼각형 \((0,0), (2,0), (1,2)\)에 적용한 결과를 그리시오.
+<ol>
+<li>\(x\)축 방향으로 2배 확대</li>
+<li>반시계 방향 45도 회전</li>
+<li>\(x\)축에 대한 반사</li>
+</ol>
+(주의: 합성 순서에 따라 행렬을 어느 쪽에 곱해야 하는지 생각할 것)</li>
+<li class="ex-item" data-ex="12"><span class="diff"><span class="d3">★★★</span></span>  정규화된 벡터를 행으로 담은 행렬 \(\mm{U}\)에 대해 \(\mm{U}\mm{U}\tp\)의 \((i,j)\) 성분이 \(i\)번째와 \(j\)번째 벡터의 코사인 유사도임을 식으로 설명하시오. 또 이 행렬의 대각성분은 왜 모두 1인가?</li>
+<li class="ex-item" data-ex="13"><span class="diff"><span class="d3">★★★</span></span>  입력 10차원, 은닉층 \((64, 32)\), 출력 3차원인 신경망의 가중치 행렬 크기를 각각 쓰고, 전체 파라미터 개수를 구하시오(편향 포함).</li>
+</ol></div></details>
+<div class="pager-row"><a class="pager prev" href="ch04.html">&larr; 4장</a><a class="pager next" href="ch06.html">6장 &rarr;</a></div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script src="book.js"></script>
+<script src="grader.js"></script>
+</body>
+</html>

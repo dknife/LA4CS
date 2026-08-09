@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부록 C 넘파이 선형대수 레퍼런스 — 쓸모 있는 선형대수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="book.css">
+<script>MathJax = {tex: {inlineMath: [['\\(', '\\)']], macros: {
+  vv: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  mm: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  tp: '{^{\\mathsf{T}}}',
+  inv: '{^{-1}}',
+  pinv: '{^{+}}',
+  Id: '{\\boldsymbol{\\mathbf{I}}}',
+  zerovec: '{\\boldsymbol{\\mathbf{0}}}',
+  Real: '{\\mathbb{R}}',
+  Rsp: ['{\\mathbb{R}^{#1}}', 1],
+  Rmat: ['{\\mathbb{R}^{#1 \\times #2}}', 2],
+  norm: ['{\\left\\lVert #1 \\right\\rVert}', 1],
+  abs: ['{\\left\\lvert #1 \\right\\rvert}', 1],
+  sca: ['{#1}', 1],
+  rank: '{\\operatorname{rank}}',
+  trace: '{\\operatorname{tr}}',
+  diag: '{\\operatorname{diag}}',
+  spn: '{\\operatorname{span}}',
+  proj: '{\\operatorname{proj}}',
+  Col: '{\\operatorname{Col}}',
+  Nul: '{\\operatorname{Nul}}',
+  Row: '{\\operatorname{Row}}',
+  adj: '{\\operatorname{adj}}',
+  argmin: '{\\operatorname*{arg\\,min}}',
+  argmax: '{\\operatorname*{arg\\,max}}',
+  mtwo: ['{\\begin{bmatrix}#1 & #2\\\\ #3 & #4\\end{bmatrix}}', 4],
+  vtwo: ['{\\begin{bmatrix}#1\\\\ #2\\end{bmatrix}}', 2],
+  vthree: ['{\\begin{bmatrix}#1\\\\ #2\\\\ #3\\end{bmatrix}}', 3],
+  dash: '{\\;\\unicode{x2014}\\;}',
+  ndash: '{\\unicode{x2013}}'
+}, tags: 'ams'}, svg: {fontCache: 'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="home" href="../index.html">&#8962; 홈</a>
+  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="ch-indicator">부록 C 넘파이 선형대수 레퍼런스</span>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
+</header>
+<div class="layout">
+<nav class="sidebar">
+<div class="nav-ch"><a class="nav-ch-link" href="front.html"><span class="nav-num">&#128214;</span> 표지·머릿말</a></div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch01.html"><span class="nav-num">01</span> 선형대수와 도구</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch02.html"><span class="nav-num">02</span> 대규모 배열을 다루는 고성능 넘파이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch03.html"><span class="nav-num">03</span> 선형대수의 기본 자료: 스칼라, 벡터, 행렬</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch04.html"><span class="nav-num">04</span> 벡터를 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch05.html"><span class="nav-num">05</span> 행렬을 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch06.html"><span class="nav-num">06</span> 역행렬: 되돌리는 변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch07.html"><span class="nav-num">07</span> 행렬식과 선형변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch08.html"><span class="nav-num">08</span> 선형방정식의 풀이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch09.html"><span class="nav-num">09</span> 고유값과 고유벡터</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch10.html"><span class="nav-num">10</span> 행렬의 대각화</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch11.html"><span class="nav-num">11</span> 특이값 분해</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch12.html"><span class="nav-num">12</span> 다양한 행렬 분해의 활용</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch13.html"><span class="nav-num">13</span> 선형대수의 응용</a>
+</div>
+<div class="nav-part">부록</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
+</div>
+<div class="nav-ch current"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
+<div class="nav-secs"><a class="nav-sec" href="apxc.html#sec1">배열 만들기</a><a class="nav-sec" href="apxc.html#sec2">배열의 구조</a><a class="nav-sec" href="apxc.html#sec3">연산</a><a class="nav-sec" href="apxc.html#sec4">np.linalg 모듈</a><a class="nav-sec" href="apxc.html#sec5">자주 하는 실수 모음</a><a class="nav-sec" href="apxc.html#sec6">맷플롯립 요약</a></div>
+</div>
+</nav>
+<main class="content">
+<div class="chapter-head">
+  <div class="ch-label">APPENDIX C</div>
+  <h1>넘파이 선형대수 레퍼런스</h1>
+</div>
+<p>이 책에서 사용한 넘파이 기능을 한자리에 모았다. 필요할 때 찾아보는 용도로 쓰면 된다.</p>
+<h2 id="sec1">배열 만들기</h2>
+<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th></tr><tr><td><code>np.array(리스트)</code></td><td>리스트로부터 배열 생성</td></tr><tr><td><code>np.zeros((m,n))</code></td><td>0으로 채운 배열</td></tr><tr><td><code>np.ones((m,n))</code></td><td>1로 채운 배열</td></tr><tr><td><code>np.eye(n)</code></td><td>\(n\times n\) 단위행렬</td></tr><tr><td><code>np.diag(v)</code></td><td>1차원 \(\to\) 대각행렬 / 2차원 \(\to\) 대각성분 추출</td></tr><tr><td><code>np.arange(a,b,s)</code></td><td>\(a\)부터 \(b\) 전까지 \(s\) 간격</td></tr><tr><td><code>np.linspace(a,b,n)</code></td><td>\(a\)부터 \(b\)까지 균등하게 \(n\)개</td></tr><tr><td><code>np.column_stack([...])</code></td><td>배열들을 열로 세워 붙이기</td></tr><tr><td><code>np.vstack / np.hstack</code></td><td>세로 / 가로로 이어 붙이기</td></tr><tr><td><code>np.triu / np.tril</code></td><td>상삼각 / 하삼각 부분만 남기기</td></tr><tr><td><code>np.vander(x, n)</code></td><td>반데르몬드 행렬 (다항식 회귀)</td></tr><tr><td><code>rng = np.random.default_rng(42)</code></td><td>난수 생성기 (시드 고정)</td></tr></table></div></div>
+<h2 id="sec2">배열의 구조</h2>
+<div class="center"><div class="table-wrap"><table><tr><th><code>A.shape</code></th><th>각 축의 원소 수</th></tr><tr><td><code>A.ndim</code></td><td>축(차원)의 개수</td></tr><tr><td><code>A.size</code></td><td>전체 원소 수</td></tr><tr><td><code>A.dtype</code></td><td>원소의 자료형</td></tr><tr><td><code>A.T</code></td><td>전치 (1차원 배열에는 효과 없음)</td></tr><tr><td><code>A.reshape(m, n)</code></td><td>모양 바꾸기 (\(-1\)은 자동 계산)</td></tr><tr><td><code>A.flatten()</code></td><td>1차원으로 펴기</td></tr><tr><td><code>A[:, np.newaxis]</code></td><td>축 추가 (열벡터 만들기)</td></tr><tr><td><code>A.copy()</code></td><td>복사 (슬라이싱은 뷰임에 주의)</td></tr></table></div></div>
+<h2 id="sec3">연산</h2>
+<div class="center"><div class="table-wrap"><table><tr><th><code>A + B</code>, <code>A - B</code></th><th>성분별 덧셈·뺄셈</th></tr><tr><td><code>A * B</code></td><td><strong>성분별 곱</strong> (아다마르 곱)</td></tr><tr><td><code>A @ B</code>, <code>np.matmul</code></td><td><strong>행렬 곱</strong></td></tr><tr><td><code>u @ v</code></td><td>내적 (두 1차원 배열일 때)</td></tr><tr><td><code>np.outer(u, v)</code></td><td>외적 (열\(\times\)행 \(\to\) 행렬)</td></tr><tr><td><code>np.cross(u, v)</code></td><td>3차원 가위곱</td></tr><tr><td><code>np.dot</code>, <code>np.inner</code></td><td>내적 (차원에 따라 동작이 다름)</td></tr><tr><td><code>A.sum(axis=k)</code></td><td>\(k\)번째 축을 따라 합 (그 축이 사라짐)</td></tr><tr><td><code>A.mean / std / max / min</code></td><td>통계량 (<code>axis</code> 지정 가능)</td></tr><tr><td><code>np.where(조건, a, b)</code></td><td>조건에 따라 선택</td></tr><tr><td><code>np.allclose(A, B)</code></td><td>오차 범위 안에서 같은지 판정</td></tr></table></div></div>
+<h2 id="sec4"><code>np.linalg</code> 모듈</h2>
+<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th><th> 장</th></tr><tr><td><code>norm(v)</code></td><td>노름(길이). <code>ord=1, np.inf</code> 지정 가능</td><td>4</td></tr><tr><td><code>norm(A, 'fro')</code></td><td>프로베니우스 노름</td><td>11</td></tr><tr><td><code>det(A)</code></td><td>행렬식</td><td>7</td></tr><tr><td><code>inv(A)</code></td><td>역행렬 (되도록 <code>solve</code>를 쓸 것)</td><td>6</td></tr><tr><td><code>solve(A, b)</code></td><td>\(\mm{A}\vv{x}=\vv{b}\)의 해</td><td>6, 8</td></tr><tr><td><code>matrix_rank(A)</code></td><td>계수(랭크)</td><td>8</td></tr><tr><td><code>matrix_power(A, k)</code></td><td>\(\mm{A}^k\)</td><td>10</td></tr><tr><td><code>eig(A)</code></td><td>고유값·고유벡터 (일반 행렬)</td><td>9</td></tr><tr><td><code>eigh(A)</code></td><td>고유값·고유벡터 (대칭행렬, 더 빠름)</td><td>9</td></tr><tr><td><code>eigvals(A)</code></td><td>고유값만</td><td>9</td></tr><tr><td><code>svd(A)</code></td><td>특이값 분해</td><td>11</td></tr><tr><td><code>pinv(A)</code></td><td>유사 역행렬</td><td>12</td></tr><tr><td><code>lstsq(A, b)</code></td><td>최소제곱 해</td><td>12</td></tr><tr><td><code>qr(A)</code></td><td>QR 분해</td><td>12</td></tr><tr><td><code>cond(A)</code></td><td>조건수</td><td>6, 11</td></tr></table></div></div>
+<h2 id="sec5">자주 하는 실수 모음</h2>
+<div class="center"><div class="table-wrap"><table><tr><th> 실수</th><th> 바로잡기</th></tr><tr><td><code>A * B</code>로 행렬 곱을 계산</td><td><code>A @ B</code>를 쓴다</td></tr><tr><td>1차원 배열에 <code>.T</code>를 적용</td><td><code>reshape(-1,1)</code>로 2차원으로 만든다</td></tr><tr><td><code>eig</code>의 고유벡터를 <code>V[k]</code>로 접근</td><td><code>V[:, k]</code>가 맞다 (열에 담김)</td></tr><tr><td><code>svd</code>의 세 번째 값을 \(\mm{V}\)로 착각</td><td>\(\mm{V}\tp\)다. <code>Vt</code>로 이름 짓자</td></tr><tr><td><code>det(A) == 0</code>으로 비교</td><td><code>np.isclose</code>나 <code>matrix_rank</code>를 쓴다</td></tr><tr><td>정수 배열에 실수를 대입</td><td><code>dtype=float</code>로 만든다</td></tr><tr><td>슬라이싱 결과를 수정</td><td>원본이 바뀐다. <code>.copy()</code>를 쓴다</td></tr><tr><td><code>norm(..., axis=1)</code>에서 <code>keepdims</code> 누락</td><td>브로드캐스팅 방향이 틀어진다</td></tr><tr><td><code>arccos</code>에 1을 넘는 값 입력</td><td><code>np.clip(x, -1, 1)</code>로 감싼다</td></tr><tr><td>정규방정식 \((\mm{A}\tp\mm{A})\inv\)을 직접 계산</td><td><code>lstsq</code>나 QR을 쓴다</td></tr><tr><td><code>inv(A) @ b</code>로 방정식 풀이</td><td><code>solve(A, b)</code>가 빠르고 정확하다</td></tr><tr><td>PCA 전에 중심화를 빠뜨림</td><td><code>X - X.mean(axis=0)</code></td></tr></table></div></div>
+<h2 id="sec6">맷플롯립 요약</h2>
+<div class="center"><div class="table-wrap"><table><tr><th><code>fig, ax = plt.subplots(m, n)</code></th><th>격자 형태의 그림판 만들기</th></tr><tr><td><code>ax.plot(x, y)</code></td><td>선 그래프</td></tr><tr><td><code>ax.scatter(x, y)</code></td><td>산점도</td></tr><tr><td><code>ax.quiver(x, y, u, v, ...)</code></td><td>화살표 (벡터)</td></tr><tr><td><code>ax.fill(x, y)</code></td><td>다각형 채우기</td></tr><tr><td><code>ax.imshow(A)</code></td><td>행렬을 이미지로</td></tr><tr><td><code>ax.contourf(X, Y, Z)</code></td><td>등고선 채우기</td></tr><tr><td><code>ax.set_aspect('equal')</code></td><td><strong>가로세로 비율 1:1 (필수)</strong></td></tr><tr><td><code>ax.set_xlim / set_ylim</code></td><td>축 범위 고정</td></tr><tr><td><code>ax.grid(True, alpha=0.3)</code></td><td>격자 표시</td></tr><tr><td><code>plt.tight_layout()</code></td><td>여백 자동 조정</td></tr><tr><td><code>plt.show()</code></td><td>화면에 출력</td></tr></table></div></div>
+<p><code>quiver</code>에는 반드시 <code>angles='xy', scale_units='xy', scale=1</code>을 함께 지정해야 화살표의 길이가 좌표와 일치한다. 이 책의 <code>draw_vector()</code>가 이 설정을 포함하고 있다.</p>
+<div class="pager-row"><a class="pager prev" href="apxb.html">&larr; 부록 B</a><span></span></div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script src="book.js"></script>
+</body>
+</html>

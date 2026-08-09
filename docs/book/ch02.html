@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2장 대규모 배열을 다루는 고성능 넘파이 — 쓸모 있는 선형대수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="book.css">
+<script>MathJax = {tex: {inlineMath: [['\\(', '\\)']], macros: {
+  vv: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  mm: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  tp: '{^{\\mathsf{T}}}',
+  inv: '{^{-1}}',
+  pinv: '{^{+}}',
+  Id: '{\\boldsymbol{\\mathbf{I}}}',
+  zerovec: '{\\boldsymbol{\\mathbf{0}}}',
+  Real: '{\\mathbb{R}}',
+  Rsp: ['{\\mathbb{R}^{#1}}', 1],
+  Rmat: ['{\\mathbb{R}^{#1 \\times #2}}', 2],
+  norm: ['{\\left\\lVert #1 \\right\\rVert}', 1],
+  abs: ['{\\left\\lvert #1 \\right\\rvert}', 1],
+  sca: ['{#1}', 1],
+  rank: '{\\operatorname{rank}}',
+  trace: '{\\operatorname{tr}}',
+  diag: '{\\operatorname{diag}}',
+  spn: '{\\operatorname{span}}',
+  proj: '{\\operatorname{proj}}',
+  Col: '{\\operatorname{Col}}',
+  Nul: '{\\operatorname{Nul}}',
+  Row: '{\\operatorname{Row}}',
+  adj: '{\\operatorname{adj}}',
+  argmin: '{\\operatorname*{arg\\,min}}',
+  argmax: '{\\operatorname*{arg\\,max}}',
+  mtwo: ['{\\begin{bmatrix}#1 & #2\\\\ #3 & #4\\end{bmatrix}}', 4],
+  vtwo: ['{\\begin{bmatrix}#1\\\\ #2\\end{bmatrix}}', 2],
+  vthree: ['{\\begin{bmatrix}#1\\\\ #2\\\\ #3\\end{bmatrix}}', 3],
+  dash: '{\\;\\unicode{x2014}\\;}',
+  ndash: '{\\unicode{x2013}}'
+}, tags: 'ams'}, svg: {fontCache: 'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="home" href="../index.html">&#8962; 홈</a>
+  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="ch-indicator">2장 대규모 배열을 다루는 고성능 넘파이</span>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
+</header>
+<div class="layout">
+<nav class="sidebar">
+<div class="nav-ch"><a class="nav-ch-link" href="front.html"><span class="nav-num">&#128214;</span> 표지·머릿말</a></div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch01.html"><span class="nav-num">01</span> 선형대수와 도구</a>
+</div>
+<div class="nav-ch current"><a class="nav-ch-link" href="ch02.html"><span class="nav-num">02</span> 대규모 배열을 다루는 고성능 넘파이</a>
+<div class="nav-secs"><a class="nav-sec" href="ch02.html#sec1">2.1 과학자들이 좋아하는 넘파이</a><a class="nav-sec" href="ch02.html#sec2">2.2 넘파이의 고성능 연산 활용하기</a><a class="nav-sec" href="ch02.html#sec3">2.3 선형대수를 척척 다루는 넘파이의 기능</a><a class="nav-sec" href="ch02.html#sec4">2.4 그리기 도구 만들기 — lautils.py</a><a class="nav-sec" href="ch02.html#labs">실습을 통한 개념 정리</a><a class="nav-sec" href="ch02.html#summary">2장 요약</a><a class="nav-sec" href="ch02.html#exercises">연습문제</a></div>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch03.html"><span class="nav-num">03</span> 선형대수의 기본 자료: 스칼라, 벡터, 행렬</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch04.html"><span class="nav-num">04</span> 벡터를 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch05.html"><span class="nav-num">05</span> 행렬을 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch06.html"><span class="nav-num">06</span> 역행렬: 되돌리는 변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch07.html"><span class="nav-num">07</span> 행렬식과 선형변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch08.html"><span class="nav-num">08</span> 선형방정식의 풀이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch09.html"><span class="nav-num">09</span> 고유값과 고유벡터</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch10.html"><span class="nav-num">10</span> 행렬의 대각화</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch11.html"><span class="nav-num">11</span> 특이값 분해</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch12.html"><span class="nav-num">12</span> 다양한 행렬 분해의 활용</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch13.html"><span class="nav-num">13</span> 선형대수의 응용</a>
+</div>
+<div class="nav-part">부록</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
+</div>
+</nav>
+<main class="content">
+<div class="chapter-head">
+  <div class="ch-label">CHAPTER 02</div>
+  <h1>대규모 배열을 다루는 고성능 넘파이</h1>
+</div>
+<div class="center"><p><br>
+<details class="box goals"><summary class="box-head">이 장을 마치면</summary><div class="goals-body"><ul>
+<li>넘파이 배열(<code>ndarray</code>)이 파이썬 리스트와 무엇이 다른지 설명할 수 있다.</li>
+<li><code>shape</code>, <code>ndim</code>, <code>dtype</code>으로 배열의 구조를 읽을 수 있다.</li>
+<li>벡터화 연산과 브로드캐스팅으로 반복문 없이 계산할 수 있다.</li>
+<li><code>np.linalg</code> 모듈이 제공하는 선형대수 기능의 지도를 그릴 수 있다.</li>
+<li>책 전체에서 사용할 시각화 모듈 <code>lautils.py</code>를 직접 만들 수 있다.</li>
+</ul></div></details></p></div>
+<p>선형대수는 현실의 문제를 해결하는 강력한 도구다. 그런데 다루는 데이터의 수가 조금만 늘어나도 사람의 손으로 계산하는 것은 곧 불가능해진다. \(3 \times 3\) 행렬의 역행렬을 손으로 구해 본 사람이라면, \(100 \times 100\) 행렬 앞에서는 연필을 내려놓게 된다는 사실을 안다.</p>
+<p>이 장에서 우리는 그 계산을 대신해 줄 도구인 <strong class="term-ko">넘파이</strong><sup class="term">NumPy</sup>를 익힌다. 다만 넘파이의 모든 기능을 훑는 대신, <strong>선형대수를 다루는 데 꼭 필요한 것</strong>에 집중한다. 그리고 마지막 절에서는 이 책의 나머지 열한 개 장에서 계속 사용할 시각화 모듈을 직접 만든다. 남이 만든 상자를 가져다 쓰는 대신 우리 손으로 만드는 이유는, 그 안에서 무슨 일이 벌어지는지 알고 시작하기 위해서다.</p>
+<h2 id="sec1">2.1 과학자들이 좋아하는 넘파이</h2>
+<h3>넘파이가 특별한 이유</h3>
+<p>2020년 9월, 저명한 과학 저널 <em>네이처</em>(Nature)에 「넘파이를 이용한 배열 프로그래밍」이라는 제목의 논문이 실렸다. 프로그래밍 라이브러리가 네이처의 표지를 장식하는 일은 흔치 않다. 이 논문은 <strong class="term-ko">텐서</strong><sup class="term">tensor</sup>라 불리는 다차원 배열을 효율적으로 다루는 넘파이가 과학 분야에 파이썬 생태계를 열어 주었고, 서로 다른 분야의 수치 계산 기술들이 서로 통할 수 있게 만들었다고 평가했다. 실제로 중력파 검출, 블랙홀 영상 재구성, 천문 데이터 분석 같은 굵직한 성과의 코드 안에는 어김없이 넘파이가 들어 있다.</p>
+<p>넘파이가 이토록 널리 쓰이는 이유는 다음과 같이 정리할 수 있다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 특징</th><th> 설명</th></tr><tr><td>효율성</td><td>내부 루틴이 C로 작성되어 있어 대규모 행렬 연산을 빠르게 수행한다.</td></tr><tr><td>다차원 배열</td><td>벡터, 행렬, 텐서 등 선형대수의 모든 대상을 하나의 자료형으로 표현한다.</td></tr><tr><td>간결성</td><td>역행렬, 고유값, 특이값 분해 같은 고급 연산이 한 줄이다.</td></tr><tr><td>호환성</td><td>판다스, 사이킷런, 텐서플로, 파이토치가 모두 넘파이 배열 위에서 동작한다.</td></tr><tr><td>생태계</td><td>사용자가 많아 예제와 문서를 쉽게 구할 수 있다.</td></tr></table></div></div>
+<p>특히 마지막 항목이 중요하다. 딥러닝 프레임워크의 텐서는 사실상 "GPU에서 도는 넘파이 배열"이며, API도 의도적으로 비슷하게 설계되어 있다. <strong>넘파이를 익히는 것은 곧 딥러닝 프레임워크의 절반을 익히는 것</strong>이다.</p>
+<h3>왜 리스트가 아니라 배열인가</h3>
+<p>파이썬에는 이미 리스트라는 훌륭한 자료구조가 있다. 그런데 왜 굳이 새로운 배열이 필요할까? 두 가지 이유가 있다.</p>
+<p>첫째, <strong>메모리에 놓이는 방식이 다르다.</strong> 파이썬 리스트는 서로 다른 자료형을 섞어 담을 수 있다. 이 유연함의 대가로, 리스트는 값 자체가 아니라 값이 있는 곳을 가리키는 주소를 나란히 저장한다. 반면 넘파이 배열은 같은 자료형의 값만 담기 때문에 항목 하나의 크기가 일정하고, 그 값들이 메모리에 빈틈없이 이어져 놓인다. 몇 번째 항목이든 시작 주소에 "번호 \(\times\) 항목 크기"를 더하면 곧바로 찾아갈 수 있다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch02/fig01.svg" alt="figure">
+<p><figcaption>그림 2.1: 리스트와 넘파이 배열의 메모리 배치 차이</figcaption></figure></p>
+<p>그림 2.1에서 보듯 리스트는 값을 찾아가는 데 한 번 더 건너뛰어야 하지만, 배열은 곧바로 계산해 접근한다. 게다가 이어져 있는 값들은 CPU가 한 번에 여러 개씩 읽어 처리할 수 있다.</p>
+<p>둘째, <strong>연산의 의미가 다르다.</strong> 리스트에 <code>+</code>를 쓰면 이어 붙이기가 되지만, 배열에 <code>+</code>를 쓰면 같은 위치의 값끼리 더해진다. 선형대수를 다루는 우리에게 필요한 것은 후자다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+mid = [70, 85, 90, 75]                # 파이썬 리스트
+fin = [90, 65, 70, 85]
+print('list  +:', mid + fin)          # 이어 붙이기
+
+a = np.array(mid)                     # 넘파이 배열로 변환
+b = np.array(fin)
+print('array +:', a + b)              # 같은 위치끼리 덧셈
+print('average:', (a + b) / 2)        # 나눗셈도 가능</code></pre>
+<p><pre class="pyout">list  +: [70, 85, 90, 75, 90, 65, 70, 85]
+array +: [160 150 160 160]
+average: [80. 75. 80. 80.]</pre>
+<div class="listing-caption">코드 2.1: 리스트의 <code>+</code>와 배열의 <code>+</code>는 다른 연산이다</div></p>
+<p>리스트로는 <code>(mid + fin) / 2</code>조차 불가능하다. 리스트는 나눗셈을 지원하지 않기 때문이다. 반면 배열은 두 벡터의 합을 구하고 그것을 2로 나누는 일이 수학 그대로 적힌다. <strong>배열을 쓴다는 것은 코드를 수식처럼 적을 수 있게 된다는 뜻</strong>이다.</p>
+<h3>배열 만들기</h3>
+<p>넘파이 배열은 <code>np.array()</code>에 리스트를 넘겨 만드는 것이 기본이다. 그 밖에도 자주 쓰는 생성 함수가 있다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+print(np.array([2, 3, 4]))            # 리스트로부터
+print(np.zeros(3))                    # 0으로 채운 길이 3 배열
+print(np.ones((2, 3)))                # 1로 채운 2행 3열
+print(np.arange(0, 10, 2))            # 0부터 10 전까지 2씩
+print(np.linspace(0, 1, 5))           # 0부터 1까지 균등하게 5개
+print(np.eye(3))                      # 3x3 단위행렬</code></pre>
+<p><pre class="pyout">[2 3 4]
+[0. 0. 0.]
+[[1. 1. 1.]
+ [1. 1. 1.]]
+[0 2 4 6 8]
+[0.   0.25 0.5  0.75 1.  ]
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]</pre>
+<div class="listing-caption">코드 2.2: 배열을 만드는 여러 가지 방법</div></p>
+<p>여기서 <code>np.linspace()</code>는 그래프를 그릴 때 가장 자주 쓰게 될 함수다. 구간을 균등하게 쪼개어 점을 찍어 주므로, 곡선을 그리거나 격자를 만들 때 쓰인다. <code>np.eye()</code>는 단위행렬을 만드는 함수인데, 이름은 단위행렬을 뜻하는 기호 \(I\)의 발음에서 왔다.</p>
+<h3>배열의 세 가지 신분증: shape, ndim, dtype</h3>
+<p>배열을 다루다 오류를 만났을 때 가장 먼저 확인해야 할 세 가지 속성이 있다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1, 2, 3],
+              [4, 5, 6]])
+
+print('shape :', A.shape)     # 각 축의 원소 수
+print('ndim  :', A.ndim)      # 축(차원)의 개수
+print('size  :', A.size)      # 전체 원소 수
+print('dtype :', A.dtype)     # 원소의 자료형</code></pre>
+<p><pre class="pyout">shape : (2, 3)
+ndim  : 2
+size  : 6
+dtype : int64</pre>
+<div class="listing-caption">코드 2.3: 배열의 구조를 확인하는 속성들</div></p>
+<p><strong class="term-ko">형상</strong><sup class="term">shape</sup>은 각 <strong class="term-ko">축</strong><sup class="term">axis</sup>에 원소가 몇 개 있는지를 튜플로 알려 준다. <code>(2, 3)</code>은 "0번 축(행)으로 2개, 1번 축(열)으로 3개"라는 뜻이다. 그림 2.2는 1–3차원 배열의 축을 보여 준다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch02/fig02.svg" alt="figure">
+<p><figcaption>그림 2.2: 배열의 차원과 축</figcaption></figure></p>
+<p><strong class="term-ko">자료형</strong><sup class="term">dtype</sup>은 원소가 정수인지 실수인지를 나타낸다. 정수 배열에 실수를 대입하면 소수점 아래가 잘려 나가므로, 선형대수 계산에서는 대개 실수 배열을 쓴다. 정수 리스트로 배열을 만들었다면 <code>astype(float)</code>로 바꾸거나 처음부터 소수점을 찍어 주면 된다.</p>
+<div class="box caution"><span class="chip">주의</span><p><pre class="line-numbers"><code class="language-python">a = np.array([1, 2, 3])       # dtype이 int64
+a[0] = 0.5                    # 0.5를 넣었지만
+print(a)                      # [0 2 3] — 소수점 아래가 사라졌다!</code></pre>
+정수 배열에 실수를 대입하면 조용히 잘려 나간다. 오류도 경고도 없다. 선형대수 계산에서 이 버그는 찾기 어렵고 결과도 크게 틀어지므로, 계산용 배열은 <code>np.array([1., 2., 3.])</code>처럼 실수로 만들거나 <code>dtype=float</code>를 명시하는 습관을 들이자.</p></div>
+<div class="box keypoint"><span class="chip">요점</span><ul>
+<li>넘파이 배열은 같은 자료형의 값을 메모리에 빈틈없이 이어 담기 때문에 빠르다.</li>
+<li>리스트의 <code>+</code>는 이어 붙이기, 배열의 <code>+</code>는 성분별 덧셈이다.</li>
+<li>오류를 만나면 가장 먼저 <code>shape</code>, <code>ndim</code>, <code>dtype</code>을 출력해 보자.</li>
+<li>계산용 배열은 <code>dtype=float</code>로 만드는 것이 안전하다.</li>
+</ul></div>
+<h2 id="sec2">2.2 넘파이의 고성능 연산 활용하기</h2>
+<h3>벡터화 연산  —  반복문을 지우는 기술</h3>
+<p>넘파이 배열끼리 사칙연산을 하면 같은 위치의 원소끼리 연산이 이루어진다. 이것을 <strong class="term-ko">벡터화 연산</strong><sup class="term">vectorization</sup>이라고 한다. 반복문을 명시적으로 쓰지 않았는데도 모든 원소에 연산이 적용된다는 점이 핵심이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+a = np.array([1., 2., 3., 4.])
+b = np.array([10., 20., 30., 40.])
+
+print('a + b :', a + b)
+print('a - b :', a - b)
+print('a * b :', a * b)      # 성분별 곱 (행렬 곱이 아니다!)
+print('b / a :', b / a)
+print('a ** 2:', a ** 2)
+print('sqrt  :', np.sqrt(a))</code></pre>
+<p><pre class="pyout">a + b : [11. 22. 33. 44.]
+a - b : [ -9. -18. -27. -36.]
+a * b : [ 10.  40.  90. 160.]
+b / a : [10. 10. 10. 10.]
+a ** 2: [ 1.  4.  9. 16.]
+sqrt  : [1.         1.41421356 1.73205081 2.        ]</pre>
+<div class="listing-caption">코드 2.4: 배열의 벡터화 연산</div></p>
+<p><code>np.sqrt()</code>처럼 배열의 모든 원소에 한꺼번에 적용되는 함수를 <strong class="term-ko">유니버설 함수</strong><sup class="term">universal function</sup>, 줄여서 ufunc이라고 부른다. <code>np.sin</code>, <code>np.cos</code>, <code>np.exp</code>, <code>np.log</code>, <code>np.abs</code> 등이 모두 여기에 속한다. 이들 덕분에 수학 공식을 반복문 없이 그대로 코드로 옮길 수 있다.</p>
+<h3>벡터화가 왜 빠른가</h3>
+<p>파이썬의 반복문은 한 번 돌 때마다 인터프리터가 "지금 다루는 것이 무슨 자료형인지" 확인하고, 그에 맞는 연산 함수를 찾아 호출한다. 원소가 천만 개면 이 확인 작업도 천만 번 일어난다. 반면 넘파이는 배열 전체의 자료형이 같다는 것을 알고 있으므로 확인을 한 번만 하고, 실제 계산은 C로 작성된 루프에 맡긴다. 게다가 현대 CPU는 <strong class="term-ko">단일 명령 다중 데이터</strong><sup class="term">SIMD</sup> 방식으로 여러 개의 값을 한 명령에 처리할 수 있는데, 값들이 메모리에 이어져 있어야 이 기능을 쓸 수 있다. 넘파이 배열은 정확히 그 조건을 만족한다.</p>
+<p>직접 시간을 재어 확인해 보자.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import time
+
+N = 10_000_000
+
+# 1) 순수 파이썬: 리스트 축약 표현
+start = time.time()
+ys_py = [x * x + 2 * x + 1 for x in range(N)]
+t_py = time.time() - start
+
+# 2) 넘파이: 벡터화 연산
+arr = np.arange(N, dtype=float)
+start = time.time()
+ys_np = arr * arr + 2 * arr + 1
+t_np = time.time() - start
+
+print(f'Python list : {t_py:.3f} sec')
+print(f'NumPy array : {t_np:.3f} sec')
+print(f'Speedup     : {t_py / t_np:.1f}x')</code></pre>
+<p><pre class="pyout">Python list : 0.623 sec
+NumPy array : 0.027 sec
+Speedup     : 23.0x</pre>
+<div class="listing-caption">코드 2.5: 벡터화 연산과 파이썬 반복문의 속도 비교</div></p>
+<p>수십 배의 차이다. 이 차이는 데이터가 커질수록 더 벌어진다. 딥러닝 모델의 학습이 현실적인 시간 안에 끝나는 것은 이런 벡터화가 밑바닥에서 받쳐 주기 때문이다.</p>
+<div class="box keypoint"><span class="chip">요점</span><p>넘파이를 쓸 때 <strong>반복문이 보이면 의심하라.</strong> 대부분의 원소별 반복은 벡터화 연산 한 줄로 바꿀 수 있으며, 그렇게 바꾸면 코드가 짧아지는 동시에 수십 배 빨라진다.</p></div>
+<h3>브로드캐스팅  —  크기가 달라도 계산된다</h3>
+<p>배열과 스칼라를 연산하면 어떻게 될까? 크기가 다른 두 배열은?</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+sal = np.array([300., 360., 400., 380.])   # 사원 4명의 급여(만 원)
+
+print('bonus  :', sal + 100)               # 모두에게 100만 원 상여
+print('raise  :', sal * 1.2)               # 일괄 20% 인상</code></pre>
+<p><pre class="pyout">bonus  : [400. 460. 500. 480.]
+raise  : [360. 432. 480. 456.]</pre>
+<div class="listing-caption">코드 2.6: 스칼라와 배열의 연산</div></p>
+<p>스칼라 100이 마치 <code>[100, 100, 100, 100]</code>인 것처럼 늘어나 계산되었다. 이렇게 크기가 다른 배열 사이의 연산에서 작은 쪽을 자동으로 늘려 맞추는 기능을 <strong class="term-ko">브로드캐스팅</strong><sup class="term">broadcasting</sup>이라고 한다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch02/fig03.svg" alt="figure">
+<p><figcaption>그림 2.3: 브로드캐스팅의 동작</figcaption></figure></p>
+<p>브로드캐스팅은 스칼라뿐 아니라 배열끼리도 일어난다. 규칙은 간단하다. <strong>두 배열의 형상을 오른쪽 끝에서부터 맞춰 보며, 크기가 같거나 한쪽이 1이면 늘려서 맞춘다.</strong></p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1, 2, 3],
+              [4, 5, 6]])          # (2, 3)
+row = np.array([10, 20, 30])       # (3,)   -&gt; 각 행에 더해짐
+col = np.array([[100], [200]])     # (2, 1) -&gt; 각 열에 더해짐
+
+print(A + row)
+print(A + col)</code></pre>
+<p><pre class="pyout">[[11 22 33]
+ [14 25 36]]
+[[101 102 103]
+ [204 205 206]]</pre>
+<div class="listing-caption">코드 2.7: 행 방향·열 방향 브로드캐스팅</div></p>
+<p>이 기능은 데이터 전처리에서 특히 유용하다. 예를 들어 각 열(특징)의 평균을 빼서 데이터를 중심에 모으는 작업이 한 줄이다. 이 작업은 11장의 주성분 분석에서 반드시 필요하다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+X = np.array([[172., 68.], [160., 52.], [181., 79.],
+              [168., 60.], [155., 47.]])
+
+mean = X.mean(axis=0)          # 열별 평균 -&gt; shape (2,)
+Xc = X - mean                  # 브로드캐스팅으로 중심화
+print('mean    :', mean)
+print('centered:\n', Xc)
+print('new mean:', Xc.mean(axis=0))</code></pre>
+<p><pre class="pyout">mean    : [167.2  61.2]
+centered:
+ [[  4.8   6.8]
+ [ -7.2  -9.2]
+ [ 13.8  17.8]
+ [  0.8  -1.2]
+ [-12.2 -14.2]]
+new mean: [ 1.13686838e-14 -2.84217094e-15]</pre>
+<div class="listing-caption">코드 2.8: 브로드캐스팅으로 데이터 중심화하기</div></p>
+<h3>축(axis)을 지정하는 집계</h3>
+<p><code>sum</code>, <code>mean</code>, <code>max</code> 같은 집계 함수는 <code>axis</code> 인자로 "어느 방향으로 합칠지"를 지정한다. 이것이 헷갈린다면 <strong>"지정한 축이 사라진다"</strong>고 외우면 된다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+S = np.array([[80, 90, 70],      # 학생 1의 국·영·수
+              [60, 75, 95],      # 학생 2
+              [88, 82, 79]])     # 학생 3
+
+print('전체 평균      :', S.mean())
+print('과목별 평균    :', S.mean(axis=0))   # 행이 사라짐 -&gt; 열별 결과
+print('학생별 평균    :', S.mean(axis=1))   # 열이 사라짐 -&gt; 행별 결과
+print('shape 확인     :', S.mean(axis=0).shape, S.mean(axis=1).shape)</code></pre>
+<p><pre class="pyout">전체 평균      : 79.88888888888889
+과목별 평균    : [76.         82.33333333 81.33333333]
+학생별 평균    : [80.         76.66666667 83.        ]
+shape 확인     : (3,) (3,)</pre>
+<div class="listing-caption">코드 2.9: <code>axis</code> 인자로 집계 방향 지정하기</div></p>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">axis 헷갈림을 없애는 방법</span><p><code>(3, 4)</code> 형상의 배열에서 <code>axis=0</code>으로 합치면 결과는 <code>(4,)</code>가 되고, <code>axis=1</code>로 합치면 <code>(3,)</code>이 된다. 즉 <code>axis=k</code>로 집계하면 <strong>\(k\)번째 축이 튜플에서 빠진다</strong>. 이 규칙 하나면 3차원 이상에서도 헷갈리지 않는다.</p></div>
+<h3>인덱싱과 슬라이싱  —  행과 열 꺼내기</h3>
+<p>행렬에서 특정 행이나 열을 꺼내는 일은 선형대수에서 끊임없이 필요하다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
+
+print('A[0, 2]  :', A[0, 2])      # 0행 2열 성분
+print('A[1, :]  :', A[1, :])      # 1행 전체
+print('A[:, 0]  :', A[:, 0])      # 0열 전체
+print('A[0:2, 1:3]:\n', A[0:2, 1:3])
+print('대각성분 :', np.diag(A))</code></pre>
+<p><pre class="pyout">A[0, 2]  : 3
+A[1, :]  : [4 5 6]
+A[:, 0]  : [1 4 7]
+A[0:2, 1:3]:
+ [[2 3]
+ [5 6]]
+대각성분 : [1 5 9]</pre>
+<div class="listing-caption">코드 2.10: 2차원 배열의 행·열 접근</div></p>
+<p>콜론(<code>:</code>)은 "그 축의 전부"를 뜻한다. <code>A[:, 0]</code>은 "모든 행의 0열", 즉 첫 번째 열벡터다. 데이터 행렬에서 특징 하나를 통째로 꺼낼 때 늘 쓰는 표현이다.</p>
+<p>조건을 이용한 <strong class="term-ko">불리언 인덱싱</strong><sup class="term">boolean indexing</sup>도 자주 쓰인다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+v = np.array([10, -3, 25, -8, 40, 0])
+
+print('양수만    :', v[v &gt; 0])
+print('마스크    :', v &gt; 0)
+print('음수를 0으로:', np.where(v &lt; 0, 0, v))   # ReLU와 같은 동작</code></pre>
+<p><pre class="pyout">양수만    : [10 25 40]
+마스크    : [ True False  True False  True False]
+음수를 0으로: [10  0 25  0 40  0]</pre>
+<div class="listing-caption">코드 2.11: 불리언 인덱싱과 <code>np.where</code></div></p>
+<p>마지막 줄의 <code>np.where()</code>는 신경망의 ReLU 활성화 함수와 정확히 같은 동작이다. 조건에 따라 값을 골라 담는 이 연산도 반복문 없이 한 줄로 처리된다.</p>
+<div class="box caution"><span class="chip">주의</span><p><strong>슬라이싱은 복사가 아니라 <strong class="term-ko">뷰</strong><sup class="term">view</sup>다.</strong> <code>B = A[0:2, :]</code>로 잘라낸 <code>B</code>를 수정하면 원본 <code>A</code>도 함께 바뀐다. 원본을 지키려면 <code>B = A[0:2, :].copy()</code>처럼 명시적으로 복사해야 한다. 소거법을 직접 구현하는 8장에서 이 함정을 꼭 기억해야 한다.</p></div>
+<h2 id="sec3">2.3 선형대수를 척척 다루는 넘파이의 기능</h2>
+<h3><code>np.linalg</code>  —  선형대수 전용 창고</h3>
+<p>넘파이에는 <code>linalg</code>(linear algebra의 줄임말)라는 하위 모듈이 있고, 이 책에서 배울 거의 모든 계산이 여기에 함수로 들어 있다. 지금 각 함수의 의미를 알 필요는 없다. 이 절의 목적은 <strong>앞으로 우리가 어디까지 갈 것인지 지도를 한 번 펼쳐 보는 것</strong>이다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th><th> 배울 장</th></tr><tr><td><code>A @ B</code>, <code>np.matmul</code></td><td>행렬 곱</td><td>5장</td></tr><tr><td><code>np.linalg.norm</code></td><td>벡터의 길이(노름)</td><td>4장</td></tr><tr><td><code>np.dot</code>, <code>np.inner</code></td><td>내적</td><td>4장</td></tr><tr><td><code>np.cross</code></td><td>외적(3차원)</td><td>4장</td></tr><tr><td><code>np.linalg.inv</code></td><td>역행렬</td><td>6장</td></tr><tr><td><code>np.linalg.det</code></td><td>행렬식</td><td>7장</td></tr><tr><td><code>np.linalg.solve</code></td><td>연립일차방정식의 해</td><td>8장</td></tr><tr><td><code>np.linalg.matrix_rank</code></td><td>계수(랭크)</td><td>8장</td></tr><tr><td><code>np.linalg.eig</code></td><td>고유값과 고유벡터</td><td>9장</td></tr><tr><td><code>np.linalg.eigh</code></td><td>대칭행렬의 고유값 분해</td><td>10장</td></tr><tr><td><code>np.linalg.matrix_power</code></td><td>행렬의 거듭제곱</td><td>10장</td></tr><tr><td><code>np.linalg.svd</code></td><td>특이값 분해</td><td>11장</td></tr><tr><td><code>np.linalg.pinv</code></td><td>유사 역행렬</td><td>12장</td></tr><tr><td><code>np.linalg.lstsq</code></td><td>최소제곱 해</td><td>12장</td></tr><tr><td><code>np.linalg.qr</code></td><td>QR 분해</td><td>12장</td></tr></table></div></div>
+<p>표를 보면 알 수 있듯, 선형대수의 주요 주제 하나하나에 대응하는 함수가 딱 하나씩 있다. 이 책은 이 표를 위에서 아래로 훑어 내려가는 여정이라고 봐도 좋다. 다만 우리는 함수를 호출하는 데서 멈추지 않고, <strong>그 함수가 무엇을 계산하는지 손으로 한 번, 그림으로 한 번 더</strong> 확인할 것이다.</p>
+<h3>미리 맛보기  —  세 줄로 끝나는 문제들</h3>
+<p>앞으로 여러 장에 걸쳐 배울 내용을, 지금은 이해하지 못한 채로 실행만 해 보자. 각각이 얼마나 간결한지 확인하는 것이 목적이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[4., 1.],
+              [2., 3.]])
+b = np.array([9., 11.])
+
+print('det   :', np.linalg.det(A))          # 넓이가 몇 배로 변하는가 (7장)
+print('inv   :\n', np.linalg.inv(A))        # 되돌리는 변환 (6장)
+print('solve :', np.linalg.solve(A, b))     # Ax = b 의 해 (8장)
+
+w, V = np.linalg.eig(A)                     # 방향이 보존되는 축 (9장)
+print('eigenvalues :', w)
+print('eigenvectors:\n', V)</code></pre>
+<p><pre class="pyout">det   : 10.000000000000002
+inv   :
+ [[ 0.3 -0.1]
+ [-0.2  0.4]]
+solve : [1.6 2.6]
+eigenvalues : [5. 2.]
+eigenvectors:
+ [[ 0.70710678 -0.4472136 ]
+ [ 0.70710678  0.89442719]]</pre>
+<div class="listing-caption">코드 2.12: 선형대수 주요 계산 미리 맛보기</div></p>
+<p>여덟 줄의 코드가 대학 선형대수 한 학기 분량의 계산을 해치웠다. 그렇다면 우리는 왜 이 책을 읽어야 할까? <strong>저 숫자들이 무엇을 뜻하는지 모르면 아무것도 할 수 없기 때문이다.</strong> 행렬식이 10이라는 것은 무슨 뜻인가? 고유값이 5와 2라는 것은? 고유벡터의 첫 열이 \((0.707, 0.707)\)이라는 것은? 이 질문들에 그림으로 답하는 것이 이 책이 하는 일이다.</p>
+<div class="box caution"><span class="chip">주의</span><p>위 출력에서 행렬식이 정확히 10이 아니라 <code>10.000000000000002</code>로 나왔다. 컴퓨터는 실수를 유한한 자릿수로만 저장하므로 미세한 오차가 늘 따라다닌다. 따라서 <strong><code>det(A) == 0</code>과 같은 비교는 절대 하면 안 된다.</strong> 대신 <code>abs(det(A)) &lt; 1e-10</code>처럼 허용 오차를 두고 판단해야 한다. 이 문제는 7장과 8장에서 다시 다룬다.</p></div>
+<h3>자주 쓰는 배열 변형</h3>
+<p>계산 도중 배열의 모양을 바꿔야 하는 일이 자주 생긴다. 특히 <code>reshape</code>과 전치는 앞으로 계속 쓰인다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+a = np.arange(6)                 # [0 1 2 3 4 5]
+A = a.reshape(2, 3)              # 2행 3열로 재배치
+print(A)
+print('전치 A.T :\n', A.T)       # 행과 열을 맞바꿈
+print('평탄화   :', A.flatten()) # 다시 1차원으로
+print('-1 사용  :', a.reshape(3, -1).shape)   # -1은 알아서 계산</code></pre>
+<p><pre class="pyout">[[0 1 2]
+ [3 4 5]]
+전치 A.T :
+ [[0 3]
+ [1 4]
+ [2 5]]
+평탄화   : [0 1 2 3 4 5]
+-1 사용  : (3, 2)</pre>
+<div class="listing-caption">코드 2.13: <code>reshape</code>과 전치</div></p>
+<p><code>reshape</code>에 \(-1\)을 넣으면 나머지 축의 크기로부터 자동으로 계산된다. 원소가 6개인 배열을 <code>reshape(3, -1)</code>하면 \(-1\) 자리는 자연히 2가 된다. 이미지 데이터를 벡터로 펴거나 되돌릴 때 매우 편리한 기능으로, 11장의 이미지 압축 실습에서 사용한다.</p>
+<h3>난수와 재현성</h3>
+<p>실험을 할 때 난수는 필수적이지만, 실행할 때마다 결과가 달라지면 책의 출력과 맞춰 보기 어렵다. 그래서 <strong class="term-ko">시드</strong><sup class="term">seed</sup>를 고정한다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(42)     # 시드 42로 난수 생성기 준비
+
+print(rng.random(3))                # 0~1 균등분포 3개
+print(rng.normal(0, 1, 3))          # 평균 0, 표준편차 1인 정규분포 3개
+print(rng.integers(1, 7, 5))        # 1~6 정수 5개 (주사위)</code></pre>
+<p><pre class="pyout">[0.77395605 0.43887844 0.85859792]
+[ 0.94056472 -1.95103519 -1.30217951]
+[5 5 5 5 4]</pre>
+<div class="listing-caption">코드 2.14: 시드를 고정한 난수 생성</div></p>
+<p>시드를 같은 값으로 두면 언제 어디서 실행해도 같은 난수가 나온다. 이 책의 난수 예제는 모두 <code>default_rng(42)</code>를 사용하므로, 여러분의 화면에도 책과 같은 숫자가 나타날 것이다.</p>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title"><code>np.random.seed()</code>는 이제 옛 방식이다</span><p>예전 코드에서는 <code>np.random.seed(42)</code>와 <code>np.random.rand()</code>를 썼다. 지금도 동작하지만, 넘파이는 <code>default_rng()</code>로 생성기 객체를 만들어 쓰는 새로운 방식을 권장한다. 전역 상태를 건드리지 않아 여러 실험을 섞어 돌릴 때 안전하기 때문이다. 이 책은 새 방식을 따른다.</p></div>
+<h2 id="sec4">2.4 그리기 도구 만들기  —  <code>lautils.py</code></h2>
+<h3>왜 도구를 직접 만드는가</h3>
+<p>1장에서 벡터 하나를 그리는 데 여덟 줄이 필요했다. 축 범위를 정하고, 비율을 맞추고, 격자를 켜고, 좌표축을 그리고, 화살표를 놓았다. 이 여덟 줄을 앞으로 수백 번 반복해 적을 수는 없다.</p>
+<p>그렇다고 남이 만든 시각화 라이브러리를 가져다 쓰면, 그 안에서 무슨 일이 일어나는지 모른 채로 그림만 받아 보게 된다. 그래서 우리는 <strong>필요한 만큼만, 우리 손으로</strong> 도구를 만든다. 이 절에서 만들 <code>lautils.py</code>는 함수 여덟 개짜리 작은 파일이지만, 이 책의 나머지 열한 개 장이 이 파일 위에서 돌아간다.</p>
+<p>여기서는 2차원 그림에 필요한 <strong>핵심 여덟 개</strong>만 만든다. 3차원 함수까지 갖춘 완성본은 부록 B에 실려 있으니, 3차원이 본격적으로 등장하는 13장 전에 부록 B의 파일로 바꿔 두면 된다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 함수</th><th> 하는 일</th></tr><tr><td><code>new_axes()</code></td><td>비율이 맞고 축이 그려진 빈 좌표평면을 준비한다</td></tr><tr><td><code>draw_vector()</code></td><td>화살표 하나를 그린다</td></tr><tr><td><code>draw_vectors()</code></td><td>여러 개의 화살표를 색을 바꿔 가며 그린다</td></tr><tr><td><code>draw_points()</code></td><td>점들을 찍는다</td></tr><tr><td><code>draw_polygon()</code></td><td>다각형을 색으로 채운다 (넓이 시각화)</td></tr><tr><td><code>draw_grid()</code></td><td>격자를 그린다. 행렬을 주면 변환된 격자를 그린다</td></tr><tr><td><code>transform()</code></td><td>점들의 묶음에 행렬을 적용한다</td></tr><tr><td><code>show_matrix()</code></td><td>행렬을 색과 숫자로 함께 보여 준다</td></tr></table></div></div>
+<h3>모듈 만들기</h3>
+<p>코랩을 쓴다면 새 셀에 다음 코드를 넣고 실행하면 된다. 첫 줄의 <code>%%writefile</code>은 셀의 내용을 파일로 저장하라는 코랩(정확히는 주피터)의 명령이다. 내 컴퓨터에서 작업한다면 그 줄을 빼고 <code>lautils.py</code>라는 이름으로 저장하면 된다.</p>
+<div class="filecode-wrap"><div class="file-label">lautils.py \enspace (코랩에서는 첫 줄에 %%writefile lautils.py 를 추가)</div><pre class="filecode"><code class="language-python">"""lautils.py — 『쓸모 있는 선형대수』 전용 시각화 도구
+
+numpy와 matplotlib만 사용한다. 모든 함수는 matplotlib의 Axes 객체를
+첫 인자로 받아 그 위에 그린다.
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 벡터를 여러 개 그릴 때 순서대로 사용할 색
+PALETTE = ['crimson', 'royalblue', 'seagreen', 'darkorange',
+           'purple', 'teal', 'saddlebrown', 'deeppink']
+
+# 단위 정사각형의 네 꼭짓점 (넓이 시각화에 사용)
+UNIT_SQUARE = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
+
+
+def new_axes(xlim=(-5, 5), ylim=(-5, 5), figsize=(4.5, 4.5), grid=True):
+    """비율이 1:1로 맞춰진 빈 좌표평면을 만들어 (fig, ax)를 돌려준다."""
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.set_xlim(*xlim)
+    ax.set_ylim(*ylim)
+    ax.set_aspect('equal')          # 각도와 길이가 왜곡되지 않도록
+    if grid:
+        ax.grid(True, alpha=0.3, lw=0.5)
+    ax.axhline(0, color='black', lw=0.8)
+    ax.axvline(0, color='black', lw=0.8)
+    return fig, ax
+
+
+def draw_vector(ax, v, origin=(0, 0), color='crimson', label=None,
+                width=0.012, alpha=1.0):
+    """원점(또는 지정한 시작점)에서 v 방향으로 화살표를 그린다."""
+    v = np.asarray(v, dtype=float)
+    o = np.asarray(origin, dtype=float)
+    ax.quiver(o[0], o[1], v[0], v[1],
+              angles='xy', scale_units='xy', scale=1,
+              color=color, width=width, alpha=alpha, zorder=3)
+    if label is not None:
+        mid = o + v * 0.55                      # 화살표 중간쯤에 이름표
+        ax.text(mid[0] + 0.12, mid[1] + 0.12, label,
+                color=color, fontsize=10)
+    return ax
+
+
+def draw_vectors(ax, vs, origin=(0, 0), labels=None, alpha=1.0):
+    """여러 벡터를 PALETTE 순서대로 색을 바꿔 가며 그린다."""
+    vs = np.asarray(vs, dtype=float)
+    for i, v in enumerate(vs):
+        lab = None if labels is None else labels[i]
+        draw_vector(ax, v, origin=origin, color=PALETTE[i % len(PALETTE)],
+                    label=lab, alpha=alpha)
+    return ax
+
+
+def draw_points(ax, P, color='darkorange', s=40, label=None, marker='o'):
+    """행마다 점 하나가 담긴 배열 P를 산점도로 찍는다."""
+    P = np.asarray(P, dtype=float)
+    ax.scatter(P[:, 0], P[:, 1], s=s, color=color, marker=marker,
+               label=label, zorder=4)
+    return ax
+
+
+def draw_polygon(ax, P, color='goldenrod', alpha=0.35, edge=True):
+    """꼭짓점 목록 P가 이루는 다각형을 색으로 채운다 (넓이 표현용)."""
+    P = np.asarray(P, dtype=float)
+    ax.fill(P[:, 0], P[:, 1], color=color, alpha=alpha, zorder=1)
+    if edge:
+        loop = np.vstack([P, P[0]])             # 마지막 점을 처음과 이어 닫기
+        ax.plot(loop[:, 0], loop[:, 1], color=color, lw=1.2, zorder=2)
+    return ax
+
+
+def draw_grid(ax, A=None, n=4, color='steelblue', alpha=0.55, lw=0.7):
+    """단위 격자를 그린다. 행렬 A를 주면 A로 변환된 격자를 그린다."""
+    A = np.eye(2) if A is None else np.asarray(A, dtype=float)
+    t = np.linspace(-n, n, 2 * n + 1)           # 격자선의 위치
+    s = np.linspace(-n, n, 40)                  # 선 위의 표본점
+    for k in t:
+        horiz = np.vstack([s, np.full_like(s, k)])   # 가로선 (2, 40)
+        vert = np.vstack([np.full_like(s, k), s])    # 세로선 (2, 40)
+        for line in (horiz, vert):
+            q = A @ line                             # 각 점에 A를 적용
+            ax.plot(q[0], q[1], color=color, alpha=alpha, lw=lw, zorder=0)
+    return ax
+
+
+def transform(A, P):
+    """행마다 점 하나가 담긴 배열 P의 모든 점에 행렬 A를 적용한다."""
+    A = np.asarray(A, dtype=float)
+    P = np.asarray(P, dtype=float)
+    return (A @ P.T).T
+
+
+def show_matrix(ax, A, fmt='{:.2f}', cmap='RdBu_r', title=None):
+    """행렬을 색상 격자와 숫자로 함께 보여 준다."""
+    A = np.asarray(A, dtype=float)
+    lim = np.abs(A).max()
+    lim = 1.0 if lim == 0 else lim
+    ax.imshow(A, cmap=cmap, vmin=-lim, vmax=lim)
+    for i in range(A.shape[0]):
+        for j in range(A.shape[1]):
+            ax.text(j, i, fmt.format(A[i, j]),
+                    ha='center', va='center', fontsize=9)
+    ax.set_xticks(range(A.shape[1]))
+    ax.set_yticks(range(A.shape[0]))
+    ax.set_aspect('equal')
+    if title:
+        ax.set_title(title, fontsize=10)
+    return ax</code></pre></div>
+<h3>동작 확인</h3>
+<p>파일을 저장했다면 불러서 써 보자. <code>from lautils import *</code>는 이 파일의 모든 함수를 이름 그대로 가져오는 표현이다.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *          # 방금 만든 모듈
+
+fig, ax = new_axes(xlim=(-1, 5), ylim=(-1, 5), figsize=(4, 4))
+draw_vector(ax, [3, 2], label='v')
+plt.show()</code></pre>
+<div class="listing-caption">코드 2.15: <code>lautils</code>로 다시 그린 1장의 그림</div></p>
+<p>1장에서 여덟 줄이었던 코드가 두 줄이 되었다. 앞으로 모든 예제는 이 형태로 시작한다.</p>
+<h3>맛보기  —  격자를 변형해 보기</h3>
+<p><code>draw_grid()</code>에 행렬을 넘기면 그 행렬이 평면을 어떻게 변형하는지 한눈에 보인다. 이것이 이 책의 3부 전체를 관통하는 그림이다. 지금은 원리를 몰라도 좋으니, 숫자를 바꿔 가며 격자가 어떻게 휘는지 구경해 보자.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[1.0, 0.8],
+              [0.3, 1.4]])
+
+fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4), figsize=(4.5, 4.5), grid=False)
+draw_grid(ax, None, n=3, color='lightgray')          # 원래 격자
+draw_grid(ax, A, n=3, color='steelblue')             # A로 변환된 격자
+draw_polygon(ax, transform(A, UNIT_SQUARE))          # 단위 정사각형의 상
+draw_vector(ax, A[:, 0], color='crimson', label='A e1')   # 첫 열
+draw_vector(ax, A[:, 1], color='royalblue', label='A e2') # 둘째 열
+plt.show()</code></pre>
+<div class="listing-caption">코드 2.16: 행렬 \(\mm{A}\)가 평면을 어떻게 변형하는지 보기</div></p>
+<figure class="fig">
+<img class="tikz" src="img/ch02/fig04.svg" alt="figure">
+<p><figcaption>그림 2.4: 행렬 \(\mm{A}\)에 의한 평면의 변형</figcaption></figure></p>
+<p>그림 2.4에서 회색 격자는 원래의 평면이고 파란 격자는 \(\mm{A}\)가 적용된 뒤의 평면이다. 눈여겨볼 점이 세 가지 있다.</p>
+<ul>
+<li><strong>격자는 여전히 평행한 직선들이다.</strong> 휘거나 끊어지지 않았다. 이것이 선형변환의 특징이다.</li>
+<li><strong>원점은 움직이지 않았다.</strong> 모든 선형변환은 원점을 고정한다.</li>
+<li><strong>노란 사각형의 넓이가 변했다.</strong> 원래 넓이 1이던 단위 정사각형이 조금 커졌다. 얼마나 커졌는지를 알려 주는 값이 바로 <strong>행렬식</strong>이며, 7장의 주제다.</li>
+</ul>
+<div class="box keypoint"><span class="chip">요점</span><ul>
+<li><code>lautils.py</code>는 이 책 전체에서 사용할 여덟 개의 시각화 함수를 담은 파일이다.</li>
+<li>모든 함수는 첫 인자로 <code>ax</code>를 받아 그 위에 그린다. 그래서 여러 요소를 겹쳐 그릴 수 있다.</li>
+<li><code>draw_grid(ax, A)</code>는 행렬 \(\mm{A}\)가 평면을 어떻게 변형하는지 보여 준다. 3부의 모든 그림이 이 함수를 쓴다.</li>
+<li>전체 소스는 부록 B에도 실려 있다.</li>
+</ul></div>
+<h3>3차원과 대화형 그림</h3>
+<p>앞으로 대부분의 그림은 2차원이다. 2차원에서 성립하는 규칙이 고차원에서도 그대로 성립하므로(3장), 개념을 잡는 데는 평면으로 충분하기 때문이다. 그러나 외적(4장), 평행육면체의 부피(7장), 부분공간(8장)처럼 <strong>3차원이라야 보이는</strong> 것들도 있다.</p>
+<p>부록 B의 완성본에는 3차원 함수가 함께 들어 있다. 사용법은 놀랄 만큼 단순하다. <strong>캔버스를 만드는 첫 줄만 바꾸면 된다.</strong></p>
+<pre class="line-numbers"><code class="language-python">fig, ax = new_axes()      # 2차원
+fig, ax = new_axes3d()    # 3차원 — 나머지 코드는 그대로</code></pre>
+<p><code>draw_vector</code>, <code>draw_points</code>, <code>draw_polygon</code> 등은 넘겨받은 배열의 길이를 보고 2차원인지 3차원인지 스스로 판단한다. 여기에 행렬의 열이 만드는 도형을 한 번에 그려 주는 <code>draw_matrix</code>가 더해지는데, \(2\times2\)이면 평행사변형을, \(3\times3\)이면 평행육면체를 그린다. 7장에서 행렬식을 넓이와 부피로 이해할 때 이 함수를 계속 쓰게 된다.</p>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">돌려 볼 수 있는 그림  —  tuvis</span><p>맷플롯립의 3차원 그림은 보는 각도가 고정되어 있어 답답할 때가 있다. 마우스로 돌려 가며 보고 싶다면 부록 B에 함께 소개한 <code>tuvis.py</code>를 쓰면 된다. plotly로 그리므로 코랩에서 회전·확대가 되고, <strong>함수 이름과 인자가 <code>lautils</code>와 완전히 같아서</strong> 맨 윗줄의 <code>import</code>만 바꾸면 같은 코드가 그대로 동작한다.</p>
+<pre class="line-numbers"><code class="language-python">from lautils import *     # 정적 그림 (저장·인쇄용)
+# from tuvis import *     # 대화형 그림 (pip install plotly 필요)</code></pre>
+<p>이 책의 도판은 종이에 실려야 하므로 모두 <code>lautils</code>로 그렸다. 개념은 책의 그림으로 잡고, 손으로 돌려 보고 싶을 때 <code>tuvis</code>로 바꿔 실행해 보기를 권한다.</p></div>
+<p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 넘파이로 대규모 수치 배열 다루기</div><ol>
+<li><strong>리스트와 배열의 차이를 확인하시오.</strong> 같은 데이터를 리스트와 배열로 만들어 <code>+</code>, <code>*</code> 연산의 결과를 비교하시오.
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+L = [1, 2, 3]
+A = np.array([1., 2., 3.])
+
+print('list  * 2 :', L * 2)      # 반복
+print('array * 2 :', A * 2)      # 각 원소에 곱셈
+print('list  + L :', L + L)      # 이어 붙이기
+print('array + A :', A + A)      # 성분별 덧셈</code></pre>
+<p><pre class="pyout">list  * 2 : [1, 2, 3, 1, 2, 3]
+array * 2 : [2. 4. 6.]
+list  + L : [1, 2, 3, 1, 2, 3]
+array + A : [2. 4. 6.]</pre></li>
+<li><strong>성적표를 행렬로 다루어 보자.</strong> 학생 5명의 국어·영어·수학 성적을 \(5 \times 3\) 배열로 만들고, 과목별 평균과 학생별 평균을 각각 구하시오. 또 모든 점수에 5점을 가산하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+S = np.array([[85., 92., 78.],
+              [90., 88., 95.],
+              [76., 80., 70.],
+              [65., 71., 88.],
+              [92., 95., 91.]])
+
+print('과목별 평균 :', S.mean(axis=0))
+print('학생별 평균 :', S.mean(axis=1))
+print('가산 후 최고점 :', (S + 5).max())
+print('90점 이상 개수 :', (S &gt;= 90).sum())</code></pre>
+<pre class="pyout">과목별 평균 : [81.6 85.2 84.4]
+학생별 평균 : [85.         91.         75.33333333 74.66666667 92.66666667]
+가산 후 최고점 : 100.0
+90점 이상 개수 : 6</pre>
+<p><code>(S &gt;= 90)</code>은 참/거짓 배열을 만들고, <code>.sum()</code>은 <code>True</code>를 1로 세어 개수를 알려 준다. 조건에 맞는 데이터의 개수를 세는 관용적인 표현이다.</li>
+<li><strong>브로드캐스팅으로 곱셈표를 만들어 보자.</strong> 반복문 없이 \(1\)부터 \(9\)까지의 구구단 표를 \(9 \times 9\) 배열로 만드시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+row = np.arange(1, 10)              # shape (9,)
+col = row.reshape(9, 1)             # shape (9, 1)
+table = col * row                   # 브로드캐스팅 -&gt; (9, 9)
+
+print(table)
+print('shape :', table.shape)</code></pre>
+<p><code>(9,1)</code>과 <code>(9,)</code>가 만나면 각각 <code>(9,9)</code>로 늘어나 모든 조합의 곱이 만들어진다. 이중 반복문이 브로드캐스팅 한 줄로 사라졌다.</li>
+<li><strong>만든 도구를 시험하시오.</strong> <code>lautils.py</code>를 불러 서로 다른 세 벡터를 그리고, 그 벡터들이 이루는 삼각형을 색으로 채우시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+P = np.array([[3., 1.], [1., 3.], [-2., -1.]])
+
+fig, ax = new_axes(xlim=(-4, 4), ylim=(-4, 4))
+draw_polygon(ax, P, color='skyblue', alpha=0.3)
+draw_vectors(ax, P, labels=['a', 'b', 'c'])
+draw_points(ax, P, color='black', s=25)
+plt.show()</code></pre></li>
+<li><strong>행렬을 그림으로 보자.</strong> \(5 \times 5\) 크기의 무작위 행렬을 만들고 <code>show_matrix()</code>로 표시한 뒤, 그 행렬과 자기 자신의 전치를 나란히 비교하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+rng = np.random.default_rng(42)
+M = rng.normal(0, 1, (5, 5))
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
+show_matrix(ax1, M, title='M')
+show_matrix(ax2, M.T, title='M.T')
+plt.tight_layout()
+plt.show()</code></pre>
+<p>두 그림은 대각선을 기준으로 서로 뒤집힌 모양이다. 전치가 무엇을 하는 연산인지 숫자를 보지 않고도 알 수 있다.</li>
+<li><strong>벡터화의 위력을 직접 재어 보자.</strong> 원소 100만 개짜리 배열의 모든 값에 \(\sin\)을 적용하는 작업을, 반복문과 벡터화로 각각 수행하고 시간을 비교하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import time
+import math
+
+N = 1_000_000
+x = np.linspace(0, 2 * np.pi, N)
+
+start = time.time()
+y1 = [math.sin(v) for v in x]        # 파이썬 반복문
+t1 = time.time() - start
+
+start = time.time()
+y2 = np.sin(x)                        # 유니버설 함수
+t2 = time.time() - start
+
+print(f'loop      : {t1:.3f} sec')
+print(f'vectorized: {t2:.3f} sec')
+print(f'speedup   : {t1 / t2:.1f}x')
+print('같은 결과인가 :', np.allclose(y1, y2))</code></pre>
+<pre class="pyout">loop      : 0.061 sec
+vectorized: 0.004 sec
+speedup   : 15.6x
+같은 결과인가 : True</pre>
+<p>마지막 줄의 <code>np.allclose()</code>는 두 배열이 오차 범위 안에서 같은지 확인하는 함수다. 부동소수점 계산에서 <code>==</code> 대신 반드시 써야 하는 함수이므로 기억해 두자.</li>
+<li><strong>대각 성분만 남기고 지워 보자.</strong> \(6 \times 6\) 무작위 행렬에서 대각 성분을 제외한 모든 값을 0으로 만드시오. 반복문 없이 처리하는 방법을 찾아보시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(0)
+A = rng.integers(1, 10, (6, 6))
+
+D = np.diag(np.diag(A))     # 대각 성분을 뽑아(1차원) 다시 대각행렬로
+print(D)</code></pre>
+<p><code>np.diag()</code>는 재미있는 함수다. 2차원 배열을 주면 대각 성분을 1차원으로 뽑아 주고, 1차원 배열을 주면 그것을 대각선에 놓은 2차원 행렬을 만들어 준다. 이 성질을 이용해 두 번 적용하면 대각행렬만 남는다. 10장의 대각화에서 이 표현을 계속 쓰게 된다.</li>
+</ol></p></div></p>
+<details class="box summary" id="summary"><summary class="box-head">2장 요약</summary><div class="sum-body"><ul>
+<li><strong>넘파이 배열</strong>(<code>ndarray</code>)은 같은 자료형의 값을 메모리에 빈틈없이 이어 담는다. 이 구조 덕분에 임의의 위치에 즉시 접근할 수 있고, CPU가 여러 값을 한 번에 처리할 수 있다.</li>
+<li>리스트의 <code>+</code>는 이어 붙이기이고 <code>*</code>는 반복이지만, 배열의 <code>+</code>와 <code>*</code>는 <strong>성분별 연산</strong>이다. 배열을 쓰면 코드를 수식처럼 적을 수 있다.</li>
+<li>배열 생성 함수: <code>np.array()</code>, <code>np.zeros()</code>, <code>np.ones()</code>, <code>np.arange()</code>, <code>np.linspace()</code>, <code>np.eye()</code>.</li>
+<li>배열의 구조는 <code>shape</code>(각 축의 원소 수), <code>ndim</code>(축의 개수), <code>size</code>(전체 원소 수), <code>dtype</code>(원소의 자료형)으로 확인한다. 오류가 나면 가장 먼저 이 값들을 출력해 보아야 한다.</li>
+<li>정수 배열에 실수를 대입하면 소수점 아래가 <strong>경고 없이</strong> 잘려 나간다. 계산용 배열은 <code>dtype=float</code>로 만드는 습관을 들이자.</li>
+<li><strong>벡터화 연산</strong>은 반복문 없이 모든 원소에 연산을 적용한다. 자료형 확인을 한 번만 하고 C 루프로 계산하므로 파이썬 반복문보다 수십 배 빠르다. <code>np.sin</code>, <code>np.exp</code> 등 유니버설 함수도 마찬가지다.</li>
+<li><strong>브로드캐스팅</strong>은 크기가 다른 배열끼리의 연산에서 작은 쪽을 자동으로 늘려 맞춘다. 형상을 오른쪽 끝에서부터 비교해 크기가 같거나 한쪽이 1이면 확장한다. 데이터 중심화(<code>X - X.mean(axis=0)</code>)가 대표적인 활용이다.</li>
+<li>집계 함수의 <code>axis</code> 인자는 <strong>"지정한 축이 사라진다"</strong>로 기억하면 된다. <code>(3,4)</code> 배열을 <code>axis=0</code>으로 합치면 <code>(4,)</code>가 된다.</li>
+<li>슬라이싱 <code>A[i, :]</code>는 \(i\)행 전체, <code>A[:, j]</code>는 \(j\)열 전체를 뜻한다. 슬라이싱 결과는 복사본이 아니라 <strong>뷰</strong>이므로, 원본을 지키려면 <code>.copy()</code>를 써야 한다.</li>
+<li><strong>불리언 인덱싱</strong>(<code>v[v &gt; 0]</code>)과 <code>np.where()</code>로 조건에 따른 선택을 반복문 없이 처리한다. <code>np.where(v &lt; 0, 0, v)</code>는 신경망의 ReLU와 같은 동작이다.</li>
+<li><code>np.linalg</code> 모듈에 이 책에서 배울 거의 모든 계산이 함수로 준비되어 있다: <code>inv</code>, <code>det</code>, <code>solve</code>, <code>eig</code>, <code>svd</code>, <code>pinv</code>, <code>lstsq</code>, <code>qr</code> 등.</li>
+<li>부동소수점 오차 때문에 <code>det(A) == 0</code> 같은 비교는 위험하다. <code>np.allclose()</code>나 허용 오차를 둔 비교를 사용해야 한다.</li>
+<li>난수는 <code>rng = np.random.default_rng(42)</code>처럼 생성기를 만들어 쓴다. 시드를 고정하면 결과가 재현된다.</li>
+<li>이 책 전체에서 사용할 시각화 모듈 <strong><code>lautils.py</code></strong>를 직접 만들었다. <code>new_axes</code>, <code>draw_vector</code>, <code>draw_vectors</code>, <code>draw_points</code>, <code>draw_polygon</code>, <code>draw_grid</code>, <code>transform</code>, <code>show_matrix</code>의 여덟 함수로 이루어져 있으며 전체 소스는 부록 B에 있다.</li>
+</ul></div></details>
+<details class="box exercise" id="exercises"><summary class="box-head">2장 연습문제</summary><div class="ex-body"><ol>
+<li class="ex-item" data-ex="1"><span class="diff"><span class="d1">★</span></span>  넘파이 배열이 파이썬 리스트보다 빠른 이유를 메모리 배치와 자료형의 관점에서 각각 설명하시오.</li>
+<li class="ex-item" data-ex="2"><span class="diff"><span class="d1">★</span></span>  다음 배열의 <code>shape</code>, <code>ndim</code>, <code>size</code>를 코드를 실행하지 않고 예측한 뒤 확인하시오.
+<pre class="line-numbers"><code class="language-python">A = np.array([[[1, 2], [3, 4], [5, 6]],
+              [[7, 8], [9, 10], [11, 12]]])</code></pre></li>
+<li class="ex-item" data-ex="3"><span class="diff"><span class="d1">★</span></span>  <code>np.arange(0, 20, 3)</code>과 <code>np.linspace(0, 20, 3)</code>의 결과가 어떻게 다른지 설명하시오.</li>
+<li class="ex-item" data-ex="4"><span class="diff"><span class="d2">★★</span></span>  다음 코드의 출력 결과를 예측하고 이유를 쓰시오.
+<pre class="line-numbers"><code class="language-python">a = np.array([1, 2, 3])
+a[1] = 2.9
+print(a, a.dtype)</code></pre></li>
+<li class="ex-item" data-ex="5"><span class="diff"><span class="d2">★★</span></span>  \(3 \times 4\) 배열 <code>A</code>에 대해 다음 연산이 가능한지 판단하고, 가능하다면 결과의 <code>shape</code>을 쓰시오.
+<ol>
+<li><code>A + np.array([1, 2, 3, 4])</code></li>
+<li><code>A + np.array([1, 2, 3])</code></li>
+<li><code>A + np.array([[1], [2], [3]])</code></li>
+<li><code>A.sum(axis=1)</code></li>
+</ol></li>
+<li class="ex-item" data-ex="6"><span class="diff"><span class="d2">★★</span></span>  학생 4명의 (국어, 영어, 수학) 성적 배열을 만들고, 브로드캐스팅만 사용하여 각 과목의 평균이 0이 되도록 중심화하시오. 중심화 후 열별 평균이 실제로 0인지 <code>np.allclose()</code>로 확인하시오.</li>
+<li class="ex-item" data-ex="7"><span class="diff"><span class="d2">★★</span></span>  반복문 없이 \(1\)부터 \(100\)까지의 정수 중 3의 배수만 골라 그 합을 구하는 코드를 한 줄로 작성하시오.
+(힌트: 불리언 인덱싱)</li>
+<li class="ex-item" data-ex="8"><span class="diff"><span class="d3">★★★</span></span>  다음 두 코드의 결과가 다른 이유를 설명하시오.
+<pre class="line-numbers"><code class="language-python">A = np.array([[1, 2], [3, 4]])
+B = A[0, :]
+B[0] = 99
+print(A)          # 결과 1
+
+A = np.array([[1, 2], [3, 4]])
+C = A[0, :].copy()
+C[0] = 99
+print(A)          # 결과 2</code></pre></li>
+<li class="ex-item" data-ex="9"><span class="diff"><span class="d2">★★</span></span>  <code>np.where()</code>를 사용하여 다음을 구현하시오.
+<ol>
+<li>배열의 음수를 모두 0으로 바꾸기 (ReLU)</li>
+<li>배열의 값을 \(-1\)과 \(1\) 사이로 자르기 (clipping)</li>
+</ol></li>
+<li class="ex-item" data-ex="10"><span class="diff"><span class="d3">★★★</span></span>  \(N = 10^6\), \(10^7\)일 때 리스트 축약 표현과 넘파이 벡터화 연산의 시간을 각각 측정하고, 데이터가 커질수록 속도 차이가 어떻게 변하는지 서술하시오.</li>
+<li class="ex-item" data-ex="11"><span class="diff"><span class="d2">★★</span></span>  <code>lautils.py</code>의 <code>draw_vector()</code> 함수를 수정하여, 화살표 옆에 벡터의 길이를 소수점 둘째 자리까지 표시하는 옵션 <code>show_len=True</code>를 추가하시오.
+(힌트: 길이는 <code>np.linalg.norm(v)</code>)</li>
+<li class="ex-item" data-ex="12"><span class="diff"><span class="d3">★★★</span></span>  <code>draw_grid()</code> 함수에서 행렬 <code>A</code>로 <code>np.array([[1, 2], [2, 4]])</code>를 넘기면 무슨 일이 일어나는지 실행해 보고, 그림을 설명하시오. 이 현상이 무엇을 뜻하는지는 7장과 8장에서 밝혀진다.</li>
+<li class="ex-item" data-ex="13"><span class="diff"><span class="d3">★★★</span></span>  <code>show_matrix()</code>를 사용하여 다음 세 행렬을 나란히 그리고, 각각의 시각적 특징을 서술하시오.
+<ol>
+<li>단위행렬 <code>np.eye(6)</code></li>
+<li>대칭행렬 <code>M + M.T</code></li>
+<li>상삼각행렬 <code>np.triu(M)</code></li>
+</ol></li>
+</ol></div></details>
+<div class="pager-row"><a class="pager prev" href="ch01.html">&larr; 1장</a><a class="pager next" href="ch03.html">3장 &rarr;</a></div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script src="book.js"></script>
+<script src="grader.js"></script>
+</body>
+</html>

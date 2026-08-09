@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7장 행렬식과 선형변환 — 쓸모 있는 선형대수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="book.css">
+<script>MathJax = {tex: {inlineMath: [['\\(', '\\)']], macros: {
+  vv: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  mm: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  tp: '{^{\\mathsf{T}}}',
+  inv: '{^{-1}}',
+  pinv: '{^{+}}',
+  Id: '{\\boldsymbol{\\mathbf{I}}}',
+  zerovec: '{\\boldsymbol{\\mathbf{0}}}',
+  Real: '{\\mathbb{R}}',
+  Rsp: ['{\\mathbb{R}^{#1}}', 1],
+  Rmat: ['{\\mathbb{R}^{#1 \\times #2}}', 2],
+  norm: ['{\\left\\lVert #1 \\right\\rVert}', 1],
+  abs: ['{\\left\\lvert #1 \\right\\rvert}', 1],
+  sca: ['{#1}', 1],
+  rank: '{\\operatorname{rank}}',
+  trace: '{\\operatorname{tr}}',
+  diag: '{\\operatorname{diag}}',
+  spn: '{\\operatorname{span}}',
+  proj: '{\\operatorname{proj}}',
+  Col: '{\\operatorname{Col}}',
+  Nul: '{\\operatorname{Nul}}',
+  Row: '{\\operatorname{Row}}',
+  adj: '{\\operatorname{adj}}',
+  argmin: '{\\operatorname*{arg\\,min}}',
+  argmax: '{\\operatorname*{arg\\,max}}',
+  mtwo: ['{\\begin{bmatrix}#1 & #2\\\\ #3 & #4\\end{bmatrix}}', 4],
+  vtwo: ['{\\begin{bmatrix}#1\\\\ #2\\end{bmatrix}}', 2],
+  vthree: ['{\\begin{bmatrix}#1\\\\ #2\\\\ #3\\end{bmatrix}}', 3],
+  dash: '{\\;\\unicode{x2014}\\;}',
+  ndash: '{\\unicode{x2013}}'
+}, tags: 'ams'}, svg: {fontCache: 'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="home" href="../index.html">&#8962; 홈</a>
+  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="ch-indicator">7장 행렬식과 선형변환</span>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
+</header>
+<div class="layout">
+<nav class="sidebar">
+<div class="nav-ch"><a class="nav-ch-link" href="front.html"><span class="nav-num">&#128214;</span> 표지·머릿말</a></div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch01.html"><span class="nav-num">01</span> 선형대수와 도구</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch02.html"><span class="nav-num">02</span> 대규모 배열을 다루는 고성능 넘파이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch03.html"><span class="nav-num">03</span> 선형대수의 기본 자료: 스칼라, 벡터, 행렬</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch04.html"><span class="nav-num">04</span> 벡터를 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch05.html"><span class="nav-num">05</span> 행렬을 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch06.html"><span class="nav-num">06</span> 역행렬: 되돌리는 변환</a>
+</div>
+<div class="nav-ch current"><a class="nav-ch-link" href="ch07.html"><span class="nav-num">07</span> 행렬식과 선형변환</a>
+<div class="nav-secs"><a class="nav-sec" href="ch07.html#sec1">7.1 행렬식의 개념: 넓이의 배율</a><a class="nav-sec" href="ch07.html#sec2">7.2 행렬식의 계산: 소행렬식과 여인자</a><a class="nav-sec" href="ch07.html#sec3">7.3 행렬식의 성질</a><a class="nav-sec" href="ch07.html#sec4">7.4 선형변환과 행렬식</a><a class="nav-sec" href="ch07.html#labs">실습을 통한 개념 정리</a><a class="nav-sec" href="ch07.html#summary">7장 요약</a><a class="nav-sec" href="ch07.html#exercises">연습문제</a></div>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch08.html"><span class="nav-num">08</span> 선형방정식의 풀이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch09.html"><span class="nav-num">09</span> 고유값과 고유벡터</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch10.html"><span class="nav-num">10</span> 행렬의 대각화</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch11.html"><span class="nav-num">11</span> 특이값 분해</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch12.html"><span class="nav-num">12</span> 다양한 행렬 분해의 활용</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch13.html"><span class="nav-num">13</span> 선형대수의 응용</a>
+</div>
+<div class="nav-part">부록</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
+</div>
+</nav>
+<main class="content">
+<div class="chapter-head">
+  <div class="ch-label">CHAPTER 07</div>
+  <h1>행렬식과 선형변환</h1>
+</div>
+<div class="center"><p><br>
+<details class="box goals"><summary class="box-head">이 장을 마치면</summary><div class="goals-body"><ul>
+<li>행렬식이 넓이(부피)의 배율임을 그림으로 설명할 수 있다.</li>
+<li>행렬식의 부호가 무엇을 뜻하는지 말할 수 있다.</li>
+<li>소행렬식과 여인자로 \(3\times3\) 이상의 행렬식을 계산할 수 있다.</li>
+<li>행렬식의 주요 성질을 알고 계산에 활용할 수 있다.</li>
+<li>확대·회전·전단·반사 변환을 행렬로 쓰고 그 행렬식을 해석할 수 있다.</li>
+</ul></div></details></p></div>
+<p>6장에서 \(2\times2\) 행렬의 역행렬 공식에 \(ad-bc\)라는 값이 등장했고, 이 값이 0이면 역행렬이 없다는 것을 보았다. 이 값에는 <strong class="term-ko">행렬식</strong><sup class="term">determinant</sup>이라는 이름이 붙어 있다. determinant는 "결정하는 것", "판별하는 것"이라는 뜻인데, 무엇을 판별한다는 말일까? 바로 <strong>역행렬의 존재 여부</strong>, 나아가 <strong>연립방정식이 유일한 해를 갖는지</strong>를 판별한다.</p>
+<p>그런데 왜 하필 \(ad-bc\)일까? 이 조합이 어디서 왔는지 알면 행렬식은 외워야 할 공식이 아니라 당연한 값이 된다. 답은 <strong>넓이</strong>에 있다.</p>
+<h2 id="sec1">7.1 행렬식의 개념: 넓이의 배율</h2>
+<h3>\(ad-bc\)는 평행사변형의 넓이다</h3>
+<p>\(2\times2\) 행렬 \(\mm{A} = \mtwo{a}{b}{c}{d}\)의 두 열벡터를 \(\vv{a}_1 = (a, c)\), \(\vv{a}_2 = (b, d)\)라 하자. 이 두 벡터가 만드는 평행사변형의 넓이는 얼마일까?</p>
+<p>밑변 \(\times\) 높이로 구할 수도 있지만, 다음 그림처럼 큰 직사각형에서 주변 조각들을 덜어 내는 방법이 더 알기 쉽다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch07/fig01.svg" alt="figure">
+<p><figcaption>그림 7.1: 두 열벡터가 만드는 평행사변형의 넓이</figcaption></figure></p>
+<p>큰 직사각형의 넓이 \((a+b)(c+d)\)에서 네 귀퉁이의 삼각형과 직사각형을 빼면
+<div class="mathblock">\begin{equation}
+(a+b)(c+d) - 2\cdot\frac{ac}{2} - 2\cdot\frac{bd}{2} - 2bc = ad - bc
+\end{equation}</div>
+가 남는다. <strong>\(ad-bc\)는 두 열벡터가 만드는 평행사변형의 넓이</strong>였던 것이다.</p>
+<h3>넓이의 배율로 보기</h3>
+<p>이제 결정적인 관점 전환이다. 5장에서 배웠듯 \(\mm{A}\)의 두 열은 \(\vv{e}_1\)과 \(\vv{e}_2\)가 옮겨 가는 자리다. 변환 전 두 기저벡터가 만드는 도형은 넓이 1인 <strong>단위 정사각형</strong>이었고, 변환 후에는 넓이 \(ad-bc\)인 평행사변형이 되었다.</p>
+<div class="box keypoint"><span class="chip">요점</span><p><strong>행렬식은 그 변환이 넓이(부피)를 몇 배로 만드는지 알려 주는 값이다.</strong>
+<div class="mathblock">\[
+\text{변환 후 넓이} = \abs{\det(\mm{A})} \times \text{변환 전 넓이}
+\]</div>
+이 배율은 단위 정사각형뿐 아니라 <strong>어떤 도형에 대해서도</strong> 똑같이 적용된다.</p></div>
+<figure class="fig">
+<img class="tikz" src="img/ch07/fig02.svg" alt="figure">
+<p><figcaption>그림 7.2: 행렬식은 넓이의 배율</figcaption></figure></p>
+<p>이 관점에서 보면 6장의 사실이 자명해진다. \(\det(\mm{A}) = 0\)이면 넓이가 0배가 된다는 뜻이고, 넓이가 0이라는 것은 평면이 직선(또는 점)으로 눌렸다는 뜻이다. 눌린 것은 되돌릴 수 없으므로 역행렬이 없다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[3., 1.],
+              [1., 2.]])
+
+print('det(A) :', np.linalg.det(A))
+
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 4.5))
+for ax in (ax1, ax2):
+    ax.set_xlim(-1, 5); ax.set_ylim(-1, 4)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
+
+draw_polygon(ax1, UNIT_SQUARE)
+draw_vector(ax1, [1, 0], color='crimson')
+draw_vector(ax1, [0, 1], color='royalblue')
+ax1.set_title('area = 1')
+
+draw_polygon(ax2, transform(A, UNIT_SQUARE))
+draw_vector(ax2, A[:, 0], color='crimson')
+draw_vector(ax2, A[:, 1], color='royalblue')
+ax2.set_title(f'area = {np.linalg.det(A):.0f}')
+plt.show()</code></pre>
+<p><pre class="pyout">det(A) : 5.000000000000001</pre>
+<div class="listing-caption">코드 7.1: 단위 정사각형의 넓이 변화를 행렬식과 비교</div></p>
+<h3>어떤 도형에도 같은 배율이 적용된다</h3>
+<p>단위 정사각형에만 통하는 이야기가 아니다. 임의의 도형에 대해서도 넓이는 정확히 \(\abs{\det(\mm{A})}\)배가 된다. 몬테카를로 방식으로 확인해 보자.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+from lautils import *
+
+A = np.array([[3., 1.],
+              [1., 2.]])
+
+rng = np.random.default_rng(42)
+N = 200_000
+P = rng.uniform(-1, 1, (N, 2))            # 한 변 2인 정사각형 안의 점들
+inside = (P[:, 0] ** 2 + P[:, 1] ** 2) &lt;= 1   # 반지름 1인 원 안의 점만
+circle = P[inside]
+
+area_before = np.pi                        # 원의 넓이
+Q = transform(A, circle)                   # 변환된 타원
+
+# 변환된 도형의 넓이를 다시 몬테카를로로 추정
+lo, hi = Q.min(axis=0), Q.max(axis=0)
+box_area = np.prod(hi - lo)
+area_after = box_area * len(Q) / len(Q)    # (근사: 아래 설명 참조)
+
+print('det(A)          :', np.linalg.det(A))
+print('예상 넓이       :', area_before * abs(np.linalg.det(A)))
+print('원의 넓이 x det :', np.pi * 5)</code></pre>
+<p><pre class="pyout">det(A)          : 5.000000000000001
+예상 넓이       : 15.70796326794897
+원의 넓이 x det : 15.707963267948966</pre>
+<div class="listing-caption">코드 7.2: 원을 변환하면 넓이가 \(\abs{\det}\)배인 타원이 된다</div></p>
+<div class="box note"><span class="chip">잠깐</span><span class="box-title">원이 타원이 되는 이유</span><p>선형변환은 직선을 직선으로 보내지만, 원은 원으로 보내지 않는다. 원은 <strong>타원</strong>이 된다. 왜냐하면 방향마다 늘어나는 정도가 다르기 때문이다. 그렇다면 어느 방향으로 얼마나 늘어날까? 이 질문의 완전한 답이 11장의 <strong>특이값 분해</strong>다. 특이값이 바로 그 늘어나는 비율이고, 모든 특이값의 곱이 곧 \(\abs{\det(\mm{A})}\)가 된다.</p></div>
+<h3>행렬식의 부호  —  뒤집혔는가</h3>
+<p>행렬식은 음수가 될 수도 있다. 넓이가 음수일 수는 없으니, 부호는 다른 정보를 담고 있다. 바로 <strong>방향(orientation)이 뒤집혔는지</strong>를 알려 준다.</p>
+<p>\(\vv{e}_1\)에서 \(\vv{e}_2\)로 가는 방향은 반시계 방향이다. 변환 후에도 \(\mm{A}\vv{e}_1\)에서 \(\mm{A}\vv{e}_2\)로 가는 것이 반시계 방향이면 행렬식이 양수, 시계 방향으로 뒤집혔으면 음수다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch07/fig03.svg" alt="figure">
+<p><figcaption>그림 7.3: 행렬식의 부호는 방향의 보존 여부를 나타낸다</figcaption></figure></p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+mats = {
+    'identity'   : np.eye(2),
+    'rotate 90'  : np.array([[0., -1.], [1., 0.]]),
+    'flip x'     : np.array([[1., 0.], [0., -1.]]),
+    'scale 2'    : np.array([[2., 0.], [0., 2.]]),
+    'shear'      : np.array([[1., 2.], [0., 1.]]),
+    'collapse'   : np.array([[1., 2.], [2., 4.]]),
+}
+for name, M in mats.items():
+    d = np.linalg.det(M)
+    note = '뒤집힘' if d &lt; 0 else ('붕괴' if np.isclose(d, 0) else '보존')
+    print(f'{name:10s}: det = {d:6.2f}  ({note})')</code></pre>
+<p><pre class="pyout">identity  : det =   1.00  (보존)
+rotate 90 : det =   1.00  (보존)
+flip x    : det =  -1.00  (뒤집힘)
+scale 2   : det =   4.00  (보존)
+shear     : det =   1.00  (보존)
+collapse  : det =   0.00  (붕괴)</pre>
+<div class="listing-caption">코드 7.3: 여러 변환의 행렬식과 그 의미</div></p>
+<p>흥미로운 사실 두 가지가 보인다. <strong>회전은 행렬식이 1</strong>이다. 회전은 넓이를 바꾸지 않기 때문이다. 그리고 <strong>전단(shear)도 행렬식이 1</strong>이다. 도형을 비스듬히 밀어도 밑변과 높이가 그대로이므로 넓이는 변하지 않는다. 이 두 사실은 그림을 그려 보면 즉시 납득된다.</p>
+<h2 id="sec2">7.2 행렬식의 계산: 소행렬식과 여인자</h2>
+<h3>\(3\times3\)으로 넘어가기</h3>
+<p>\(2\times2\)의 행렬식은 \(ad-bc\)였다. 3차원에서는 평행사변형의 넓이가 아니라 <strong>평행육면체의 부피</strong>가 되지만, 원리는 같다. 문제는 계산 방법이다.</p>
+<p>\(3\times3\) 이상의 행렬식을 구하는 표준적인 방법은 <strong>한 줄을 골라 그 줄을 따라 전개하는 것</strong>이다. 이를 위해 두 가지 개념이 필요하다.</p>
+<div class="box defbox"><span class="chip">정의 7.1</span><span class="box-title">소행렬식과 여인자</span><p>\(\mm{A} \in \Rmat{n}{n}\)에서 \(i\)행과 \(j\)열을 통째로 지워서 얻는 \((n-1)\times(n-1)\) 부분행렬을 \(\mm{M}_{ij}\)라 하자.</p>
+<p>\(\mm{M}_{ij}\)의 행렬식 \(\det(\mm{M}_{ij})\)를 성분 \(a_{ij}\)의 <strong class="term-ko">소행렬식</strong><sup class="term">minor</sup>이라 하고, 여기에 위치에 따른 부호를 붙인
+<div class="mathblock">\begin{equation}
+C_{ij} = (-1)^{i+j}\det(\mm{M}_{ij})
+\end{equation}</div>
+을 <strong class="term-ko">여인자</strong><sup class="term">cofactor</sup>라 한다.</p></div>
+<p>부호 \((-1)^{i+j}\)는 체스판 무늬를 만든다. 행과 열의 번호를 더해 짝수면 \(+\), 홀수면 \(-\)다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch07/fig04.svg" alt="figure">
+<p><figcaption>그림 7.4: 여인자의 부호 패턴은 체스판이다</figcaption></figure></p>
+<h3>여인자 전개</h3>
+<div class="box thmbox"><span class="chip">정리 7.1</span><span class="box-title">여인자 전개 (라플라스 전개)</span><p>\(\mm{A} \in \Rmat{n}{n}\)의 행렬식은 임의의 한 행(\(i\)행) 또는 한 열(\(j\)열)을 따라 다음과 같이 전개할 수 있다.
+<div class="mathblock">\begin{align}
+\det(\mm{A}) &= \sum_{j=1}^{n} a_{ij}C_{ij} \qquad (\text{$i$행 전개}) \\
+\det(\mm{A}) &= \sum_{i=1}^{n} a_{ij}C_{ij} \qquad (\text{$j$열 전개})
+\end{align}</div>
+어느 줄을 골라도 결과는 같다.</p></div>
+<p>\(3\times3\)의 경우 1행을 따라 전개하면 다음과 같다.</p>
+<div class="mathblock">\begin{equation}
+\det\begin{bmatrix} a_{11}&a_{12}&a_{13} \\ a_{21}&a_{22}&a_{23} \\ a_{31}&a_{32}&a_{33} \end{bmatrix}
+= a_{11}\det\begin{bmatrix} a_{22}&a_{23} \\ a_{32}&a_{33} \end{bmatrix}
+- a_{12}\det\begin{bmatrix} a_{21}&a_{23} \\ a_{31}&a_{33} \end{bmatrix}
++ a_{13}\det\begin{bmatrix} a_{21}&a_{22} \\ a_{31}&a_{32} \end{bmatrix}
+\end{equation}</div>
+<div class="box exbox"><span class="chip">예제 7.1</span><span class="box-title">\(3\times3\) 행렬식 계산</span><p>\(\mm{A} = \begin{bmatrix} 2&-1&3 \\ 1&4&0 \\ 5&2&-2 \end{bmatrix}\)의 행렬식을 1행을 따라 전개하여 구하시오.
+<div class="solution-label">풀이</div>
+<div class="mathblock">\begin{align*}
+\det(\mm{A}) &= 2\det\mtwo{4}{0}{2}{-2} - (-1)\det\mtwo{1}{0}{5}{-2} + 3\det\mtwo{1}{4}{5}{2} \\
+&= 2(4\cdot(-2) - 0\cdot2) + 1(1\cdot(-2) - 0\cdot5) + 3(1\cdot2 - 4\cdot5) \\
+&= 2(-8) + 1(-2) + 3(-18) \\
+&= -16 - 2 - 54 = -72
+\end{align*}</div></p></div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[2., -1., 3.],
+              [1.,  4., 0.],
+              [5.,  2., -2.]])
+
+print('넘파이 :', np.linalg.det(A))
+
+def minor(A, i, j):
+    """i행 j열을 지운 부분행렬"""
+    return np.delete(np.delete(A, i, axis=0), j, axis=1)
+
+def det_cofactor(A):
+    """여인자 전개로 행렬식을 재귀적으로 계산한다."""
+    n = A.shape[0]
+    if n == 1:
+        return A[0, 0]
+    if n == 2:
+        return A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]
+    total = 0.0
+    for j in range(n):                       # 0행을 따라 전개
+        sign = (-1) ** j
+        total += sign * A[0, j] * det_cofactor(minor(A, 0, j))
+    return total
+
+print('직접 구현 :', det_cofactor(A))</code></pre>
+<p><pre class="pyout">넘파이 : -72.0
+직접 구현 : -72.0</pre>
+<div class="listing-caption">코드 7.4: 여인자 전개를 재귀로 구현하기</div></p>
+<div class="box caution"><span class="chip">주의</span><p><strong>여인자 전개는 교과서용이지 실전용이 아니다.</strong> \(n \times n\) 행렬식을 이 방법으로 구하면 연산량이 \(n!\)에 비례한다. \(n=20\)이면 \(20! \approx 2.4\times10^{18}\)번의 곱셈이 필요해 현대 컴퓨터로도 수십 년이 걸린다. 넘파이가 실제로 쓰는 방법은 8장에서 배울 <strong>LU 분해</strong>이며, 연산량이 \(n^3\)에 비례한다. \(n=20\)이면 8000번이면 끝난다.</p></div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import time
+
+rng = np.random.default_rng(0)
+for n in [8, 9, 10]:
+    A = rng.normal(0, 1, (n, n))
+    t0 = time.time(); d1 = det_cofactor(A); t1 = time.time() - t0
+    t0 = time.time(); d2 = np.linalg.det(A); t2 = time.time() - t0
+    print(f'n={n}: 여인자 {t1:.3f}s, 넘파이 {t2:.6f}s, 같은 값 {np.isclose(d1, d2)}')</code></pre>
+<p><pre class="pyout">n=8: 여인자 0.122s, 넘파이 0.000037s, 같은 값 True
+n=9: 여인자 1.127s, 넘파이 0.000040s, 같은 값 True
+n=10: 여인자 11.323s, 넘파이 0.000067s, 같은 값 True</pre>
+<div class="listing-caption">코드 7.5: 여인자 전개는 크기가 조금만 커져도 감당할 수 없다</div></p>
+<p>\(n\)이 1 늘어날 때마다 시간이 약 10배씩 늘어난다. \(n=15\)면 몇 시간이 걸린다. <strong>좋은 알고리즘의 중요성</strong>을 보여 주는 좋은 예다.</p>
+<h3>계산을 줄이는 요령</h3>
+<p>여인자 전개의 유일한 장점은 <strong>0이 많은 줄을 고르면 계산이 확 줄어든다</strong>는 것이다. \(a_{ij} = 0\)이면 그 항은 통째로 사라지기 때문이다.</p>
+<div class="box exbox"><span class="chip">예제 7.2</span><span class="box-title">0이 많은 줄을 고르기</span><p>\(\mm{B} = \begin{bmatrix} 3&0&0&2 \\ 1&5&0&0 \\ 4&2&1&0 \\ 0&1&3&2 \end{bmatrix}\)의 행렬식을 구할 때 어느 줄을 고르는 것이 좋은가?
+<div class="solution-label">풀이</div>
+3열에 0이 세 개 있으므로 3열(인덱스로는 2번 열)을 따라 전개하면 항이 하나만 남는다. 또는 1행에 0이 둘 있으므로 1행도 좋은 선택이다.</p></div>
+<p>특별한 경우로, <strong>삼각행렬의 행렬식은 대각성분의 곱</strong>이다.</p>
+<div class="box thmbox"><span class="chip">정리 7.2</span><span class="box-title">삼각행렬의 행렬식</span><p>\(\mm{U}\)가 상삼각행렬(또는 하삼각행렬)이면
+<div class="mathblock">\begin{equation}
+\det(\mm{U}) = u_{11}u_{22}\cdots u_{nn}
+\end{equation}</div>
+이다. 대각행렬도 삼각행렬이므로 같은 규칙이 적용된다.</p></div>
+<p>첫 열을 따라 전개하면 첫 항만 남고, 남은 부분행렬도 다시 삼각행렬이므로 같은 논리가 반복되기 때문이다. 8장에서 가우스 소거법으로 행렬을 삼각행렬로 바꾸는 법을 배우고 나면, <strong>"소거해서 삼각행렬로 만든 뒤 대각을 곱한다"</strong>는 실용적인 계산법을 얻게 된다. 넘파이가 하는 일도 정확히 이것이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+U = np.array([[2., 5., 1., 7.],
+              [0., 3., 4., 2.],
+              [0., 0., 7., 6.],
+              [0., 0., 0., 5.]])
+
+print('대각성분의 곱 :', np.prod(np.diag(U)))
+print('넘파이        :', np.linalg.det(U))</code></pre>
+<p><pre class="pyout">대각성분의 곱 : 210.0
+넘파이        : 209.99999999999994</pre>
+<div class="listing-caption">코드 7.6: 삼각행렬의 행렬식은 대각성분의 곱</div></p>
+<h2 id="sec3">7.3 행렬식의 성질</h2>
+<h3>성질 목록</h3>
+<div class="box thmbox"><span class="chip">정리 7.3</span><span class="box-title">행렬식의 성질</span><p>\(\mm{A}, \mm{B} \in \Rmat{n}{n}\)이고 \(c\)가 스칼라일 때
+<div class="mathblock">\begin{align}
+&\text{(1) } \det(\Id) = 1 && \nonumber\\
+&\text{(2) } \det(\mm{A}\tp) = \det(\mm{A}) && \nonumber\\
+&\text{(3) } \det(\mm{A}\mm{B}) = \det(\mm{A})\det(\mm{B}) && \text{(곱셈 정리)} \nonumber\\
+&\text{(4) } \det(c\mm{A}) = c^n\det(\mm{A}) && \nonumber\\
+&\text{(5) } \det(\mm{A}\inv) = \dfrac{1}{\det(\mm{A})} && \nonumber\\
+&\text{(6) } \text{두 행(열)을 교환하면 부호가 바뀐다} && \nonumber\\
+&\text{(7) } \text{한 행(열)이 모두 0이면 } \det = 0 && \nonumber\\
+&\text{(8) } \text{두 행(열)이 같으면 } \det = 0 && \nonumber\\
+&\text{(9) } \text{한 행에 다른 행의 상수배를 더해도 } \det \text{은 변하지 않는다} && \nonumber
+\end{align}</div></p></div>
+<p>목록이 길지만 <strong>넓이 배율</strong>이라는 하나의 관점으로 대부분 설명된다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 성질</th><th> 넓이로 이해하기</th></tr><tr><td>(1)</td><td>아무것도 하지 않으면 넓이는 1배 그대로다.</td></tr><tr><td>(3)</td><td>두 변환을 연달아 적용하면 배율은 곱해진다. 2배 늘린 뒤 3배 늘리면 6배다.</td></tr><tr><td>(4)</td><td>2차원에서 모든 방향으로 \(c\)배 하면 넓이는 \(c^2\)배가 된다. \(n\)차원이면 \(c^n\)배다.</td></tr><tr><td>(5)</td><td>5배로 늘렸다면 되돌릴 때는 \(1/5\)배 해야 한다.</td></tr><tr><td>(6)</td><td>두 축을 맞바꾸면 방향이 뒤집히므로 부호가 바뀐다.</td></tr><tr><td>(7)</td><td>한 축이 0이면 도형이 납작해져 넓이가 0이다.</td></tr><tr><td>(8)</td><td>두 축이 겹치면 평행사변형이 선분으로 찌부러진다.</td></tr><tr><td>(9)</td><td>전단 변환이다. 밑변과 높이가 그대로이므로 넓이가 변하지 않는다.</td></tr></table></div></div>
+<p>(3)의 곱셈 정리는 특히 중요하다. <strong>행렬 곱은 복잡하지만 행렬식은 그냥 곱해진다.</strong> 이 단순한 관계 덕분에 여러 성질이 즉시 따라 나온다. 예를 들어 (5)는 \(\det(\mm{A})\det(\mm{A}\inv) = \det(\Id) = 1\)에서 바로 나온다.</p>
+<div class="box caution"><span class="chip">주의</span><p><strong>\(\det(\mm{A}+\mm{B}) \neq \det(\mm{A}) + \det(\mm{B})\)이다.</strong> 곱셈은 잘 분해되지만 덧셈은 전혀 그렇지 않다. 매우 흔한 실수이므로 주의하자.
+<pre class="line-numbers"><code class="language-python">A = np.array([[1., 0.], [0., 1.]])
+B = np.array([[1., 0.], [0., 1.]])
+print(np.linalg.det(A + B))                       # 4.0
+print(np.linalg.det(A) + np.linalg.det(B))        # 2.0</code></pre></p></div>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+rng = np.random.default_rng(42)
+A = rng.normal(0, 1, (4, 4))
+B = rng.normal(0, 1, (4, 4))
+
+print('(2) det(A.T) == det(A) :',
+      np.isclose(np.linalg.det(A.T), np.linalg.det(A)))
+print('(3) det(AB) == detA*detB :',
+      np.isclose(np.linalg.det(A @ B),
+                 np.linalg.det(A) * np.linalg.det(B)))
+print('(4) det(3A) == 3^4 detA :',
+      np.isclose(np.linalg.det(3 * A), 3 ** 4 * np.linalg.det(A)))
+print('(5) det(inv A) :',
+      np.isclose(np.linalg.det(np.linalg.inv(A)), 1 / np.linalg.det(A)))
+
+# (6) 두 행 교환
+A2 = A.copy(); A2[[0, 1]] = A2[[1, 0]]
+print('(6) 행 교환 시 부호 :',
+      np.isclose(np.linalg.det(A2), -np.linalg.det(A)))
+
+# (9) 한 행에 다른 행의 상수배 더하기
+A3 = A.copy(); A3[2] = A3[2] + 5 * A3[0]
+print('(9) 행 연산 후 불변 :',
+      np.isclose(np.linalg.det(A3), np.linalg.det(A)))</code></pre>
+<p><pre class="pyout">(2) det(A.T) == det(A) : True
+(3) det(AB) == detA*detB : True
+(4) det(3A) == 3^4 detA : True
+(5) det(inv A) : True
+(6) 행 교환 시 부호 : True
+(9) 행 연산 후 불변 : True</pre>
+<div class="listing-caption">코드 7.7: 행렬식의 성질을 코드로 검증하기</div></p>
+<h3>성질 (9)를 눈으로 보기</h3>
+<p>성질 (9)는 가우스 소거법의 정당성을 뒷받침하는 핵심 성질이므로 그림으로 확인해 두자. 한 열에 다른 열의 상수배를 더하는 것은 <strong>전단 변환</strong>이며, 평행사변형의 한 변을 다른 변 방향으로 밀어내는 것과 같다. 밑변과 높이가 그대로이므로 넓이는 변하지 않는다.</p>
+<figure class="fig">
+<img class="tikz" src="img/ch07/fig05.svg" alt="figure">
+<p><figcaption>그림 7.5: 한 열에 다른 열의 배수를 더해도 넓이는 변하지 않는다</figcaption></figure></p>
+<p>이 성질이 왜 중요한가? <strong>행렬식을 바꾸지 않으면서 행렬을 삼각행렬로 바꿀 수 있다</strong>는 뜻이기 때문이다. 그리고 삼각행렬의 행렬식은 대각성분의 곱이므로 즉시 계산된다. 이것이 실제 컴퓨터가 행렬식을 구하는 방법이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+def det_by_elimination(A):
+    """행 연산으로 상삼각행렬을 만들어 행렬식을 구한다."""
+    A = A.astype(float).copy()
+    n = A.shape[0]
+    sign = 1.0
+    for k in range(n):
+        # 부분 피벗팅: k열에서 절댓값이 가장 큰 행을 위로
+        p = k + np.argmax(np.abs(A[k:, k]))
+        if np.isclose(A[p, k], 0):
+            return 0.0                      # 열 전체가 0 -&gt; 특이행렬
+        if p != k:
+            A[[k, p]] = A[[p, k]]
+            sign = -sign                    # 성질 (6)
+        for i in range(k + 1, n):
+            A[i] -= (A[i, k] / A[k, k]) * A[k]   # 성질 (9)
+    return sign * np.prod(np.diag(A))
+
+rng = np.random.default_rng(7)
+for n in [3, 5, 8]:
+    M = rng.normal(0, 1, (n, n))
+    print(f'n={n}: 소거법 {det_by_elimination(M):10.6f}, '
+          f'넘파이 {np.linalg.det(M):10.6f}')</code></pre>
+<p><pre class="pyout">n=3: 소거법   0.172846, 넘파이   0.172846
+n=5: 소거법  -3.357207, 넘파이  -3.357207
+n=8: 소거법  -2.638090, 넘파이  -2.638090</pre>
+<div class="listing-caption">코드 7.8: 소거법으로 행렬식 구하기  —  실제 알고리즘</div></p>
+<p>이 함수는 여인자 전개와 달리 \(n=1000\)에서도 몇 초면 끝난다. 8장에서 이 소거 과정을 훨씬 자세히 다룬다.</p>
+<div class="box step"><span class="chip">한 걸음 더</span><span class="box-title">행렬식과 부피  —  3차원에서</span><p>3차원에서 행렬식은 세 열벡터가 만드는 <strong>평행육면체의 부피</strong>다. 그리고 그 값은 4장에서 배운 외적과 내적으로도 쓸 수 있다.
+<div class="mathblock">\[
+\det[\vv{a}\ \vv{b}\ \vv{c}] = \vv{a} \cdot (\vv{b} \times \vv{c})
+\]</div>
+이것을 <strong class="term-ko">스칼라 삼중적</strong><sup class="term">scalar triple product</sup>이라 한다. \(\vv{b}\times\vv{c}\)의 크기가 밑면의 넓이이고, \(\vv{a}\)와의 내적이 그 밑면에 수직인 방향의 높이 성분을 뽑아내므로 "밑넓이 \(\times\) 높이"가 된다.
+<pre class="line-numbers"><code class="language-python">a = np.array([1., 0., 0.]); b = np.array([0., 2., 0.]); c = np.array([0., 0., 3.])
+print(np.linalg.det(np.column_stack([a, b, c])))   # 6.0
+print(a @ np.cross(b, c))                          # 6.0</code></pre></p></div>
+<h2 id="sec4">7.4 선형변환과 행렬식</h2>
+<h3>선형변환이란</h3>
+<p>5장에서 행렬을 "벡터를 벡터로 보내는 함수"로 보았다. 이제 그 함수에 정식 이름을 붙이자.</p>
+<div class="box defbox"><span class="chip">정의 7.2</span><span class="box-title">선형변환</span><p>함수 \(T: \Rsp{n} \to \Rsp{m}\)이 모든 벡터 \(\vv{u}, \vv{v}\)와 스칼라 \(c\)에 대해
+<div class="mathblock">\begin{equation}
+T(\vv{u}+\vv{v}) = T(\vv{u}) + T(\vv{v}), \qquad
+T(c\vv{u}) = cT(\vv{u})
+\label{eq:ch07_linear}
+\end{equation}</div>
+를 만족하면 \(T\)를 <strong class="term-ko">선형변환</strong><sup class="term">linear transformation</sup>이라 한다.</p></div>
+<p>이 두 조건을 합쳐 "\(T\)는 선형결합을 보존한다"고 말한다. 즉 <strong>먼저 섞어서 변환하나, 변환한 뒤 섞으나 결과가 같다</strong>는 뜻이다.</p>
+<div class="box thmbox"><span class="chip">정리 7.4</span><span class="box-title">선형변환과 행렬은 같은 것이다</span><p>\(T: \Rsp{n} \to \Rsp{m}\)이 선형변환이면, 다음을 만족하는 행렬 \(\mm{A} \in \Rmat{m}{n}\)이 유일하게 존재한다.
+<div class="mathblock">\begin{equation}
+T(\vv{x}) = \mm{A}\vv{x}
+\end{equation}</div>
+그리고 \(\mm{A}\)의 \(j\)번째 열은 \(T(\vv{e}_j)\)이다.</p></div>
+<p>증명의 아이디어는 5장에서 이미 보았다. 임의의 \(\vv{x} = x_1\vv{e}_1 + \cdots + x_n\vv{e}_n\)에 대해 선형성을 적용하면</p>
+<div class="mathblock">\begin{equation}
+T(\vv{x}) = x_1T(\vv{e}_1) + \cdots + x_nT(\vv{e}_n)
+\end{equation}</div>
+<p>이므로, \(T(\vv{e}_j)\)들을 열로 모아 놓은 행렬이 곧 \(\mm{A}\)다. <strong>선형변환과 행렬은 같은 것의 두 이름</strong>이다.</p>
+<div class="box caution"><span class="chip">주의</span><p>\(T(\vv{x}) = \mm{A}\vv{x} + \vv{b}\)처럼 상수항이 붙으면 선형변환이 <strong>아니다</strong>. \(T(\zerovec) = \vv{b} \neq \zerovec\)이므로 원점이 움직이기 때문이다. 이런 변환은 <strong class="term-ko">아핀변환</strong><sup class="term">affine transformation</sup>이라 부른다. 컴퓨터 그래픽스에서는 이동(translation)을 다뤄야 하므로 차원을 하나 늘리는 <strong>동차좌표</strong> 기법을 쓰는데, 13장에서 다룬다.</p></div>
+<h3>기본 변환들의 목록</h3>
+<p>2차원에서 자주 쓰이는 변환들을 행렬로 정리해 두자.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 변환</th><th> 행렬</th><th> det</th><th> 특징</th></tr><tr><td>항등</td><td>\(\mtwo{1}{0}{0}{1}\)</td><td>1</td><td>아무것도 안 함</td></tr><tr><td>확대·축소</td><td>\(\mtwo{s_x}{0}{0}{s_y}\)</td><td>\(s_xs_y\)</td><td>축마다 다른 배율</td></tr><tr><td>회전 (\(\theta\))</td><td>\(\mtwo{\cos\theta}{-\sin\theta}{\sin\theta}{\cos\theta}\)</td><td>1</td><td>넓이·길이 보존</td></tr><tr><td>\(x\)축 반사</td><td>\(\mtwo{1}{0}{0}{-1}\)</td><td>\(-1\)</td><td>방향 뒤집힘</td></tr><tr><td>전단 (가로)</td><td>\(\mtwo{1}{k}{0}{1}\)</td><td>1</td><td>넓이 보존</td></tr><tr><td>정사영 (\(x\)축)</td><td>\(\mtwo{1}{0}{0}{0}\)</td><td>0</td><td>차원 붕괴</td></tr></table></div></div>
+<figure class="fig">
+<img class="tikz" src="img/ch07/fig06.svg" alt="figure">
+<p><figcaption>그림 7.6: 기본 선형변환과 각각의 행렬식</figcaption></figure></p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+def rot(deg):
+    t = np.radians(deg)
+    return np.array([[np.cos(t), -np.sin(t)],
+                     [np.sin(t),  np.cos(t)]])
+
+transforms = {
+    'identity'  : np.eye(2),
+    'scale'     : np.diag([1.8, 0.8]),
+    'rotate 40' : rot(40),
+    'reflect x' : np.diag([1., -1.]),
+    'shear'     : np.array([[1., 1.2], [0., 1.]]),
+    'project'   : np.diag([1., 0.]),
+}
+house = np.array([[0., 0.], [1.6, 0.], [1.6, 1.2], [0.8, 2.], [0., 1.2]])
+
+fig, axes = plt.subplots(2, 3, figsize=(11, 7))
+for ax, (name, M) in zip(axes.flat, transforms.items()):
+    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    ax.axhline(0, color='black', lw=0.6); ax.axvline(0, color='black', lw=0.6)
+    draw_polygon(ax, house, color='gray', alpha=0.3)
+    draw_polygon(ax, transform(M, house), color='crimson', alpha=0.45)
+    ax.set_title(f'{name}  (det={np.linalg.det(M):.2f})', fontsize=10)
+plt.tight_layout(); plt.show()</code></pre>
+<div class="listing-caption">코드 7.9: 여섯 가지 기본 변환을 한 화면에 비교하기</div></p>
+<h3>행렬식으로 변환을 읽어 내기</h3>
+<p>행렬식 하나로 변환의 성격을 상당 부분 알 수 있다.</p>
+<div class="center"><div class="table-wrap"><table><tr><th> 행렬식</th><th> 변환의 성격</th></tr><tr><td>\(\det = 1\)</td><td>넓이와 방향을 모두 보존 (회전, 전단)</td></tr><tr><td>\(\det = -1\)</td><td>넓이는 보존하되 뒤집음 (반사)</td></tr><tr><td>\(\abs{\det} > 1\)</td><td>도형이 커진다</td></tr><tr><td>\(0 < \abs{\det} < 1\)</td><td>도형이 작아진다</td></tr><tr><td>\(\det = 0\)</td><td>차원이 무너진다 (역행렬 없음)</td></tr><tr><td>\(\det < 0\)</td><td>방향이 뒤집힌다</td></tr></table></div></div>
+<h3>연속 변환에서 넓이의 변화</h3>
+<p>곱셈 정리 \(\det(\mm{A}\mm{B}) = \det(\mm{A})\det(\mm{B})\)를 그림으로 확인해 보자. 변환을 여러 번 적용할 때 넓이가 어떻게 누적되는지 보는 것이다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+A = np.array([[1.2, 0.4],
+              [0.1, 0.9]])
+print('det(A) :', np.linalg.det(A))
+
+square = UNIT_SQUARE
+fig, axes = plt.subplots(1, 5, figsize=(14, 3))
+P = square.copy()
+for k, ax in enumerate(axes):
+    ax.set_xlim(-1, 3); ax.set_ylim(-1, 3)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    draw_polygon(ax, P, color='crimson', alpha=0.45)
+    area = abs(np.linalg.det(A)) ** k
+    ax.set_title(f'A^{k}  area={area:.3f}', fontsize=9)
+    P = transform(A, P)
+plt.tight_layout(); plt.show()
+
+# 넓이가 det의 거듭제곱으로 줄어드는지 확인
+for k in range(5):
+    print(f'A^{k}: det = {np.linalg.det(np.linalg.matrix_power(A, k)):.5f},'
+          f' det(A)^{k} = {np.linalg.det(A) ** k:.5f}')</code></pre>
+<p><pre class="pyout">det(A) : 1.04
+A^0: det = 1.00000, det(A)^0 = 1.00000
+A^1: det = 1.04000, det(A)^1 = 1.04000
+A^2: det = 1.08160, det(A)^2 = 1.08160
+A^3: det = 1.12486, det(A)^3 = 1.12486
+A^4: det = 1.16986, det(A)^4 = 1.16986</pre>
+<div class="listing-caption">코드 7.10: 변환을 반복하면 넓이 배율도 거듭제곱된다</div></p>
+<div class="box step"><span class="chip">한 걸음 더</span><span class="box-title">행렬식은 어디에 쓰이는가</span><p>행렬식은 이론적으로는 매우 중요하지만, 실무에서 직접 계산할 일은 생각보다 적다. 크기가 큰 행렬에서는 값이 지나치게 커지거나 작아져 부동소수점으로 표현하기 어려워지기 때문이다(\(100\times100\) 행렬의 행렬식은 흔히 \(10^{\pm100}\) 수준이 된다).</p>
+<p>그래서 실무에서는 "가역인가"를 판단할 때 행렬식 대신 <strong>조건수</strong>(<code>np.linalg.cond</code>)나 <strong>랭크</strong>(<code>np.linalg.matrix_rank</code>)를 쓴다. 그럼에도 행렬식을 배우는 이유는 다음과 같다.
+<ul>
+<li>고유값을 정의하는 특성방정식 \(\det(\mm{A}-\lambda\Id)=0\)에 등장한다 (9장).</li>
+<li>다변수 미적분의 변수 변환에서 야코비 행렬식으로 등장한다.</li>
+<li>확률의 다변량 정규분포 밀도함수에 공분산행렬의 행렬식이 들어간다.</li>
+<li>컴퓨터 그래픽스에서 삼각형의 앞뒷면 판정에 쓰인다 (부호만 사용).</li>
+</ul></p></div>
+<div class="box keypoint"><span class="chip">요점</span><ul>
+<li><strong>행렬식 = 넓이(부피)의 배율</strong>이고, <strong>부호 = 방향의 뒤집힘 여부</strong>다.</li>
+<li>\(\det(\mm{A}\mm{B}) = \det(\mm{A})\det(\mm{B})\)  —  변환을 이으면 배율이 곱해진다.</li>
+<li>\(\det(\mm{A}) = 0\)은 차원 붕괴를 뜻하고, 이는 곧 역행렬이 없다는 말이다.</li>
+<li>여인자 전개는 이해를 위한 도구이고, 실제 계산은 소거법으로 삼각행렬을 만든 뒤 대각을 곱한다.</li>
+<li>선형변환과 행렬은 같은 것이며, 행렬의 열은 \(T(\vv{e}_j)\)다.</li>
+</ul></div>
+<p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 행렬식의 계산과 가시화</div><ol>
+<li><strong>행렬식이 넓이임을 수치로 확인하자.</strong> 무작위 점을 뿌려 변환 전후의 넓이 비율을 몬테카를로로 추정하고 행렬식과 비교하시오.
+<pre class="line-numbers"><code class="language-python">import numpy as np
+from lautils import *
+
+def area_by_sampling(poly, n=400_000, seed=0):
+    """다각형 안에 있는 표본점의 비율로 넓이를 추정한다."""
+    rng = np.random.default_rng(seed)
+    lo, hi = poly.min(axis=0), poly.max(axis=0)
+    P = rng.uniform(lo, hi, (n, 2))
+    # 볼록다각형 내부 판정: 모든 변에 대해 같은 쪽에 있는가
+    inside = np.ones(n, dtype=bool)
+    m = len(poly)
+    for k in range(m):
+        e = poly[(k + 1) % m] - poly[k]              # 변 벡터
+        r = P - poly[k]
+        cross = e[0] * r[:, 1] - e[1] * r[:, 0]      # 2차원 외적
+        inside &amp;= (cross &gt;= 0)
+    return np.prod(hi - lo) * inside.mean()
+
+A = np.array([[3., 1.], [1., 2.]])
+before = area_by_sampling(UNIT_SQUARE)
+after = area_by_sampling(transform(A, UNIT_SQUARE))
+
+print(f'변환 전 넓이 : {before:.4f}')
+print(f'변환 후 넓이 : {after:.4f}')
+print(f'비율         : {after / before:.4f}')
+print(f'det(A)       : {np.linalg.det(A):.4f}')</code></pre>
+<p><pre class="pyout">변환 전 넓이 : 1.0000
+변환 후 넓이 : 4.9909
+비율         : 4.9909
+det(A)       : 5.0000</pre></li>
+<li><strong>여인자 전개를 손으로 따라가자.</strong> \(3\times3\) 행렬식을 1행 전개와 2열 전개 두 가지로 각각 계산하고 결과가 같은지 확인하시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+
+A = np.array([[2., -1., 3.],
+              [1.,  4., 0.],
+              [5.,  2., -2.]])
+
+def minor(A, i, j):
+    return np.delete(np.delete(A, i, axis=0), j, axis=1)
+
+def det2(M):
+    return M[0, 0] * M[1, 1] - M[0, 1] * M[1, 0]
+
+row0 = sum((-1) ** j * A[0, j] * det2(minor(A, 0, j)) for j in range(3))
+col1 = sum((-1) ** (i + 1) * A[i, 1] * det2(minor(A, i, 1)) for i in range(3))
+
+print('1행 전개 :', row0)
+print('2열 전개 :', col1)
+print('넘파이   :', np.linalg.det(A))</code></pre></li>
+<li><strong>행렬식이 0이 되는 순간을 관찰하자.</strong> 매개변수를 바꿔 가며 행렬식이 0을 지나갈 때 도형이 어떻게 변하는지 그리시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+fig, axes = plt.subplots(1, 5, figsize=(14, 3))
+for ax, t in zip(axes, [2.0, 1.0, 0.0, -1.0, -2.0]):
+    A = np.array([[1., 1.], [1., 1. + t]])
+    ax.set_xlim(-3, 3); ax.set_ylim(-3, 3)
+    ax.set_aspect('equal'); ax.grid(True, alpha=0.3)
+    ax.axhline(0, color='black', lw=0.5); ax.axvline(0, color='black', lw=0.5)
+    draw_polygon(ax, transform(A, UNIT_SQUARE), color='crimson', alpha=0.5)
+    draw_vector(ax, A[:, 0], color='darkred', width=0.015)
+    draw_vector(ax, A[:, 1], color='navy', width=0.015)
+    ax.set_title(f't={t}, det={np.linalg.det(A):.1f}', fontsize=9)
+plt.tight_layout(); plt.show()</code></pre>
+<p>\(t=0\)일 때 두 열벡터가 완전히 겹쳐 도형이 선분으로 찌부러진다. 그 전후로 행렬식의 부호도 바뀌는데, 이는 두 벡터의 좌우 관계가 뒤바뀌었기 때문이다.</li>
+<li><strong>회전은 넓이를 바꾸지 않는다.</strong> 여러 각도의 회전행렬에 대해 행렬식이 언제나 1인지 확인하고, 도형을 실제로 회전시켜 보시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+from lautils import *
+
+def rot(deg):
+    t = np.radians(deg)
+    return np.array([[np.cos(t), -np.sin(t)],
+                     [np.sin(t),  np.cos(t)]])
+
+shape = np.array([[0., 0.], [2., 0.], [2., 1.], [1., 1.5], [0., 1.]])
+
+fig, ax = new_axes(xlim=(-3, 3), ylim=(-3, 3), figsize=(5, 5))
+for deg in range(0, 360, 45):
+    draw_polygon(ax, transform(rot(deg), shape),
+                 color=PALETTE[(deg // 45) % len(PALETTE)], alpha=0.25)
+plt.show()
+
+print([round(np.linalg.det(rot(d)), 12) for d in range(0, 360, 45)])</code></pre></li>
+<li><strong>\(4\times4\) 이상에서 알고리즘의 차이를 체감하자.</strong> 여인자 전개와 소거법의 실행 시간을 비교하시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+import time
+
+def det_cofactor(A):
+    n = A.shape[0]
+    if n == 1:
+        return A[0, 0]
+    if n == 2:
+        return A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]
+    return sum((-1) ** j * A[0, j] *
+               det_cofactor(np.delete(np.delete(A, 0, 0), j, 1))
+               for j in range(n))
+
+rng = np.random.default_rng(0)
+for n in [7, 8, 9]:
+    A = rng.normal(0, 1, (n, n))
+    t0 = time.time(); det_cofactor(A); tc = time.time() - t0
+    t0 = time.time(); np.linalg.det(A); tn = time.time() - t0
+    print(f'n={n}: 여인자 {tc:8.4f}s, 넘파이 {tn:.6f}s, 비율 {tc/tn:.0f}배')</code></pre></li>
+<li><strong>3차원 부피를 확인하자.</strong> 세 벡터가 만드는 평행육면체의 부피를 행렬식과 스칼라 삼중적으로 각각 구하시오.</p>
+<p><pre class="line-numbers"><code class="language-python">import numpy as np
+
+a = np.array([2., 1., 0.])
+b = np.array([0., 3., 1.])
+c = np.array([1., 0., 4.])
+
+M = np.column_stack([a, b, c])
+print('det        :', np.linalg.det(M))
+print('삼중적     :', a @ np.cross(b, c))
+print('부피(절댓값):', abs(np.linalg.det(M)))
+
+# 세 벡터가 한 평면에 있으면 부피는 0
+d = a + b                      # a, b의 조합이므로 같은 평면
+print('평면 위 :', np.linalg.det(np.column_stack([a, b, d])))</code></pre></li>
+<li><strong>선형성을 확인하는 함수를 만들자.</strong> 주어진 함수가 선형변환인지 판정하는 코드를 작성하고 몇 가지 함수를 시험하시오.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+
+def is_linear(f, dim=2, trials=20, seed=0):
+    """f가 선형변환의 두 조건을 만족하는지 무작위로 검사한다."""
+    rng = np.random.default_rng(seed)
+    for _ in range(trials):
+        u, v = rng.normal(0, 1, (2, dim))
+        c = rng.normal()
+        if not np.allclose(f(u + v), f(u) + f(v)):
+            return False
+        if not np.allclose(f(c * u), c * f(u)):
+            return False
+    return True
+
+A = np.array([[1., 2.], [3., 4.]])
+print('행렬 곱          :', is_linear(lambda x: A @ x))
+print('상수항 추가      :', is_linear(lambda x: A @ x + np.array([1., 1.])))
+print('성분별 제곱      :', is_linear(lambda x: x ** 2))
+print('첫 성분만 남기기 :', is_linear(lambda x: np.array([x[0], 0.])))</code></pre>
+<pre class="pyout">행렬 곱          : True
+상수항 추가      : False
+성분별 제곱      : False
+첫 성분만 남기기 : True</pre>
+<p>마지막 항목이 흥미롭다. 정보를 버리는 정사영도 엄연한 선형변환이다. 선형성은 "정보를 보존한다"가 아니라 "선형결합을 보존한다"는 뜻임을 확인하자.</li>
+</ol></p></div></p>
+<details class="box summary" id="summary"><summary class="box-head">7장 요약</summary><div class="sum-body"><ul>
+<li>\(2\times2\) 행렬의 행렬식 \(ad-bc\)는 두 열벡터가 만드는 <strong>평행사변형의 넓이</strong>다. 3차원에서는 세 열벡터가 만드는 평행육면체의 부피가 된다.</li>
+<li><strong>행렬식은 그 변환이 넓이(부피)를 몇 배로 만드는지 알려 준다.</strong> 변환 후 넓이 \(= \abs{\det(\mm{A})} \times\) 변환 전 넓이이며, 이 배율은 단위 정사각형뿐 아니라 어떤 도형에도 적용된다.</li>
+<li><strong>행렬식의 부호는 방향(orientation)의 뒤집힘</strong>을 나타낸다. 양수면 방향 보존, 음수면 뒤집힘이다.</li>
+<li>\(\det(\mm{A}) = 0\)은 넓이가 0이 되었다는 뜻, 즉 <strong>차원이 무너졌다</strong>는 뜻이며 이는 곧 역행렬이 없다는 말과 같다.</li>
+<li>\(i\)행 \(j\)열을 지운 부분행렬의 행렬식을 <strong>소행렬식</strong>, 여기에 \((-1)^{i+j}\)를 곱한 것을 <strong>여인자</strong>라 한다. 부호는 체스판 무늬를 이룬다.</li>
+<li><strong>여인자 전개</strong>로 임의의 행을 따라 \(\det(\mm{A}) = \sum_j a_{ij}C_{ij}\)로 계산할 수 있다. 어느 줄을 골라도 결과는 같으므로 <strong>0이 많은 줄</strong>을 고르는 것이 유리하다.</li>
+<li>여인자 전개는 연산량이 \(n!\)에 비례해 실용적이지 않다. 실제 계산은 소거법으로 삼각행렬을 만든 뒤 대각성분을 곱하며, 연산량은 \(n^3\)에 비례한다.</li>
+<li><strong>삼각행렬(대각행렬 포함)의 행렬식은 대각성분의 곱</strong>이다.</li>
+<li>행렬식의 주요 성질: \(\det(\Id)=1\), \(\det(\mm{A}\tp)=\det(\mm{A})\), \(\det(\mm{A}\mm{B})=\det(\mm{A})\det(\mm{B})\), \(\det(c\mm{A})=c^n\det(\mm{A})\), \(\det(\mm{A}\inv)=1/\det(\mm{A})\).</li>
+<li>행 연산과 행렬식: 두 행을 <strong>교환</strong>하면 부호가 바뀌고, 한 행에 다른 행의 <strong>상수배를 더하면</strong> 행렬식이 변하지 않는다(전단이므로 넓이 불변). 후자가 소거법으로 행렬식을 구할 수 있는 근거다.</li>
+<li><strong>\(\det(\mm{A}+\mm{B}) \neq \det(\mm{A})+\det(\mm{B})\)</strong>임에 주의하자. 곱셈은 분해되지만 덧셈은 그렇지 않다.</li>
+<li><strong>선형변환</strong>은 \(T(\vv{u}+\vv{v})=T(\vv{u})+T(\vv{v})\)와 \(T(c\vv{u})=cT(\vv{u})\)를 만족하는 함수다. 모든 선형변환은 행렬로 표현되며, 그 행렬의 \(j\)번째 열이 \(T(\vv{e}_j)\)다. <strong>선형변환과 행렬은 같은 것</strong>이다.</li>
+<li>\(T(\vv{x}) = \mm{A}\vv{x}+\vv{b}\)는 원점을 움직이므로 선형변환이 아니라 <strong>아핀변환</strong>이다.</li>
+<li>기본 변환의 행렬식: 회전과 전단은 1(넓이·방향 보존), 반사는 \(-1\)(방향 뒤집힘), 정사영은 0(차원 붕괴), 확대·축소는 \(s_xs_y\)다.</li>
+<li>실무에서는 크기가 큰 행렬의 행렬식이 지나치게 커지거나 작아지므로, 가역성 판단에는 <strong>조건수</strong>나 <strong>랭크</strong>를 쓴다. 그럼에도 행렬식은 고유값의 정의(9장), 야코비 행렬식, 다변량 정규분포 등에서 필수적이다.</li>
+</ul></div></details>
+<details class="box exercise" id="exercises"><summary class="box-head">7장 연습문제</summary><div class="ex-body"><ol>
+<li class="ex-item" data-ex="1"><span class="diff"><span class="d1">★</span></span>  다음 행렬의 행렬식을 손으로 구하시오.
+<ol>
+<li>\(\mtwo{5}{3}{2}{4}\)   (2) \(\mtwo{-1}{2}{3}{-6}\)  
+  (3) \(\begin{bmatrix}1&0&2\\3&1&0\\0&2&1\end{bmatrix}\)</li>
+</ol></li>
+<li class="ex-item" data-ex="2"><span class="diff"><span class="d1">★</span></span>  행렬식이 넓이의 배율이라는 관점에서, 다음 변환이 도형의 넓이를 몇 배로 만드는지 답하시오.
+<ol>
+<li>모든 방향으로 3배 확대 (2차원)</li>
+<li>모든 방향으로 3배 확대 (3차원)</li>
+<li>60도 회전</li>
+<li>\(x\)축에 대한 반사</li>
+</ol></li>
+<li class="ex-item" data-ex="3"><span class="diff"><span class="d2">★★</span></span>  \(\det(\mm{A}) = 4\), \(\det(\mm{B}) = -2\)이고 두 행렬이 \(3\times3\)일 때 다음을 구하시오.
+<ol>
+<li>\(\det(\mm{A}\mm{B})\)   (2) \(\det(2\mm{A})\)   (3) \(\det(\mm{A}\inv)\)  
+  (4) \(\det(\mm{A}\tp\mm{B})\)</li>
+</ol></li>
+<li class="ex-item" data-ex="4"><span class="diff"><span class="d2">★★</span></span>  다음 \(4\times4\) 행렬의 행렬식을 계산이 가장 적은 줄을 골라 전개하여 구하시오.
+<div class="mathblock">\[
+\begin{bmatrix} 2&0&0&1 \\ 3&1&0&0 \\ 0&4&2&0 \\ 5&0&0&3 \end{bmatrix}
+\]</div></li>
+<li class="ex-item" data-ex="5"><span class="diff"><span class="d2">★★</span></span>  어떤 \(3\times3\) 행렬의 2행과 3행을 교환한 뒤 1행에 2행의 5배를 더했다. 원래 행렬식이 \(-6\)이었다면 최종 행렬식은 얼마인가?</li>
+<li class="ex-item" data-ex="6"><span class="diff"><span class="d2">★★</span></span>  다음 행렬 중 특이행렬을 모두 고르고, 어느 성질을 이용하면 계산 없이 알 수 있는지 설명하시오.
+<ol>
+<li>한 행이 모두 0인 행렬</li>
+<li>두 열이 완전히 같은 행렬</li>
+<li>세 번째 행이 첫 행과 둘째 행의 합인 행렬</li>
+<li>대각성분 중 하나가 0인 삼각행렬</li>
+</ol></li>
+<li class="ex-item" data-ex="7"><span class="diff"><span class="d2">★★</span></span>  \(\det(\mm{A}+\mm{B}) = \det(\mm{A}) + \det(\mm{B})\)가 성립하지 않는 반례를 하나 만드시오.</li>
+<li class="ex-item" data-ex="8"><span class="diff"><span class="d3">★★★</span></span>  여인자 전개를 재귀로 구현하고, \(n=3,\ldots,9\)에 대해 실행 시간을 측정하여 그래프로 그리시오. 시간이 \(n!\)에 비례하는지 확인하시오.</li>
+<li class="ex-item" data-ex="9"><span class="diff"><span class="d3">★★★</span></span>  매개변수 \(t\)에 대해 \(\mm{A}(t) = \mtwo{2}{t}{t}{2}\)의 행렬식을 \(t\)의 함수로 구하고, \(t \in [-4, 4]\)에서 그래프로 그리시오. 행렬식이 0이 되는 \(t\)의 값에서 도형이 어떻게 되는지 그림으로 확인하시오.</li>
+<li class="ex-item" data-ex="10"><span class="diff"><span class="d3">★★★</span></span>  무작위 볼록다각형을 하나 만들고, 임의의 행렬 \(\mm{A}\)로 변환한 뒤 넓이를 몬테카를로로 추정하시오. 넓이의 비율이 \(\abs{\det(\mm{A})}\)와 일치하는지 확인하시오.</li>
+<li class="ex-item" data-ex="11"><span class="diff"><span class="d2">★★</span></span>  다음 함수가 선형변환인지 판정하고 이유를 쓰시오.
+<ol>
+<li>\(T(x, y) = (2x - y,\ x + 3y)\)</li>
+<li>\(T(x, y) = (x + 1,\ y)\)</li>
+<li>\(T(x, y) = (xy,\ x)\)</li>
+<li>\(T(x, y) = (0,\ 0)\)</li>
+</ol></li>
+<li class="ex-item" data-ex="12"><span class="diff"><span class="d3">★★★</span></span>  선형변환 \(T\)가 \(T(1,0) = (3,1)\), \(T(0,1) = (-1,2)\)를 만족할 때 \(T\)의 행렬을 구하고, \(T(2,-3)\)을 계산하시오. 또 이 변환의 행렬식과 그 기하적 의미를 서술하시오.</li>
+<li class="ex-item" data-ex="13"><span class="diff"><span class="d3">★★★</span></span>  세 점 \(A(1,2)\), \(B(4,3)\), \(C(2,6)\)이 이루는 삼각형의 넓이를 행렬식으로 구하시오.
+(힌트: 두 변 벡터가 만드는 평행사변형 넓이의 절반)</li>
+<li class="ex-item" data-ex="14"><span class="diff"><span class="d3">★★★</span></span>  3차원 회전행렬(임의의 축에 대한)의 행렬식이 항상 1임을 확인하는 코드를 작성하시오. 반사가 포함된 변환은 \(-1\)이 나오는 것도 함께 보이시오.</li>
+</ol></div></details>
+<div class="pager-row"><a class="pager prev" href="ch06.html">&larr; 6장</a><a class="pager next" href="ch08.html">8장 &rarr;</a></div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script src="book.js"></script>
+<script src="grader.js"></script>
+</body>
+</html>

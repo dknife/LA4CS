@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>부록 A 실습 환경 준비 — 쓸모 있는 선형대수</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="book.css">
+<script>MathJax = {tex: {inlineMath: [['\\(', '\\)']], macros: {
+  vv: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  mm: ['{\\boldsymbol{\\mathbf{#1}}}', 1],
+  tp: '{^{\\mathsf{T}}}',
+  inv: '{^{-1}}',
+  pinv: '{^{+}}',
+  Id: '{\\boldsymbol{\\mathbf{I}}}',
+  zerovec: '{\\boldsymbol{\\mathbf{0}}}',
+  Real: '{\\mathbb{R}}',
+  Rsp: ['{\\mathbb{R}^{#1}}', 1],
+  Rmat: ['{\\mathbb{R}^{#1 \\times #2}}', 2],
+  norm: ['{\\left\\lVert #1 \\right\\rVert}', 1],
+  abs: ['{\\left\\lvert #1 \\right\\rvert}', 1],
+  sca: ['{#1}', 1],
+  rank: '{\\operatorname{rank}}',
+  trace: '{\\operatorname{tr}}',
+  diag: '{\\operatorname{diag}}',
+  spn: '{\\operatorname{span}}',
+  proj: '{\\operatorname{proj}}',
+  Col: '{\\operatorname{Col}}',
+  Nul: '{\\operatorname{Nul}}',
+  Row: '{\\operatorname{Row}}',
+  adj: '{\\operatorname{adj}}',
+  argmin: '{\\operatorname*{arg\\,min}}',
+  argmax: '{\\operatorname*{arg\\,max}}',
+  mtwo: ['{\\begin{bmatrix}#1 & #2\\\\ #3 & #4\\end{bmatrix}}', 4],
+  vtwo: ['{\\begin{bmatrix}#1\\\\ #2\\end{bmatrix}}', 2],
+  vthree: ['{\\begin{bmatrix}#1\\\\ #2\\\\ #3\\end{bmatrix}}', 3],
+  dash: '{\\;\\unicode{x2014}\\;}',
+  ndash: '{\\unicode{x2013}}'
+}, tags: 'ams'}, svg: {fontCache: 'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="home" href="../index.html">&#8962; 홈</a>
+  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="ch-indicator">부록 A 실습 환경 준비</span>
+  <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
+</header>
+<div class="layout">
+<nav class="sidebar">
+<div class="nav-ch"><a class="nav-ch-link" href="front.html"><span class="nav-num">&#128214;</span> 표지·머릿말</a></div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch01.html"><span class="nav-num">01</span> 선형대수와 도구</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch02.html"><span class="nav-num">02</span> 대규모 배열을 다루는 고성능 넘파이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch03.html"><span class="nav-num">03</span> 선형대수의 기본 자료: 스칼라, 벡터, 행렬</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch04.html"><span class="nav-num">04</span> 벡터를 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch05.html"><span class="nav-num">05</span> 행렬을 다루는 기본적인 연산</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch06.html"><span class="nav-num">06</span> 역행렬: 되돌리는 변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch07.html"><span class="nav-num">07</span> 행렬식과 선형변환</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch08.html"><span class="nav-num">08</span> 선형방정식의 풀이</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch09.html"><span class="nav-num">09</span> 고유값과 고유벡터</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch10.html"><span class="nav-num">10</span> 행렬의 대각화</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch11.html"><span class="nav-num">11</span> 특이값 분해</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch12.html"><span class="nav-num">12</span> 다양한 행렬 분해의 활용</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="ch13.html"><span class="nav-num">13</span> 선형대수의 응용</a>
+</div>
+<div class="nav-part">부록</div>
+<div class="nav-ch current"><a class="nav-ch-link" href="apxa.html"><span class="nav-num">A</span> 실습 환경 준비</a>
+<div class="nav-secs"><a class="nav-sec" href="apxa.html#sec1">구글 코랩 (권장)</a><a class="nav-sec" href="apxa.html#sec2">내 컴퓨터에 설치하기</a><a class="nav-sec" href="apxa.html#sec3">자주 만나는 문제</a></div>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxb.html"><span class="nav-num">B</span> 시각화 모듈 전체 소스</a>
+</div>
+<div class="nav-ch"><a class="nav-ch-link" href="apxc.html"><span class="nav-num">C</span> 넘파이 선형대수 레퍼런스</a>
+</div>
+</nav>
+<main class="content">
+<div class="chapter-head">
+  <div class="ch-label">APPENDIX A</div>
+  <h1>실습 환경 준비</h1>
+</div>
+<p>이 책의 모든 예제는 <strong>넘파이</strong>와 <strong>맷플롯립</strong>만 있으면 실행된다. 가장 쉬운 방법은 설치가 필요 없는 구글 코랩이고, 내 컴퓨터에 직접 갖추고 싶다면 파이썬과 두 패키지를 설치하면 된다.</p>
+<h2 id="sec1">구글 코랩 (권장)</h2>
+<ol>
+<li>브라우저에서 <code>colab.research.google.com</code>에 접속한다.</li>
+<li>구글 계정으로 로그인한 뒤 [새 노트]를 선택한다.</li>
+<li>코드 셀에 예제를 입력하고 <code>Shift + Enter</code>로 실행한다.</li>
+</ol>
+<p>넘파이와 맷플롯립이 이미 설치되어 있으므로 바로 시작할 수 있다. 버전은 다음으로 확인한다.</p>
+<pre class="line-numbers"><code class="language-python">import numpy as np
+import matplotlib.pyplot as plt
+print(np.__version__, plt.matplotlib.__version__)</code></pre>
+<h3><code>lautils.py</code> 만들기</h3>
+<p>2장에서 만든 시각화 모듈은 코랩에서 다음과 같이 저장한다. 셀 맨 위에 <code>%%writefile</code>을 적고 그 아래에 모듈 내용을 붙여 넣은 뒤 실행하면 된다.</p>
+<pre class="line-numbers"><code class="language-python">"""lautils.py — 부록 B의 내용을 여기에 붙여 넣는다"""
+import numpy as np
+import matplotlib.pyplot as plt
+# ... (이하 생략)</code></pre>
+<p>한 번 저장하면 같은 세션 동안 <code>from lautils import *</code>로 불러 쓸 수 있다. 다만 <strong>코랩 런타임이 초기화되면 파일이 사라지므로</strong> 다시 실행해야 한다. 구글 드라이브에 저장해 두면 매번 만들 필요가 없다.</p>
+<pre class="line-numbers"><code class="language-python">from google.colab import drive
+drive.mount('/content/drive')
+
+import sys
+sys.path.append('/content/drive/MyDrive/linalg')   # lautils.py를 둔 폴더
+from lautils import *</code></pre>
+<h2 id="sec2">내 컴퓨터에 설치하기</h2>
+<h3>파이썬 설치</h3>
+<p>파이썬 3.10 이상을 권장한다. <code>python.org</code>에서 내려받거나, 아나콘다 배포판을 설치해도 좋다.</p>
+<h3>패키지 설치</h3>
+<p>터미널(윈도우는 명령 프롬프트)에서 다음을 실행한다.</p>
+<pre class="pyout">pip install numpy matplotlib</pre>
+<p>가상환경을 쓰는 것을 권한다. 프로젝트마다 패키지 버전을 분리할 수 있다.</p>
+<pre class="pyout">python -m venv linalg-env
+source linalg-env/bin/activate      # 윈도우: linalg-env\Scripts\activate
+pip install numpy matplotlib</pre>
+<h3>선택: 대화형 3차원 그림</h3>
+<p>부록 B에서 소개하는 <code>tuvis.py</code>를 쓰려면 plotly가 필요하다. 이 책의 본문 예제에는 필요 없으므로, 3차원을 직접 돌려 보고 싶을 때만 설치하면 된다.</p>
+<pre class="pyout">pip install plotly</pre>
+<p>코랩에는 plotly가 이미 설치되어 있어 바로 쓸 수 있다.</p>
+<h3>편집 환경</h3>
+<p>주피터 노트북이나 VS Code를 권한다. 특히 이 책처럼 코드를 조금씩 실행하며 그림을 확인하는 학습에는 노트북 방식이 잘 맞는다.</p>
+<pre class="pyout">pip install jupyterlab
+jupyter lab</pre>
+<h2 id="sec3">자주 만나는 문제</h2>
+<h3>그림 속 한글이 깨져 보인다</h3>
+<p>맷플롯립의 기본 폰트에 한글이 없어서 생기는 문제다. 이 책은 그림 속 문자열을 모두 영어로 적어 두었으므로 이 문제를 겪지 않는다. 한글을 쓰고 싶다면 폰트를 지정해야 한다.</p>
+<pre class="line-numbers"><code class="language-python">import matplotlib.pyplot as plt
+
+# macOS
+plt.rcParams['font.family'] = 'AppleGothic'
+# 윈도우
+# plt.rcParams['font.family'] = 'Malgun Gothic'
+# 코랩 (나눔폰트 설치 후)
+# plt.rcParams['font.family'] = 'NanumGothic'
+
+plt.rcParams['axes.unicode_minus'] = False    # 마이너스 기호 깨짐 방지</code></pre>
+<h3>그림이 나타나지 않는다</h3>
+<p>스크립트로 실행하는 경우 <code>plt.show()</code>가 필요하다. 주피터에서는 셀의 마지막 표현식이 자동으로 표시되지만, 명시적으로 호출하는 습관을 들이는 편이 안전하다.</p>
+<h3><code>ModuleNotFoundError: No module named 'lautils'</code></h3>
+<p><code>lautils.py</code>가 현재 작업 디렉터리에 없는 경우다. 파일 위치를 확인하거나 경로를 추가한다.</p>
+<pre class="line-numbers"><code class="language-python">import os, sys
+print(os.getcwd())                 # 현재 작업 디렉터리 확인
+sys.path.append('/파일이/있는/경로')</code></pre>
+<h3>계산 결과가 책과 미세하게 다르다</h3>
+<p>부동소수점 연산의 결과는 하드웨어와 라이브러리 버전에 따라 마지막 자릿수가 달라질 수 있다. <code>np.allclose()</code>로 비교하면 문제가 없다. 난수를 쓰는 예제는 <code>default_rng(42)</code>처럼 시드를 고정했으므로 같은 값이 나와야 하지만, 넘파이 주버전이 바뀌면 난수 알고리즘이 달라질 수 있다.</p>
+<h3>고유벡터의 부호가 책과 반대다</h3>
+<p>정상이다. 9장에서 설명했듯 \(\vv{v}\)가 고유벡터면 \(-\vv{v}\)도 고유벡터이므로, 라이브러리가 어느 쪽을 돌려줄지는 정해져 있지 않다. 부호에 의존하는 코드를 작성하지 않도록 주의하자.</p>
+<div class="pager-row"><a class="pager prev" href="ch12.html">&larr; 12장</a><a class="pager next" href="apxb.html">부록 B &rarr;</a></div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script src="book.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>쓸모 있는 선형대수 with NumPy</title>
+<meta name="description" content="계산하지 말고 그려서 이해하는 인공지능 시대의 선형대수. 넘파이와 맷플롯립만으로 모든 개념을 눈으로 확인합니다.">
+<style>
+:root{
+  --navy:#163864; --sky:#4682C8; --copper:#C86932; --gold:#DAAA41;
+  --ink:#1F2937; --muted:#5F6978; --line:#E5E7EB; --bg:#F7F9FC; --white:#fff;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",
+    "Noto Sans KR",sans-serif;
+  line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+a{color:inherit}
+.wrap{max-width:1040px;margin:0 auto;padding:0 20px}
+
+/* ---------- 표지 ---------- */
+header.hero{
+  background:linear-gradient(160deg,var(--navy) 0%,#0F2647 100%);
+  color:#F2EADA; padding:64px 0 56px; position:relative; overflow:hidden;
+}
+header.hero::after{
+  content:""; position:absolute; inset:auto -10% -40% auto;
+  width:420px; height:420px; border-radius:50%;
+  background:radial-gradient(circle,rgba(70,130,200,.35),transparent 65%);
+}
+.tag{font-size:.95rem; color:#C9D6E8; letter-spacing:.02em}
+.tag b{color:var(--gold)}
+h1{
+  margin:.35em 0 .1em; font-size:clamp(2.1rem,5vw,3.4rem);
+  font-weight:800; letter-spacing:-.02em; color:var(--gold);
+}
+h1 small{display:block; font-size:.42em; color:#F2EADA; font-weight:600; letter-spacing:0}
+.sub{color:#C9D6E8; margin:.8em 0 1.6em; max-width:34em}
+.cta{display:flex; gap:12px; flex-wrap:wrap}
+.btn{
+  display:inline-block; padding:12px 22px; border-radius:999px;
+  font-weight:700; text-decoration:none; transition:transform .15s ease;
+}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:var(--gold); color:#12233F}
+.btn.ghost{border:1.5px solid rgba(242,234,218,.5); color:#F2EADA}
+.palette{display:flex; gap:6px; margin-bottom:18px}
+.palette i{width:26px;height:8px;display:block;border-radius:2px}
+
+/* ---------- 특징 ---------- */
+section{padding:56px 0}
+h2{font-size:1.5rem; letter-spacing:-.01em; margin:0 0 .2em; color:var(--navy)}
+.lead{color:var(--muted); margin:0 0 28px}
+.cards{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{
+  background:var(--white); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px 20px;
+}
+.card h3{margin:.1em 0 .4em; font-size:1.05rem; color:var(--navy)}
+.card p{margin:0; color:var(--muted); font-size:.95rem}
+.card .num{
+  display:inline-block; font-weight:800; color:var(--copper);
+  font-size:.85rem; letter-spacing:.08em;
+}
+
+/* ---------- 목차 ---------- */
+.toc{display:grid; gap:10px; grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.toc a{
+  display:flex; gap:14px; align-items:baseline; text-decoration:none;
+  background:var(--white); border:1px solid var(--line); border-radius:10px;
+  padding:13px 16px; transition:border-color .15s ease, transform .15s ease;
+}
+.toc a:hover{border-color:var(--sky); transform:translateX(2px)}
+.toc b{color:var(--copper); font-variant-numeric:tabular-nums; min-width:1.7em}
+.toc span{color:var(--ink)}
+.toc a.front b{color:var(--sky)}
+
+/* ---------- 코드 미리보기 ---------- */
+.demo{
+  background:#1E293B; color:#F1F5F9; border-radius:var(--radius);
+  padding:20px 22px; overflow-x:auto; font-size:.88rem; line-height:1.65;
+  font-family:"D2Coding",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.demo .c{color:#94A3B8}
+.demo .k{color:#7DD3FC}
+.demo .s{color:#FCD34D}
+
+footer{
+  border-top:1px solid var(--line); padding:28px 0 44px;
+  color:var(--muted); font-size:.9rem;
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="palette"><i style="background:#F2EADA"></i><i style="background:#4682C8"></i><i style="background:#C86932"></i><i style="background:#DAAA41"></i></div>
+    <p class="tag">똑똑한 시스템을 만드는 <b>선형대수</b></p>
+    <h1>쓸모 있는 선형대수<small>with NumPy</small></h1>
+    <p class="sub">
+      계산하지 말고 <b>그려서</b> 이해하는 인공지능 시대의 수학.
+      넘파이와 맷플롯립만으로 벡터·행렬·고유값·특이값 분해를 눈으로 확인합니다.
+      브라우저에서 바로 코드를 실행해 볼 수 있습니다.
+    </p>
+    <div class="cta">
+      <a class="btn primary" href="book/front.html">웹북 읽기</a>
+      <a class="btn ghost" href="book/ch01.html">1장부터 시작</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>이 책의 방식</h2>
+    <p class="lead">개념 → 손 계산 → 넘파이 → 그림. 네 박자가 한 세트입니다.</p>
+    <div class="cards">
+      <div class="card">
+        <span class="num">01</span>
+        <h3>그림이 먼저입니다</h3>
+        <p>행렬식은 넓이의 배율로, 고유벡터는 방향이 변하지 않는 축으로,
+           특이값 분해는 서서히 드러나는 이미지로 확인합니다.</p>
+      </div>
+      <div class="card">
+        <span class="num">02</span>
+        <h3>도구는 둘뿐</h3>
+        <p>넘파이와 맷플롯립만 씁니다. 고수준 라이브러리가 계산 과정을
+           감추지 않도록, 화살표 하나까지 직접 그립니다.</p>
+      </div>
+      <div class="card">
+        <span class="num">03</span>
+        <h3>내 손으로 만든 도구</h3>
+        <p>2장에서 <code>lautils.py</code>를 직접 만들어 끝까지 씁니다.
+           대화형 3차원이 필요하면 같은 API의 <code>tuvis.py</code>로 바꾸면 됩니다.</p>
+      </div>
+      <div class="card">
+        <span class="num">04</span>
+        <h3>인공지능으로 이어집니다</h3>
+        <p>어텐션은 내적, 차원 축소는 특이값 분해, 기울기 소실은 고유값.
+           각 장이 모델의 어느 부분에 닿는지 짚습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>맛보기</h2>
+    <p class="lead">행렬 하나가 평면을 어떻게 바꾸는지, 열 줄이면 볼 수 있습니다.</p>
+<pre class="demo"><span class="k">import</span> numpy <span class="k">as</span> np
+<span class="k">from</span> lautils <span class="k">import</span> *
+
+A = np.array([[<span class="s">1.2</span>, <span class="s">0.8</span>],
+              [<span class="s">0.3</span>, <span class="s">1.4</span>]])
+
+fig, ax = new_axes(xlim=(-<span class="s">4</span>, <span class="s">4</span>), ylim=(-<span class="s">4</span>, <span class="s">4</span>))
+draw_grid(ax, <span class="k">None</span>, n=<span class="s">3</span>, color=<span class="s">'lightgray'</span>)   <span class="c"># 원래 격자</span>
+draw_grid(ax, A, n=<span class="s">3</span>)                        <span class="c"># A로 변환된 격자</span>
+draw_polygon(ax, transform(A, UNIT_SQUARE))    <span class="c"># 넓이 = |det A|</span>
+draw_vector(ax, A[:, <span class="s">0</span>], color=<span class="s">'crimson'</span>)     <span class="c"># e1이 옮겨 간 자리</span>
+draw_vector(ax, A[:, <span class="s">1</span>], color=<span class="s">'royalblue'</span>)   <span class="c"># e2가 옮겨 간 자리</span></pre>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <h2>목차</h2>
+    <p class="lead">13개 장이 하나의 흐름으로 이어집니다.</p>
+    <div class="toc">
+      <a class="front" href="book/front.html"><b>■</b><span>표지 · 머릿말 · 이 책의 구성</span></a>
+      <a href="book/ch01.html"><b>1</b><span>선형대수와 도구</span></a>
+      <a href="book/ch02.html"><b>2</b><span>대규모 배열을 다루는 고성능 넘파이</span></a>
+      <a href="book/ch03.html"><b>3</b><span>스칼라, 벡터, 행렬</span></a>
+      <a href="book/ch04.html"><b>4</b><span>벡터를 다루는 기본적인 연산</span></a>
+      <a href="book/ch05.html"><b>5</b><span>행렬을 다루는 기본적인 연산</span></a>
+      <a href="book/ch06.html"><b>6</b><span>역행렬: 되돌리는 변환</span></a>
+      <a href="book/ch07.html"><b>7</b><span>행렬식과 선형변환</span></a>
+      <a href="book/ch08.html"><b>8</b><span>선형방정식의 풀이</span></a>
+      <a href="book/ch09.html"><b>9</b><span>고유값과 고유벡터</span></a>
+      <a href="book/ch10.html"><b>10</b><span>행렬의 대각화</span></a>
+      <a href="book/ch11.html"><b>11</b><span>특이값 분해</span></a>
+      <a href="book/ch12.html"><b>12</b><span>다양한 행렬 분해의 활용</span></a>
+      <a href="book/ch13.html"><b>13</b><span>선형대수의 응용</span></a>
+      <a href="book/apxa.html"><b>A</b><span>실습 환경 준비</span></a>
+      <a href="book/apxb.html"><b>B</b><span>시각화 모듈 전체 소스</span></a>
+      <a href="book/apxc.html"><b>C</b><span>넘파이 선형대수 레퍼런스</span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>쓸모 있는 선형대수 with NumPy · 강영민 지음<br>
+    웹북의 코드는 브라우저 안에서 실행됩니다(Pyodide). 설치가 필요 없습니다.</p>
+  </div>
+</footer>
+
+</body>
+</html>
