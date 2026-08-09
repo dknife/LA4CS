@@ -539,23 +539,29 @@ async function ensurePyodide() {
   // 본문 예제 대부분이 `from lautils import *` 로 시작하는데, 브라우저 안에는
   // 그 파일이 없으므로 미리 넣어 주지 않으면 ModuleNotFoundError 가 난다.
   // (numpy·matplotlib 은 loadPackagesFromImports 가 알아서 받아 온다)
+  // tuvis.py 는 lautils 가 interactive=True 일 때 불러 쓰는 대화형 백엔드다.
+  // 함께 심어 두지 않으면 ModuleNotFoundError: No module named 'tuvis' 가 난다.
   try {
-    var r = await fetch('lautils.py');
-    if (r.ok) {
-      var src = await r.text();
-      py.FS.writeFile('lautils.py', src);
-      py.runPython([
-        'import os, sys',
-        'if os.getcwd() not in sys.path:',
-        '    sys.path.insert(0, os.getcwd())'
-      ].join('\n'));
-      await py.loadPackage(['numpy', 'matplotlib']);
-      py.runPython('import matplotlib\nmatplotlib.use("Agg")');
-    } else {
-      post('err', 'lautils.py 를 불러오지 못했습니다 (HTTP ' + r.status + ')\n');
+    var mods = ['lautils.py', 'tuvis.py'];
+    for (var mi = 0; mi < mods.length; mi++) {
+      var r = await fetch(mods[mi]);
+      if (r.ok) {
+        py.FS.writeFile(mods[mi], await r.text());
+      } else {
+        post('err', mods[mi] + ' 를 불러오지 못했습니다 (HTTP ' + r.status + ')\n');
+      }
     }
+    py.runPython([
+      'import os, sys',
+      'if os.getcwd() not in sys.path:',
+      '    sys.path.insert(0, os.getcwd())'
+    ].join('\n'));
+    // Pyodide 에는 화면이 없다. pyplot 을 불러오기 전에 Agg 로 정해 두어야
+    // 기본 백엔드가 js.document 를 찾다 실패하는 일이 없다.
+    await py.loadPackage(['numpy', 'matplotlib']);
+    py.runPython('import matplotlib\nmatplotlib.use("Agg")');
   } catch (e) {
-    post('err', 'lautils.py 준비 실패: ' + (e.message || e) + '\n');
+    post('err', '시각화 모듈 준비 실패: ' + (e.message || e) + '\n');
   }
 
   return py;

@@ -62,7 +62,15 @@ python3 tools/gen_run_preludes.py
 
 # 4) 웹에서 실행되는 그대로 전부 돌려 확인 (실패 0이어야 한다)
 cd docs/book && python3 ../../tools/check_web_run.py && cd ../..
+
+# 5) 대화형(plotly) 예제는 실제 Pyodide 로 확인한다
+mkdir -p /tmp/pyo && cd /tmp/pyo && npm install pyodide
+node ~/GitRepos/LA4CS/tools/check_pyodide.mjs
 ```
+
+`check_pyodide.mjs` 는 `pyrunner.js` 의 모듈 주입 블록을 **파일에서 잘라 내 그대로**
+실행한다. 따로 흉내 낸 코드로 검사하면 제품과 어긋나 버그를 놓친다
+(실제로 `tuvis.py` 를 심지 않은 버그를 그렇게 놓쳤다).
 
 **원고를 고쳐도 자동으로 빌드·푸시하지 않는다.** 필요할 때 위 두 명령을 직접 돌린다.
 그림이 든 장을 고쳤다면 `build_figures.py`를 먼저 돌려야 SVG 번호가 어긋나지 않는다.

@@ -1,48 +1,65 @@
 // check_pyodide.mjs — 실제 Pyodide 로 대화형(plotly) 예제가 도는지 확인한다.
 //
-//   cd /tmp && mkdir -p pyo && cd pyo
-//   npm install pyodide
-//   cp ~/GitRepos/LA4CS/docs/book/{lautils.py,tuvis.py} .
+//   mkdir -p /tmp/pyo && cd /tmp/pyo && npm install pyodide
 //   node ~/GitRepos/LA4CS/tools/check_pyodide.mjs
 //
-// 브라우저 워커와 같은 조건(Agg 백엔드, micropip 으로 plotly 설치, show() 가로채기)
-// 을 재현한다. check_web_run.py 는 CPython 으로 도는 빠른 검사이고, 이쪽은
-// Pyodide 특유의 문제(js.document, 휠 설치 가능 여부)를 잡는다.
+// 중요: pyrunner.js 의 모듈 주입 블록을 파일에서 잘라 내 '있는 그대로' 실행한다.
+// 예전에 따로 흉내 낸 코드로 검사했다가 tuvis.py 를 심지 않은 버그를 놓쳤다.
+// 검사는 반드시 제품 코드를 직접 돌려야 한다.
+//
+// check_web_run.py 는 CPython 으로 도는 빠른 검사이고, 이쪽은 Pyodide 특유의
+// 문제(모듈 주입 누락, js.document, 휠 설치 가능 여부)를 잡는다.
+// (모듈을 미리 복사해 두지 않는다 — 워커가 fetch 로 가져오는 것까지 흉내 낸다)
 import { loadPyodide } from 'pyodide';
 import fs from 'fs';
 const H = process.env.HOME + '/GitRepos/LA4CS/docs/book/';
-const py = await loadPyodide();
-await py.loadPackage(['numpy','matplotlib','micropip']);
-await py.runPythonAsync('import micropip\nawait micropip.install("plotly")');
-py.FS.writeFile('lautils.py', fs.readFileSync('lautils.py'));
-py.FS.writeFile('tuvis.py', fs.readFileSync('tuvis.py'));
-py.runPython('import os,sys\nsys.path.insert(0, os.getcwd())');
-py.runPython('import matplotlib\nmatplotlib.use("Agg")');   // pyrunner 초기화와 동일
-py.runPython(fs.readFileSync('hook.py','utf8'));
+const src = fs.readFileSync(H + 'pyrunner.js', 'utf8');
 
-const pre = JSON.parse(fs.readFileSync(H+'run-preludes.json','utf8'));
+// fetch 를 파일 읽기로 대체
+const realFetch = globalThis.fetch;                 // micropip 은 이걸 써야 한다
+globalThis.fetch = async (u, ...rest) => {
+  if (typeof u === 'string' && !/^https?:/.test(u)) {   // 워커의 상대 경로만 가로챈다
+    const path = H + u;
+    const ok = fs.existsSync(path);
+    return { ok, status: ok ? 200 : 404, text: async () => fs.readFileSync(path, 'utf8') };
+  }
+  return realFetch(u, ...rest);
+};
+const py = await loadPyodide();
+py.setStderr({ batched: () => {} });
+
+// pyrunner 의 모듈 주입 블록만 발췌 실행 (실제 파일에서 잘라 온다)
+const b0 = src.indexOf('  // tuvis.py 는');
+const b1 = src.indexOf('  return py;', b0);
+const block = src.slice(b0, b1);
+const hook  = src.match(/var PLOTLY_HOOK = \[[\s\S]*?\]\.join\('\\n'\);/)[0];
+const post = (t,m) => console.log('[worker]', t, String(m).trim().slice(0,80));
+await (new Function('py','post','fetch', `return (async()=>{ ${block} })()`))(py, post, globalThis.fetch);
+eval(hook.replace('var PLOTLY_HOOK','globalThis.PLOTLY_HOOK'));
+py.runPython(globalThis.PLOTLY_HOOK);
+
+await py.loadPackage('micropip');
+await py.runPythonAsync('import micropip\nawait micropip.install("plotly")');
+
+// 부록 B 대화형 예제 전부
 const un = s => s.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&amp;/g,'&');
 const key = s => { let v=5381; for (const c of s){ v=((Math.imul(v,33))^c.codePointAt(0))>>>0; } return v.toString(36); };
-
-// 실행 버튼이 붙는 블록만: <pre class="line-numbers"><code class="language-python">
+const pre = JSON.parse(fs.readFileSync(H+'run-preludes.json','utf8'));
 const html = fs.readFileSync(H+'apxb.html','utf8');
-const blocks = [...html.matchAll(/<pre class="line-numbers"><code class="language-python">([\s\S]*?)<\/code>/g)].map(m => un(m[1]));
+const blocks = [...html.matchAll(/<pre class="line-numbers"><code class="language-python">([\s\S]*?)<\/code>/g)].map(m=>un(m[1]));
 const targets = blocks.filter(c => c.includes('interactive=True'));
-console.log('부록 B 대화형 예제:', targets.length, '개\n');
-
-for (const [i, code] of targets.entries()) {
-  const full = (pre[key(code)] || '') + code;
+console.log('\n부록 B 대화형 예제', targets.length, '개\n');
+let bad = 0;
+for (const [i,code] of targets.entries()) {
   const ns = py.runPython('dict(__name__="__main__")');
   py.runPython('_algja_plotly_patch()');
   try {
-    await py.runPythonAsync(full, { globals: ns });
+    await py.runPythonAsync((pre[key(code)]||'') + code, { globals: ns });
     py.globals.set('_algja_ns', ns);
     const pj = py.runPython('_algja_plotly_dump(_algja_ns)');
     const list = pj.toJs(); pj.destroy();
-    const traces = list.length ? JSON.parse(list[0]).data.length : 0;
-    console.log(`예제 ${i+1}: 준비코드 ${pre[key(code)] ? '있음' : '없음'}, 그림 ${list.length}개, trace ${traces}개 → ${list.length ? 'OK' : '그림 없음'}`);
-  } catch (e) {
-    console.log(`예제 ${i+1}: 오류 —`, String(e).split('\n').filter(x=>x.trim()).pop().slice(0,80));
-  }
+    console.log(`예제 ${i+1}: 그림 ${list.length}개 → OK`);
+  } catch (e) { bad++; console.log(`예제 ${i+1}: 실패 —`, String(e).split('\n').filter(x=>x.trim()).pop().slice(0,90)); }
   ns.destroy();
 }
+console.log(bad ? `\n실패 ${bad}개` : '\n전부 통과');
