@@ -122,7 +122,7 @@
 <div class="center"><div class="table-wrap"><table><tr><th> 고유값</th><th> 고유벡터에 일어나는 일</th></tr><tr><td>\(\lambda > 1\)</td><td>같은 방향으로 늘어난다</td></tr><tr><td>\(\lambda = 1\)</td><td>전혀 변하지 않는다 (고정된 방향)</td></tr><tr><td>\(0 < \lambda < 1\)</td><td>같은 방향으로 줄어든다</td></tr><tr><td>\(\lambda = 0\)</td><td>원점으로 눌린다 (영공간에 속한다)</td></tr><tr><td>\(-1 < \lambda < 0\)</td><td>반대 방향으로 뒤집히며 줄어든다</td></tr><tr><td>\(\lambda \leq -1\)</td><td>반대 방향으로 뒤집히며 늘어난다</td></tr></table></div></div>
 <p>\(\lambda = 0\)인 경우가 눈에 띈다. \(\mm{A}\vv{v} = \zerovec\)이라는 뜻이므로 \(\vv{v}\)는 영공간의 원소다. 6장에서 배운 "고유값 중 0이 없으면 가역"이라는 조건이 여기서 설명된다. <strong>고유값 0이 있다는 것은 눌려 사라지는 방향이 있다는 뜻</strong>이다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch09/fig02.svg" alt="figure">
+<p>&gt;!<img class="tikz" src="img/ch09/fig02.svg" alt="figure"></p>
 <p><figcaption>그림 9.2: 고유값의 값에 따른 고유벡터의 변화</figcaption></figure></p>
 <h3>고유벡터는 하나가 아니다</h3>
 <p>식 \(\eqref{eq:ch09_eigen}\)에서 \(\vv{v}\)가 고유벡터이면 \(c\vv{v}\)(\(c \neq 0\))도 고유벡터다.</p>
@@ -538,6 +538,7 @@ for v, w, c in zip(V, W, cos):
 fig.show()
 
 print('고유값 :', np.linalg.eigh(A)[0])</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch09/fig06.svg" alt="figure"></p></div>
 <p>\(\mm{A}\)가 대칭이므로 두 고유방향은 정확히 직교한다. 붉은 화살표가 그 방향이다.</li>
 <li><strong>특성방정식을 손으로 풀고 확인하자.</strong> 여러 행렬에 대해 대각합과 행렬식으로 특성방정식을 세우고 근을 구한 뒤 넘파이와 비교하시오.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np

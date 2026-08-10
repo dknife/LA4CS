@@ -1,4 +1,4 @@
-"""tuvis.py — 『쓸모 있는 선형대수』 시각화 도구
+"""tuvis.py — 『알짜 선형대수』 시각화 도구
 
 이 책에서 독자가 import 하는 모듈은 이것 하나다.
 
@@ -8,10 +8,11 @@
     draw_vector(ax, [2, 1], label='v')
     fig.show()
 
-**모든 그림은 대화형이다.** 마우스로 끌면 돌아가고, 휠을 굴리면 확대된다.
-2차원 그림은 z=0 평면을 위에서 내려다보는 시점으로 고정해 두었을 뿐,
-속은 3차원과 같은 캔버스다. 그래서 2차원에서 쓰던 코드가 3차원에서도
-그대로 동작한다. 바뀌는 것은 캔버스를 만드는 첫 줄뿐이다.
+**모든 그림은 대화형이다.** 3차원 그림은 마우스로 끌면 돌아가고, 휠을 굴리면
+확대된다. 2차원 그림은 z=0 평면을 위에서 내려다보는 시점으로 고정해 두었다
+(회전을 막았다 — 좌표평면은 정면에서 보아야 각도와 길이가 바르게 보인다).
+속은 3차원과 같은 캔버스이므로 2차원에서 쓰던 코드가 3차원에서도 그대로
+동작한다. 바뀌는 것은 캔버스를 만드는 첫 줄뿐이다.
 
     fig, ax = new_axes()      # 2차원
     fig, ax = new_axes3d()    # 3차원
@@ -44,6 +45,8 @@ except ImportError as _e:                       # 친절한 안내
         "tuvis는 plotly가 필요하다.  pip install plotly"
     ) from _e
 
+# 각 도형에는 meta 로 종류('arrow', 'fill', 'points' ...)를 적어 둔다.
+# 지면 도판을 만드는 도구가 이 표시를 보고 같은 그림을 다시 그린다.
 PALETTE = ['crimson', 'royalblue', 'seagreen', 'darkorange',
            'purple', 'teal', 'saddlebrown', 'deeppink']
 UNIT_SQUARE = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
@@ -117,19 +120,19 @@ def _decorate2d(p, x, y):
     cy = [y[0], y[0], y[1], y[1]]
     p.add_trace(go.Mesh3d(x=cx, y=cy, z=[0, 0, 0, 0], i=[0, 0], j=[1, 2], k=[2, 3],
                           color='rgba(248, 250, 255, 0.3)', opacity=1.0,
-                          showlegend=False, hoverinfo='skip'))
+                          showlegend=False, hoverinfo='skip', meta='bg'))
     for gx in range(int(np.ceil(x[0])), int(np.floor(x[1])) + 1):
         p.add_trace(go.Scatter3d(x=[gx, gx], y=list(y), z=[0, 0], mode='lines',
                                  line=dict(color='lightgray', width=1), opacity=0.6,
-                                 showlegend=False, hoverinfo='skip'))
+                                 showlegend=False, hoverinfo='skip', meta='bggrid'))
     for gy in range(int(np.ceil(y[0])), int(np.floor(y[1])) + 1):
         p.add_trace(go.Scatter3d(x=list(x), y=[gy, gy], z=[0, 0], mode='lines',
                                  line=dict(color='lightgray', width=1), opacity=0.6,
-                                 showlegend=False, hoverinfo='skip'))
+                                 showlegend=False, hoverinfo='skip', meta='bggrid'))
     for a, b in [((x[0], x[1]), (0, 0)), ((0, 0), (y[0], y[1]))]:
         p.add_trace(go.Scatter3d(x=list(a), y=list(b), z=[0, 0], mode='lines',
                                  line=dict(color='gray', width=3), opacity=0.5,
-                                 showlegend=False, hoverinfo='skip'))
+                                 showlegend=False, hoverinfo='skip', meta='axis'))
 
 
 def _scene_grid(kind, nrows, ncols, titles, xlim, ylim, zlim,
@@ -158,7 +161,11 @@ def _scene_grid(kind, nrows, ncols, titles, xlim, ylim, zlim,
                           camera=dict(eye=dict(x=0, y=0, z=2.0),
                                       center=dict(x=0, y=0, z=0),
                                       up=dict(x=0, y=1, z=0),
-                                      projection=dict(type='orthographic')))
+                                      projection=dict(type='orthographic')),
+                          # 평면 그림은 돌아가지 않게 고정한다. 위에서 내려다보는
+                          # 시점이 곧 좌표평면이므로, 돌아가면 오히려 헷갈린다.
+                          # 끌면 이동, 휠을 굴리면 확대는 그대로 된다.
+                          dragmode='pan')
             else:
                 sc = dict(xaxis=dict(range=list(xlim), title=labels[0]),
                           yaxis=dict(range=list(ylim), title=labels[1]),
@@ -300,17 +307,18 @@ def draw_vec3d(fig, v, color='crimson', start_from=None, alpha=1.0, label=None,
     fig.add_trace(go.Scatter3d(x=[s[0], base[0]], y=[s[1], base[1]],
                                z=[s[2], base[2]], mode='lines',
                                line=dict(color=color, width=4, dash=_dash(lineType)),
-                               opacity=alpha, showlegend=False))
+                               opacity=alpha, showlegend=False, meta='arrow'))
     if cone_radius > 0:
         cx, cy, cz, ci, cj, ck = _cone(end, base, radius=cone_radius)
         if cx is not None:
             fig.add_trace(go.Mesh3d(x=cx, y=cy, z=cz, i=ci, j=cj, k=ck,
-                                    color=color, opacity=alpha, showlegend=False))
+                                    color=color, opacity=alpha, showlegend=False,
+                                    meta='head'))
     if label is not None:
         m = s + v / 2
         fig.add_trace(go.Scatter3d(x=[m[0]], y=[m[1]], z=[m[2]], mode='text',
                                    text=[label], textfont=dict(size=12, color=color),
-                                   showlegend=False))
+                                   showlegend=False, meta='text'))
     return fig
 
 
@@ -352,7 +360,7 @@ def draw_points(fig, P, color='darkorange', size=4, label=None, labels=None,
         mode='markers+text' if labels else 'markers',
         marker=dict(size=size, color=color),
         text=labels, textposition='top center', textfont=dict(size=10),
-        name=label or '', showlegend=False))
+        name=label or '', showlegend=False, meta='points'))
     return fig
 
 
@@ -382,7 +390,7 @@ def draw_curve(fig, X, Y=None, Z=None, color='steelblue', linestyle='-',
                                          dash=_dash(linestyle)),
                                marker=dict(size=3, color=color),
                                opacity=alpha, name=label or '',
-                               showlegend=label is not None))
+                               showlegend=label is not None, meta='curve'))
     return fig
 
 
@@ -391,7 +399,7 @@ def draw_text(fig, p, text, color='black', size=12):
     q = _to3(p)
     fig.add_trace(go.Scatter3d(x=[q[0]], y=[q[1]], z=[q[2]], mode='text',
                                text=[text], textfont=dict(size=size, color=color),
-                               showlegend=False))
+                               showlegend=False, meta='text'))
     return fig
 
 
@@ -406,12 +414,12 @@ def draw_polygon(fig, P, color='goldenrod', alpha=0.35, edge=True):
     k = list(range(2, n))
     fig.add_trace(go.Mesh3d(x=pts[:, 0], y=pts[:, 1], z=pts[:, 2],
                             i=i, j=j, k=k, color=color, opacity=alpha,
-                            showlegend=False))
+                            showlegend=False, meta='fill'))
     if edge:
         loop = np.vstack([pts, pts[0]])
         fig.add_trace(go.Scatter3d(x=loop[:, 0], y=loop[:, 1], z=loop[:, 2],
                                    mode='lines', line=dict(color=color, width=3),
-                                   showlegend=False))
+                                   showlegend=False, meta='edge'))
     return fig
 
 
@@ -446,7 +454,7 @@ def draw_line(fig, p1, p2, kind='segment', color='steelblue', alpha=0.9,
     fig.add_trace(go.Scatter3d(x=[s[0], e[0]], y=[s[1], e[1]], z=[s[2], e[2]],
                                mode='lines',
                                line=dict(color=color, width=4, dash=_dash(linestyle)),
-                               opacity=alpha, showlegend=False))
+                               opacity=alpha, showlegend=False, meta='curve'))
     heads = []
     if kind == 'ray':
         heads = [(e, e - u * L * 0.1)]
@@ -457,12 +465,13 @@ def draw_line(fig, p1, p2, kind='segment', color='steelblue', alpha=0.9,
             tip, base, radius=cone_radius or 0.04 * L)
         if cx is not None:
             fig.add_trace(go.Mesh3d(x=cx, y=cy, z=cz, i=ci, j=cj, k=ck,
-                                    color=color, opacity=alpha, showlegend=False))
+                                    color=color, opacity=alpha, showlegend=False,
+                                    meta='head'))
     if label is not None:
         m = (a + b) / 2
         fig.add_trace(go.Scatter3d(x=[m[0]], y=[m[1]], z=[m[2]], mode='text',
                                    text=[label], textfont=dict(size=12, color=color),
-                                   showlegend=False))
+                                   showlegend=False, meta='text'))
     return fig
 
 
@@ -486,12 +495,13 @@ def draw_circle(fig, center=(0, 0), radius=1.0, normal=None, color='steelblue',
         k = [(idx % n) + 1 for idx in range(1, n + 1)]
         fig.add_trace(go.Mesh3d(x=verts[:, 0], y=verts[:, 1], z=verts[:, 2],
                                 i=i, j=j, k=k, color=color, opacity=alpha,
-                                showlegend=False))
+                                showlegend=False, meta='fill'))
     loop = np.vstack([ring, ring[0:1]])
     fig.add_trace(go.Scatter3d(x=loop[:, 0], y=loop[:, 1], z=loop[:, 2],
                                mode='lines',
                                line=dict(color=color, width=3, dash=_dash(linestyle)),
-                               opacity=min(alpha + 0.3, 1.0), showlegend=False))
+                               opacity=min(alpha + 0.3, 1.0), showlegend=False,
+                               meta='edge'))
     return fig
 
 
@@ -550,7 +560,7 @@ def draw_grid(fig, A=None, n=4, color='steelblue', alpha=0.55, lw=1):
                                        z=[s[2], e[2]], mode='lines',
                                        line=dict(color=color, width=lw),
                                        opacity=alpha, showlegend=False,
-                                       hoverinfo='skip'))
+                                       hoverinfo='skip', meta='grid'))
     return fig
 
 
@@ -584,7 +594,8 @@ def draw_matrix(fig, M, label=None, alpha=0.3, ghost=True):
     if label is not None:
         fig.add_trace(go.Scatter3d(x=[corner[0]], y=[corner[1]], z=[corner[2]],
                                    mode='text', text=[label],
-                                   textfont=dict(size=12), showlegend=False))
+                                   textfont=dict(size=12), showlegend=False,
+                                   meta='text'))
     return fig
 
 

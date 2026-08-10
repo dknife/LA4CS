@@ -540,7 +540,7 @@ print('inv(V) A V == Lam :',
 print('V의 조건수        :', round(np.linalg.cond(V), 3))</code></pre>
 <p>조건수가 크면 \(\mm{V}\inv\)의 오차가 커져 분해를 신뢰하기 어렵다. 대칭행렬은 조건수가 정확히 1이다.</li>
 <li><strong>대각화의 세 단계를 애니메이션처럼 그리자.</strong> 원이 타원이 되는 과정을 여섯 장으로 나누어 그리시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 A = np.array([[3., 1.],
@@ -559,8 +559,9 @@ for ax, M, name in zip(axes, steps, names):
     draw_curve(ax, C, color='steelblue', width=3)
     draw_points(ax, transform(M, dots), color='crimson', s=18)
     ax.set_title(name, fontsize=9)
-fig.show()</code></pre></li>
-<li><strong>거듭제곱을 두 방법으로 계산하고 속도를 비교하자.</strong></p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch10/fig04.svg" alt="figure"></p></div></li>
+<li><strong>거듭제곱을 두 방법으로 계산하고 속도를 비교하자.</strong>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 import time
 

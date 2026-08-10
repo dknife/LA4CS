@@ -422,6 +422,7 @@ fig.show()</code></pre>
 S @ (1, 0)  : [1. 2.]
 S @ (-1, 1) : [1. 2.]</pre>
 <div class="listing-caption">코드 6.8: 특이행렬은 평면을 직선으로 눌러 버린다</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch06/fig04.svg" alt="figure"></p></div>
 <p>300개의 점이 흩어져 있었는데, \(\mm{S}\)를 적용하고 나면 모두 한 직선 위에 늘어선다. <strong>정보가 사라진 것</strong>이다. 이것이 역행렬이 없다는 말의 기하학적 의미다.</p>
 <div class="box keypoint"><span class="chip">요점</span><p><strong>역행렬이 없다 = 변환이 차원을 무너뜨린다 = 서로 다른 입력이 같은 출력으로 간다 = 정보가 사라진다.</strong> 이 네 문장은 모두 같은 말이다.</p></div>
 <h3>역행렬이 없으면 방정식은 어떻게 되는가</h3>
@@ -533,7 +534,7 @@ for n in [100, 500, 1000]:
           f'err_solve={np.linalg.norm(A @ x2 - b):.2e}')</code></pre>
 <p><code>solve</code>가 더 빠르면서 오차도 작다. 이것이 실무에서 <code>inv</code>를 피하는 이유다.</li>
 <li><strong>역행렬을 그림으로 확인하자.</strong> 어떤 행렬로 도형을 변환한 뒤 역행렬을 적용해 원래대로 돌아오는지 확인하시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 A = np.array([[1.5, 0.8],
@@ -551,8 +552,9 @@ for ax, P, t in zip(axes, shapes, titles):
 
 print('완전히 복원되었는가 :',
       np.allclose(transform(Ainv, transform(A, house)), house))
-fig.show()</code></pre></li>
-<li><strong>특이행렬의 붕괴를 관찰하자.</strong> 행렬식이 점점 0에 가까워질 때 무작위 점들이 어떻게 되는지 살펴보시오.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch06/fig05.svg" alt="figure"></p></div></li>
+<li><strong>특이행렬의 붕괴를 관찰하자.</strong> 행렬식이 점점 0에 가까워질 때 무작위 점들이 어떻게 되는지 살펴보시오.
 <pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
@@ -565,9 +567,10 @@ for ax, eps in zip(axes, [1.0, 0.4, 0.1, 0.0]):
     draw_points(ax, transform(A, P), color='steelblue', s=5)
     ax.set_title(f'det = {np.linalg.det(A):.2f}', fontsize=10)
 fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch06/fig06.svg" alt="figure"></p></div>
 <p>행렬식이 0에 가까워질수록 점 구름이 점점 납작해지다가, 0이 되는 순간 완전히 직선이 된다. <strong>행렬식은 "얼마나 납작한가"를 재는 값</strong>이라는 7장의 주제가 여기서 미리 드러난다.</li>
 <li><strong>역행렬의 순서 규칙을 확인하자.</strong> \((\mm{A}\mm{B})\inv = \mm{B}\inv\mm{A}\inv\)임을 확인하고, 순서를 지킨 \(\mm{A}\inv\mm{B}\inv\)는 왜 틀리는지 도형으로 보이시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 A = np.array([[2., 0.], [0., 1.]])        # 가로 2배
@@ -585,8 +588,9 @@ for ax, M, t in [(axes[0], AB, 'A@B applied'),
     draw_polygon(ax, shape, color='lightgray', alpha=0.4)
     draw_polygon(ax, transform(M, shape), color='crimson', alpha=0.45)
     ax.set_title(t, fontsize=9)
-fig.show()</code></pre></li>
-<li><strong>직교행렬의 역행렬이 전치임을 확인하자.</strong> 여러 각도의 회전행렬에 대해 \(\mm{R}\inv = \mm{R}\tp\)를 검증하시오.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch06/fig07.svg" alt="figure"></p></div></li>
+<li><strong>직교행렬의 역행렬이 전치임을 확인하자.</strong> 여러 각도의 회전행렬에 대해 \(\mm{R}\inv = \mm{R}\tp\)를 검증하시오.
 <pre class="line-numbers"><code class="language-python">import numpy as np
 
 def rot(deg):

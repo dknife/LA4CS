@@ -145,6 +145,7 @@ fig.show()</code></pre>
 가장 가까운 점 : [4.6 2.8]
 수직 확인  : 0.0</pre>
 <div class="listing-caption">코드 13.1: 점과 직선 사이의 거리</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch13/fig01.svg" alt="figure"></p></div>
 <h3>점과 평면 사이의 거리</h3>
 <p>3차원에서 평면이 \(\vv{n}\cdot(\vv{x}-\vv{p})=0\)으로 주어졌다면 거리는 더 간단하다.</p>
 <div class="mathblock">\begin{equation}
@@ -282,6 +283,7 @@ fig.show()
 
 print('합성 행렬 :\n', np.round(M, 4))</code></pre>
 <div class="listing-caption">코드 13.6: 동차좌표로 이동·회전·확대를 한 행렬에</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch13/fig02.svg" alt="figure"></p></div>
 <div class="box caution"><span class="chip">주의</span><p><strong>변환의 순서가 결과를 바꾼다.</strong> <code>translate(3,1) @ rotate(30)</code>은 "회전한 뒤 이동"이고 <code>rotate(30) @ translate(3,1)</code>은 "이동한 뒤 회전"이다. 후자는 물체가 원점에서 멀어진 채로 회전하므로 큰 원호를 그리며 날아간다. 5장에서 배운 "오른쪽부터 적용"을 여기서도 기억해야 한다.</p></div>
 <h3>제자리 회전  —  세 변환의 합성</h3>
 <p>물체를 자기 중심에서 회전시키려면 어떻게 할까? 회전행렬은 언제나 원점을 기준으로 하므로, <strong>중심을 원점으로 옮기고 \(\to\) 회전하고 \(\to\) 되돌리는</strong> 세 단계가 필요하다.</p>
@@ -303,12 +305,15 @@ for deg, col in zip([45, 90, 135, 180], PALETTE):
 draw_points(ax, center.reshape(1, 2), color='black', s=40)
 fig.show()</code></pre>
 <div class="listing-caption">코드 13.7: 물체를 제자리에서 회전시키기</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch13/fig03.svg" alt="figure"></p></div>
 <h3>3차원 회전과 투영</h3>
 <p>3차원에서는 동차좌표가 \(4\times4\) 행렬이 된다. 각 축에 대한 회전행렬은 다음과 같다(동차 성분은 생략하고 \(3\times3\)만 적었다).</p>
 <div class="mathblock">\begin{equation}
+\begin{gathered}
 \mm{R}_x = \begin{bmatrix}1&0&0\\0&\cos\theta&-\sin\theta\\0&\sin\theta&\cos\theta\end{bmatrix},\quad
-\mm{R}_y = \begin{bmatrix}\cos\theta&0&\sin\theta\\0&1&0\\-\sin\theta&0&\cos\theta\end{bmatrix},\quad
+\mm{R}_y = \begin{bmatrix}\cos\theta&0&\sin\theta\\0&1&0\\-\sin\theta&0&\cos\theta\end{bmatrix},\\[8pt]
 \mm{R}_z = \begin{bmatrix}\cos\theta&-\sin\theta&0\\\sin\theta&\cos\theta&0\\0&0&1\end{bmatrix}
+\end{gathered}
 \end{equation}</div>
 <p>3차원 물체를 2차원 화면에 그리려면 <strong>투영</strong>이 필요하다. 가장 단순한 것은 \(z\) 성분을 버리는 <strong class="term-ko">직교투영</strong><sup class="term">orthographic projection</sup>이고, 원근감을 주려면 거리에 따라 나누는 <strong class="term-ko">원근투영</strong><sup class="term">perspective projection</sup>을 쓴다.</p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
@@ -349,7 +354,7 @@ for ax in (ax1, ax2):
 plt.tight_layout(); plt.show()</code></pre>
 <div class="listing-caption">코드 13.8: 정육면체를 회전시키고 두 가지 방법으로 투영하기</div></p>
 <figure class="fig">
-<img class="tikz" src="img/ch13/fig01.svg" alt="figure">
+<img class="tikz" src="img/ch13/fig04.svg" alt="figure">
 <p><figcaption>그림 13.1: 두 가지 투영 방식</figcaption></figure></p>
 <p>원근투영에서 나눗셈이 등장하는 것이 동차좌표의 진짜 이유다. 동차좌표 \((x, y, z, w)\)를 실제 좌표로 되돌릴 때 \(w\)로 나누는데, 투영행렬이 \(w\) 자리에 깊이 값을 넣어 주면 <strong>나눗셈이 자동으로 원근감을 만들어 낸다.</strong> GPU 파이프라인이 하는 일이 정확히 이것이다.</p>
 <div class="box step"><span class="chip">한 걸음 더</span><span class="box-title">왜 그래픽스는 \(4\times4\) 행렬을 쓰는가</span><p>3차원 그래픽스에서 하나의 정점이 화면에 그려지기까지 여러 변환을 거친다.
@@ -709,7 +714,7 @@ print(point_plane_distance(np.array([1., 1., 1.]),
 print(point_plane_distance(np.array([2., 2., 2.]),
                            np.zeros(3), np.array([1., 1., 1.])))</code></pre></li>
 <li><strong>2차원 변환을 합성해 애니메이션처럼 그리자.</strong> 물체가 원을 그리며 돌면서 스스로도 회전하는 모습을 여러 프레임으로 그리시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 def T(tx, ty): return np.array([[1., 0., tx], [0., 1., ty], [0., 0., 1.]])
@@ -729,8 +734,9 @@ for k in range(12):
     M = R(deg) @ T(2.5, 0) @ R(deg * 3)     # 공전 + 자전
     draw_polygon(ax, apply(M, arrow), color=PALETTE[k % len(PALETTE)],
                  alpha=0.55)
-fig.show()</code></pre></li>
-<li><strong>3차원 물체를 회전시켜 여러 각도에서 보자.</strong> 정사면체를 만들고 회전 각도를 바꿔 가며 투영하시오.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch13/fig05.svg" alt="figure"></p></div></li>
+<li><strong>3차원 물체를 회전시켜 여러 각도에서 보자.</strong> 정사면체를 만들고 회전 각도를 바꿔 가며 투영하시오.
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 
@@ -794,7 +800,7 @@ plt.scatter(X[:, 0], X[:, 1], c=T_.ravel(), cmap='RdBu_r',
             s=10, edgecolors='k', linewidths=0.2)
 plt.gca().set_aspect('equal'); plt.show()</code></pre></li>
 <li><strong>어텐션 가중치를 그림으로 보자.</strong> 다섯 개의 토큰에 대한 어텐션 행렬을 계산하고 히트맵으로 표시하시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 def softmax(x, axis=-1):
@@ -812,8 +818,9 @@ show_matrix(ax, W, fmt='{:.2f}', cmap='YlOrRd', title='attention weights',
             xticks=tokens, yticks=tokens)
 
 print('각 행의 합 :', np.round(W.sum(axis=1), 6))
-fig.show()</code></pre></li>
-<li><strong>그래프를 두 덩어리로 나누자.</strong> 스펙트럼 클러스터링을 구현하고 결과를 확인하시오.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch13/fig06.svg" alt="figure"></p></div></li>
+<li><strong>그래프를 두 덩어리로 나누자.</strong> 스펙트럼 클러스터링을 구현하고 결과를 확인하시오.
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 
 def spectral_bisect(A):

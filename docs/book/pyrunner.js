@@ -492,18 +492,27 @@ function post(t, m) {
 var PLOTLY_HOOK = [
   'import sys',
   '_algja_plotly = []',
+  'def _algja_go():',
+  // sys.modules 만 보면 안 된다. micropip 으로 설치만 하고 아직 import 하지
+  // 않은 상태에서는 None 이 나와 패치를 건너뛰고, 그 뒤 사용자 코드가
+  // tuvis 를 불러오면서 import 하는 순간 show() 가 가로채이지 않은 채 남는다.
+  // (첫 실행만 실패하고 두 번째부터 되던 원인)  직접 import 해서 확실히 잡는다.
+  '    try:',
+  '        import plotly.graph_objects as go',
+  '    except Exception:',
+  '        return None',
+  '    return go',
   'def _algja_plotly_patch():',
-  '    go = sys.modules.get("plotly.graph_objects")',
+  '    go = _algja_go()',
   '    if go is None or getattr(go.Figure, "_algja", False):',
   '        return',
-  '    _orig = go.Figure.show',
   '    def show(self, *a, **k):',
   '        _algja_plotly.append(self)',
   '    show._algja = True',
   '    go.Figure.show = show',
   '    go.Figure._algja = True',
   'def _algja_plotly_dump(ns=None):',
-  '    go = sys.modules.get("plotly.graph_objects")',
+  '    go = _algja_go()',
   '    if go is None:',
   '        return []',
   '    figs = list(_algja_plotly)',

@@ -148,6 +148,7 @@ ax2.set_title(f'area = {np.linalg.det(A):.0f}')
 fig.show()</code></pre>
 <p><pre class="pyout">det(A) : 5.000000000000001</pre>
 <div class="listing-caption">코드 7.1: 단위 정사각형의 넓이 변화를 행렬식과 비교</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch07/fig03.svg" alt="figure"></p></div>
 <h3>어떤 도형에도 같은 배율이 적용된다</h3>
 <p>단위 정사각형에만 통하는 이야기가 아니다. 임의의 도형에 대해서도 넓이는 정확히 \(\abs{\det(\mm{A})}\)배가 된다. 몬테카를로 방식으로 확인해 보자.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
@@ -182,7 +183,7 @@ print('원의 넓이 x det :', np.pi * 5)</code></pre>
 <p>행렬식은 음수가 될 수도 있다. 넓이가 음수일 수는 없으니, 부호는 다른 정보를 담고 있다. 바로 <strong>방향(orientation)이 뒤집혔는지</strong>를 알려 준다.</p>
 <p>\(\vv{e}_1\)에서 \(\vv{e}_2\)로 가는 방향은 반시계 방향이다. 변환 후에도 \(\mm{A}\vv{e}_1\)에서 \(\mm{A}\vv{e}_2\)로 가는 것이 반시계 방향이면 행렬식이 양수, 시계 방향으로 뒤집혔으면 음수다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch07/fig03.svg" alt="figure">
+<img class="tikz" src="img/ch07/fig04.svg" alt="figure">
 <p><figcaption>그림 7.3: 행렬식의 부호는 방향의 보존 여부를 나타낸다</figcaption></figure></p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
 
@@ -218,7 +219,7 @@ C_{ij} = (-1)^{i+j}\det(\mm{M}_{ij})
 을 <strong class="term-ko">여인자</strong><sup class="term">cofactor</sup>라 한다.</p></div>
 <p>부호 \((-1)^{i+j}\)는 체스판 무늬를 만든다. 행과 열의 번호를 더해 짝수면 \(+\), 홀수면 \(-\)다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch07/fig04.svg" alt="figure">
+<img class="tikz" src="img/ch07/fig05.svg" alt="figure">
 <p><figcaption>그림 7.4: 여인자의 부호 패턴은 체스판이다</figcaption></figure></p>
 <h3>여인자 전개</h3>
 <div class="box thmbox"><span class="chip">정리 7.1</span><span class="box-title">여인자 전개 (라플라스 전개)</span><p>\(\mm{A} \in \Rmat{n}{n}\)의 행렬식은 임의의 한 행(\(i\)행) 또는 한 열(\(j\)열)을 따라 다음과 같이 전개할 수 있다.
@@ -367,7 +368,7 @@ print('(9) 행 연산 후 불변 :',
 <h3>성질 (9)를 눈으로 보기</h3>
 <p>성질 (9)는 가우스 소거법의 정당성을 뒷받침하는 핵심 성질이므로 그림으로 확인해 두자. 한 열에 다른 열의 상수배를 더하는 것은 <strong>전단 변환</strong>이며, 평행사변형의 한 변을 다른 변 방향으로 밀어내는 것과 같다. 밑변과 높이가 그대로이므로 넓이는 변하지 않는다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch07/fig05.svg" alt="figure">
+<p>&gt;!<img class="tikz" src="img/ch07/fig06.svg" alt="figure"></p>
 <p><figcaption>그림 7.5: 한 열에 다른 열의 배수를 더해도 넓이는 변하지 않는다</figcaption></figure></p>
 <p>이 성질이 왜 중요한가? <strong>행렬식을 바꾸지 않으면서 행렬을 삼각행렬로 바꿀 수 있다</strong>는 뜻이기 때문이다. 그리고 삼각행렬의 행렬식은 대각성분의 곱이므로 즉시 계산된다. 이것이 실제 컴퓨터가 행렬식을 구하는 방법이다.</p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
@@ -433,7 +434,7 @@ T(\vv{x}) = x_1T(\vv{e}_1) + \cdots + x_nT(\vv{e}_n)
 <p>2차원에서 자주 쓰이는 변환들을 행렬로 정리해 두자.</p>
 <div class="center"><div class="table-wrap"><table><tr><th> 변환</th><th> 행렬</th><th> det</th><th> 특징</th></tr><tr><td>항등</td><td>\(\mtwo{1}{0}{0}{1}\)</td><td>1</td><td>아무것도 안 함</td></tr><tr><td>확대·축소</td><td>\(\mtwo{s_x}{0}{0}{s_y}\)</td><td>\(s_xs_y\)</td><td>축마다 다른 배율</td></tr><tr><td>회전 (\(\theta\))</td><td>\(\mtwo{\cos\theta}{-\sin\theta}{\sin\theta}{\cos\theta}\)</td><td>1</td><td>넓이·길이 보존</td></tr><tr><td>\(x\)축 반사</td><td>\(\mtwo{1}{0}{0}{-1}\)</td><td>\(-1\)</td><td>방향 뒤집힘</td></tr><tr><td>전단 (가로)</td><td>\(\mtwo{1}{k}{0}{1}\)</td><td>1</td><td>넓이 보존</td></tr><tr><td>정사영 (\(x\)축)</td><td>\(\mtwo{1}{0}{0}{0}\)</td><td>0</td><td>차원 붕괴</td></tr></table></div></div>
 <figure class="fig">
-<img class="tikz" src="img/ch07/fig06.svg" alt="figure">
+<img class="tikz" src="img/ch07/fig07.svg" alt="figure">
 <p><figcaption>그림 7.6: 기본 선형변환과 각각의 행렬식</figcaption></figure></p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
@@ -460,6 +461,8 @@ for ax, (name, M) in zip(axes.flat, transforms.items()):
     ax.set_title(f'{name}  (det={np.linalg.det(M):.2f})', fontsize=10)
 fig.show()</code></pre>
 <div class="listing-caption">코드 7.9: 여섯 가지 기본 변환을 한 화면에 비교하기</div></p>
+<div class="listing-caption">코드 7.10: 변환을 반복하면 넓이 배율도 거듭제곱된다</div>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch07/fig08.svg" alt="figure"></p></div>
 <h3>행렬식으로 변환을 읽어 내기</h3>
 <p>행렬식 하나로 변환의 성격을 상당 부분 알 수 있다.</p>
 <div class="center"><div class="table-wrap"><table><tr><th> 행렬식</th><th> 변환의 성격</th></tr><tr><td>\(\det = 1\)</td><td>넓이와 방향을 모두 보존 (회전, 전단)</td></tr><tr><td>\(\det = -1\)</td><td>넓이는 보존하되 뒤집음 (반사)</td></tr><tr><td>\(\abs{\det} > 1\)</td><td>도형이 커진다</td></tr><tr><td>\(0 < \abs{\det} < 1\)</td><td>도형이 작아진다</td></tr><tr><td>\(\det = 0\)</td><td>차원이 무너진다 (역행렬 없음)</td></tr><tr><td>\(\det < 0\)</td><td>방향이 뒤집힌다</td></tr></table></div></div>
@@ -486,13 +489,13 @@ for k in range(5):
     print(f'A^{k}: det = {np.linalg.det(np.linalg.matrix_power(A, k)):.5f},'
           f' det(A)^{k} = {np.linalg.det(A) ** k:.5f}')
 fig.show()</code></pre>
-<p><pre class="pyout">det(A) : 1.04
+<pre class="pyout">det(A) : 1.04
 A^0: det = 1.00000, det(A)^0 = 1.00000
 A^1: det = 1.04000, det(A)^1 = 1.04000
 A^2: det = 1.08160, det(A)^2 = 1.08160
 A^3: det = 1.12486, det(A)^3 = 1.12486
 A^4: det = 1.16986, det(A)^4 = 1.16986</pre>
-<div class="listing-caption">코드 7.10: 변환을 반복하면 넓이 배율도 거듭제곱된다</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch07/fig09.svg" alt="figure"></p></div>
 <div class="box step"><span class="chip">한 걸음 더</span><span class="box-title">행렬식은 어디에 쓰이는가</span><p>행렬식은 이론적으로는 매우 중요하지만, 실무에서 직접 계산할 일은 생각보다 적다. 크기가 큰 행렬에서는 값이 지나치게 커지거나 작아져 부동소수점으로 표현하기 어려워지기 때문이다(\(100\times100\) 행렬의 행렬식은 흔히 \(10^{\pm100}\) 수준이 된다).</p>
 <p>그래서 실무에서는 "가역인가"를 판단할 때 행렬식 대신 <strong>조건수</strong>(<code>np.linalg.cond</code>)나 <strong>랭크</strong>(<code>np.linalg.matrix_rank</code>)를 쓴다. 그럼에도 행렬식을 배우는 이유는 다음과 같다.
 <ul>
@@ -571,9 +574,10 @@ for ax, t in zip(axes, [2.0, 1.0, 0.0, -1.0, -2.0]):
     draw_vector(ax, A[:, 1], color='navy', width=0.015)
     ax.set_title(f't={t}, det={np.linalg.det(A):.1f}', fontsize=9)
 fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch07/fig10.svg" alt="figure"></p></div>
 <p>\(t=0\)일 때 두 열벡터가 완전히 겹쳐 도형이 선분으로 찌부러진다. 그 전후로 행렬식의 부호도 바뀌는데, 이는 두 벡터의 좌우 관계가 뒤바뀌었기 때문이다.</li>
 <li><strong>회전은 넓이를 바꾸지 않는다.</strong> 여러 각도의 회전행렬에 대해 행렬식이 언제나 1인지 확인하고, 도형을 실제로 회전시켜 보시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 def rot(deg):
@@ -589,8 +593,9 @@ for deg in range(0, 360, 45):
                  color=PALETTE[(deg // 45) % len(PALETTE)], alpha=0.25)
 fig.show()
 
-print([round(np.linalg.det(rot(d)), 12) for d in range(0, 360, 45)])</code></pre></li>
-<li><strong>\(4\times4\) 이상에서 알고리즘의 차이를 체감하자.</strong> 여인자 전개와 소거법의 실행 시간을 비교하시오.</p>
+print([round(np.linalg.det(rot(d)), 12) for d in range(0, 360, 45)])</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch07/fig11.svg" alt="figure"></p></div></li>
+<li><strong>\(4\times4\) 이상에서 알고리즘의 차이를 체감하자.</strong> 여인자 전개와 소거법의 실행 시간을 비교하시오.
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 import time
 

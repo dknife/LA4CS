@@ -185,6 +185,7 @@ show_matrix(axes[2], A + B, fmt='', title='A + B')
 show_matrix(axes[3], -A, fmt='', title='-A')
 fig.show()</code></pre>
 <div class="listing-caption">코드 5.3: 행렬 연산의 효과를 색으로 보기</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch05/fig02.svg" alt="figure"></p></div>
 <p><code>A + B</code>에서는 대각선만 색이 진해지고 나머지는 그대로다. <code>-A</code>에서는 모든 색이 정반대로 뒤집힌다(붉은 칸은 파랗게, 파란 칸은 붉게). 숫자를 하나하나 확인하지 않아도 연산이 무엇을 했는지 알 수 있다.</p>
 <div class="box note"><span class="chip">잠깐</span><span class="box-title"><code>fmt=''</code>로 숫자 숨기기</span><p><code>show_matrix()</code>의 <code>fmt</code> 인자에 빈 문자열을 주면 숫자가 표시되지 않고 색만 남는다. 행렬이 커서 숫자를 읽을 수 없을 때 유용하다. 이 책에서는 \(6 \times 6\)을 넘어가면 대체로 숫자를 숨긴다.</p></div>
 <h2 id="sec2">5.2 행렬의 곱셈과 아다마르 곱</h2>
@@ -198,7 +199,7 @@ c_{ij} = \sum_{k=1}^{p} a_{ik}\,b_{kj}
 \end{equation}</div></p></div>
 <p>말로 옮기면 이렇다. <strong>결과의 \((i,j)\) 성분은 \(\mm{A}\)의 \(i\)번째 <em>행</em>과 \(\mm{B}\)의 \(j\)번째 <em>열</em>의 내적</strong>이다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch05/fig02.svg" alt="figure">
+<img class="tikz" src="img/ch05/fig03.svg" alt="figure">
 <p><figcaption>그림 5.2: 행렬 곱의 구조: 행과 열의 내적</figcaption></figure></p>
 <p>크기 조건을 외우는 요령이 있다. 두 행렬의 크기를 나란히 적어 보자.</p>
 <div class="mathblock">\begin{equation*}
@@ -335,7 +336,7 @@ c_{ij} = \vv{a}_{i,:} \cdot \vv{b}_{:,j}
 <p><blockquote class="bodyquote"><p>\(\mm{A}\)의 열벡터들을 적당히 섞어서 \(\vv{b}\)를 만들 수 있는가? 만들 수 있다면 그 비율은 얼마인가?</p></blockquote></p>
 <p>이 질문의 답이 "만들 수 없다"이면 방정식에 해가 없는 것이고, "여러 방법으로 만들 수 있다"이면 해가 무수히 많은 것이다. 8장에서 이 관점이 결정적인 역할을 한다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch05/fig03.svg" alt="figure">
+<img class="tikz" src="img/ch05/fig04.svg" alt="figure">
 <p><figcaption>그림 5.3: \(\mm{A}\vv{x}\)는 \(\mm{A}\)의 열벡터를 섞어 만든 벡터다</figcaption></figure></p>
 <pre class="line-numbers"><code class="language-python">import numpy as np
 
@@ -402,6 +403,7 @@ print('조각의 합 == A @ B :', np.allclose(total, A @ B))
 fig.show()</code></pre>
 <p><pre class="pyout">조각의 합 == A @ B : True</pre>
 <div class="listing-caption">코드 5.10: 행렬 곱을 랭크-1 조각들의 합으로 분해하기</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch05/fig05.svg" alt="figure"></p></div>
 <h3>네 관점의 정리</h3>
 <div class="center"><div class="table-wrap"><table><tr><th></th><th> 관점</th><th> 보는 방식</th><th> 쓰이는 곳</th></tr><tr><td>1</td><td>행 \(\cdot\) 열</td><td>성분을 하나씩 계산</td><td>손 계산</td></tr><tr><td>2</td><td>열의 선형결합</td><td>\(\mm{A}\vv{x} = \sum x_j \vv{a}_j\)</td><td>8장, 12장</td></tr><tr><td>3</td><td>열 단위 처리</td><td>각 열에 같은 변환 적용</td><td>데이터 일괄 변환</td></tr><tr><td>4</td><td>랭크-1의 합</td><td>\(\sum_k \vv{a}_k\vv{b}_k\tp\)</td><td>11장 (SVD)</td></tr></table></div></div>
 <p>같은 숫자를 놓고 네 가지 이야기를 할 수 있다는 것  —  이것이 선형대수의 힘이다. 어떤 문제를 만나면 <strong>"어느 관점에서 보면 쉬워지는가"</strong>를 먼저 묻는 것이 좋은 습관이다.</p>
@@ -432,7 +434,7 @@ T(\vv{x}) = \mm{A}\vv{x}, \qquad T: \Rsp{2} \to \Rsp{2}
 \end{equation}</div>
 <p>에서 첫 열은 \((0,1)\)이므로 \(\vv{e}_1\)(오른쪽)이 위쪽으로 갔고, 둘째 열은 \((-1,0)\)이므로 \(\vv{e}_2\)(위쪽)가 왼쪽으로 갔다. 이것은 <strong>반시계 방향 90도 회전</strong>이다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch05/fig04.svg" alt="figure">
+<img class="tikz" src="img/ch05/fig06.svg" alt="figure">
 <p><figcaption>그림 5.4: 행렬의 열은 기저벡터가 옮겨 가는 자리다</figcaption></figure></p>
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
@@ -457,6 +459,8 @@ draw_vector(ax2, A[:, 1], color='royalblue', label='A e2')
 ax2.set_title('after')
 fig.show()</code></pre>
 <div class="listing-caption">코드 5.11: 행렬이 평면을 어떻게 바꾸는지 확인하기</div></p>
+<div class="listing-caption">코드 5.12: 순서를 바꾸면 결과가 달라진다</div>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch05/fig07.svg" alt="figure"></p></div>
 <h3>여러 개의 점을 한꺼번에 변환하기</h3>
 <p>이 책에서 앞으로 계속 쓰게 될 패턴을 여기서 확립해 두자. 점들을 <strong>행마다 하나씩</strong> 담은 배열 \(\mm{P}\)가 있을 때, 모든 점에 \(\mm{A}\)를 적용하는 방법은 두 가지로 적을 수 있다.</p>
 <div class="mathblock">\begin{equation}
@@ -483,9 +487,9 @@ for ax, (name, A) in zip(axes, mats.items()):
     draw_polygon(ax, transform(A, house), color='crimson', alpha=0.4)
     ax.set_title(name, fontsize=10)
 fig.show()</code></pre>
-<div class="listing-caption">코드 5.12: 집 모양에 여러 행렬을 적용해 보기</div></p>
+<div class="listing-caption">코드 5.13: 집 모양에 여러 행렬을 적용해 보기</div></p>
 <figure class="fig">
-<img class="tikz" src="img/ch05/fig05.svg" alt="figure">
+<img class="tikz" src="img/ch05/fig08.svg" alt="figure">
 <p><figcaption>그림 5.5: 같은 도형에 서로 다른 행렬을 적용한 결과</figcaption></figure></p>
 <p>회색이 원래 모양, 붉은색이 변환된 모양이다. 행렬의 숫자 네 개가 도형 전체의 운명을 결정한다. 7장에서는 이 변환들에 이름을 붙이고 체계적으로 분류할 것이다.</p>
 <h3>행렬 곱은 변환의 합성이다</h3>
@@ -514,13 +518,13 @@ fig.show()
 
 print('R @ S =\n', R @ S)
 print('S @ R =\n', S @ R)</code></pre>
-<p><pre class="pyout">R @ S =
+<pre class="pyout">R @ S =
  [[ 0. -1.]
  [ 2.  0.]]
 S @ R =
  [[ 0. -2.]
  [ 1.  0.]]</pre>
-<div class="listing-caption">코드 5.13: 순서를 바꾸면 결과가 달라진다</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch05/fig09.svg" alt="figure"></p></div>
 <p>두 그림은 눈에 띄게 다르다. 왼쪽은 가로로 늘인 집이 세워진 모양이고, 오른쪽은 세워진 집이 가로로 늘어난 모양이다. <strong>\(\mm{A}\mm{B} \neq \mm{B}\mm{A}\)는 계산상의 특이 사항이 아니라 기하학적 사실이다.</strong></p>
 <div class="box caution"><span class="chip">주의</span><p>\(\mm{A}\mm{B}\)에서 <strong>오른쪽 행렬이 먼저 적용된다.</strong> \(\mm{A}\mm{B}\vv{x}\)를 읽을 때는 \(\vv{x}\)에 가장 가까운 \(\mm{B}\)부터 작용한다고 생각해야 한다. 함수 합성 \(f(g(x))\)에서 \(g\)가 먼저 적용되는 것과 같은 이치다. 여러 변환을 연달아 적용하는 그래픽스 코드에서 이 순서를 헷갈리면 물체가 엉뚱한 곳으로 날아간다.</p></div>
 <div class="box keypoint"><span class="chip">요점</span><ul>
@@ -574,7 +578,7 @@ A와 2A : True
 대각행렬끼리: True</pre>
 <p>무작위로는 100번 중 한 번도 성립하지 않는다. 그러나 단위행렬, 자기 자신의 배수, 대각행렬끼리는 언제나 교환된다. <strong>교환되는 행렬 쌍은 특별한 관계에 있다</strong>는 뜻이며, 이 사실이 10장의 동시 대각화로 이어진다.</li>
 <li><strong>행렬의 열이 기저의 상(image)임을 확인하자.</strong> 임의의 행렬에 대해 \(\mm{A}\vv{e}_1\)과 \(\mm{A}\)의 첫 열이 같은지 확인하고 그림으로 그리시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 A = np.array([[1.5, -0.5], [0.5, 1.2]])
@@ -590,9 +594,10 @@ draw_vector(ax, e1, color='lightcoral', width=0.010)
 draw_vector(ax, e2, color='lightskyblue', width=0.010)
 draw_vector(ax, A[:, 0], color='crimson', label='A e1')
 draw_vector(ax, A[:, 1], color='royalblue', label='A e2')
-fig.show()</code></pre></li>
-<li><strong>변환을 이어 붙여 보자.</strong> 회전과 확대를 두 가지 순서로 합성하여 결과가 다름을 그림으로 보이시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch05/fig10.svg" alt="figure"></p></div></li>
+<li><strong>변환을 이어 붙여 보자.</strong> 회전과 확대를 두 가지 순서로 합성하여 결과가 다름을 그림으로 보이시오.
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 def rot(deg):
@@ -611,8 +616,9 @@ for ax, M, t in [(axes[0], np.eye(2), 'original'),
     draw_polygon(ax, shape, color='lightgray', alpha=0.4)
     draw_polygon(ax, transform(M, shape), color='crimson', alpha=0.45)
     ax.set_title(t, fontsize=10)
-fig.show()</code></pre></li>
-<li><strong>신경망 두 층을 계산해 보자.</strong> 입력 4차원, 은닉 3차원, 출력 2차원인 신경망의 순전파를 행렬 곱으로 구현하시오. 활성화 함수는 ReLU를 쓴다.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch05/fig11.svg" alt="figure"></p></div></li>
+<li><strong>신경망 두 층을 계산해 보자.</strong> 입력 4차원, 은닉 3차원, 출력 2차원인 신경망의 순전파를 행렬 곱으로 구현하시오. 활성화 함수는 ReLU를 쓴다.
 <pre class="line-numbers"><code class="language-python">import numpy as np
 
 rng = np.random.default_rng(0)

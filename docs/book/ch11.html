@@ -278,9 +278,10 @@ draw_vector(ax2, s[0] * U[:, 0], color='crimson', label='s1 u1')
 draw_vector(ax2, s[1] * U[:, 1], color='royalblue', label='s2 u2')
 ax2.set_title('output: still orthogonal!')
 fig.show()</code></pre>
-<p><pre class="pyout">A v0 == sigma0 u0 : True
+<pre class="pyout">A v0 == sigma0 u0 : True
 A v1 == sigma1 u1 : True</pre>
-<div class="listing-caption">코드 11.5: \(\mm{A}\vv{v}_i = \sigma_i\vv{u}_i\) 관계 확인</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch11/fig04.svg" alt="figure"></p></div>
+<div class="listing-caption">코드 11.5: \(\mm{A}\vv{v}_i = \sigma_i\vv{u}_i\) 관계 확인</div>
 <p><blockquote class="bodyquote"><p>SVD가 말하는 것: 어떤 행렬이든, 서로 직교하는 입력 방향들을 골라 넣으면 출력도 서로 직교하도록 만들 수 있다.</p></blockquote></p>
 <p>이것이 SVD의 기하적 본질이다. 직교성이 입력에서도 출력에서도 유지되는 특별한 방향 쌍이 반드시 존재하며, 그것을 찾아 주는 것이 SVD다.</p>
 <h3>랭크-1 조각의 합</h3>
@@ -312,6 +313,7 @@ print('모든 조각의 합 == A :', np.allclose(full, A))
 print('특이값 :', np.round(s, 4))
 fig.show()</code></pre>
 <div class="listing-caption">코드 11.6: 행렬을 랭크-1 조각으로 분해하기</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch11/fig05.svg" alt="figure"></p></div>
 <h2 id="sec3">11.3 저계수 근사와 데이터 압축</h2>
 <h3>앞쪽 몇 개만 남기기</h3>
 <p>식 \(\eqref{eq:ch11_sum}\)에서 앞의 \(k\)개 항만 남기고 나머지를 버려 보자.</p>
@@ -403,7 +405,7 @@ k=  20: 상대 오차 0.0259, 저장 성분   5140 / 16384
 k= 128: 상대 오차 0.0000, 저장 성분  32896 / 16384</pre>
 <div class="listing-caption">코드 11.8: SVD를 이용한 이미지 압축</div></p>
 <figure class="fig">
-<img class="tikz" src="img/ch11/fig04.svg" alt="figure">
+<img class="tikz" src="img/ch11/fig06.svg" alt="figure">
 <p><figcaption>그림 11.3: 랭크를 올릴수록 이미지가 복원된다</figcaption></figure></p>
 <p>\(k=1\)일 때는 거의 알아볼 수 없지만 \(k=20\)이면 원본과 구별하기 어렵다. 그런데 저장해야 할 숫자는 5140개로 원본 16384개의 약 31%다. <strong>데이터의 3분의 1만 가지고도 눈에는 거의 같은 그림</strong>을 만들 수 있는 것이다.</p>
 <div class="box note"><span class="chip">잠깐</span><span class="box-title">압축률 계산</span><p>\(m\times n\) 이미지를 랭크 \(k\)로 근사하면 저장해야 할 숫자는 \(\mm{U}\)의 \(mk\)개, \(\mm{V}\)의 \(nk\)개, 특이값 \(k\)개를 합해 \(k(m+n+1)\)개다. 원본이 \(mn\)개이므로 압축이 되려면
@@ -424,7 +426,7 @@ k(m+n+1) < mn \quad\Longleftrightarrow\quad k < \frac{mn}{m+n+1}
 <p>1000명의 (키, 몸무게, 발 크기, 앉은키) 데이터가 있다고 하자. 네 개의 특징은 서로 강하게 연관되어 있다. 키가 큰 사람은 대체로 몸무게도 많이 나가고 발도 크다. 그렇다면 이 데이터를 <strong>하나의 축</strong>으로 요약할 수 있지 않을까? "체격"이라는 이름을 붙일 수 있는 축 말이다.</p>
 <p><strong class="term-ko">주성분 분석</strong><sup class="term">Principal Component Analysis</sup>, 줄여서 PCA는 바로 이런 축을 찾는 방법이다. 정확히 말하면 <strong>데이터가 가장 많이 퍼져 있는 방향</strong>을 차례로 찾는다.</p>
 <figure class="fig">
-<img class="tikz" src="img/ch11/fig05.svg" alt="figure">
+<img class="tikz" src="img/ch11/fig07.svg" alt="figure">
 <p><figcaption>그림 11.4: 주성분은 데이터가 가장 넓게 퍼진 방향이다</figcaption></figure></p>
 <h3>공분산행렬과 SVD</h3>
 <p>"퍼진 정도"를 재는 척도는 분산이다. 여러 특징 사이의 관계까지 담으려면 <strong class="term-ko">공분산행렬</strong><sup class="term">covariance matrix</sup>이 필요하다.</p>
@@ -489,6 +491,7 @@ fig.show()</code></pre>
 분산        : [6.6445 0.184 ]
 설명 비율   : [97.31  2.69] %</pre>
 <div class="listing-caption">코드 11.9: PCA 구현과 시각화</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch11/fig08.svg" alt="figure"></p></div>
 <p>첫 번째 주성분이 분산의 97% 이상을 설명한다. 즉 이 2차원 데이터는 사실상 <strong>1차원</strong>이며, PC1 좌표 하나만 남겨도 정보의 대부분을 지킬 수 있다.</p>
 <h3>고차원 데이터를 2차원으로 보기</h3>
 <p>PCA의 가장 흔한 용도는 눈으로 볼 수 없는 고차원 데이터를 2차원 평면에 그리는 것이다. 네 개의 특징을 가진 세 그룹의 데이터를 만들어 시험해 보자.</p>
@@ -551,7 +554,7 @@ for name, D in [('중심화만', X - X.mean(axis=0)),
 </ul></p></div>
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 주성분 분석을 이용한 데이터 차원 축소</div><ol>
 <li><strong>SVD의 세 단계를 그려 보자.</strong> 임의의 \(2\times2\) 행렬에 대해 단위원이 타원이 되는 과정을 네 장으로 나누어 그리시오.
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 A = np.array([[1.5, 1.2],
@@ -572,8 +575,9 @@ for ax, (M, name) in zip(axes, steps):
     draw_points(ax, transform(M, dots), color='crimson', s=16)
     ax.set_title(name, fontsize=9)
 print('특이값 :', np.round(s, 4))
-fig.show()</code></pre></li>
-<li><strong>특이값의 감쇠를 관찰하자.</strong> 랭크가 낮은 행렬과 무작위 행렬의 특이값 분포를 비교하시오.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch11/fig09.svg" alt="figure"></p></div></li>
+<li><strong>특이값의 감쇠를 관찰하자.</strong> 랭크가 낮은 행렬과 무작위 행렬의 특이값 분포를 비교하시오.
 <pre class="line-numbers"><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 

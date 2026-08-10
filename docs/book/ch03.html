@@ -352,6 +352,7 @@ A.T shape: (3, 2)
  [2. 5.]
  [3. 6.]]</pre>
 <div class="listing-caption">코드 3.7: 전치행렬 만들기와 그림으로 확인하기</div></p>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch03/fig07.svg" alt="figure"></p></div>
 <h3>단위행렬과 대각행렬</h3>
 <div class="box defbox"><span class="chip">정의 3.5</span><span class="box-title">대각행렬과 단위행렬</span><p>정방행렬에서 \(i = j\)인 성분 \(a_{ii}\)를 <strong class="term-ko">대각성분</strong><sup class="term">diagonal element</sup>이라 한다. 대각성분을 제외한 모든 성분이 0인 행렬을 <strong class="term-ko">대각행렬</strong><sup class="term">diagonal matrix</sup>이라 한다.</p>
 <p>대각성분이 모두 1인 대각행렬을 <strong class="term-ko">단위행렬</strong><sup class="term">identity matrix</sup>이라 하고 \(\Id\) 또는 \(\Id_n\)으로 쓴다.
@@ -393,7 +394,7 @@ for ax, (name, A) in zip(axes.flat, mats.items()):
 fig.show()</code></pre>
 <div class="listing-caption">코드 3.8: 특별한 행렬들을 그림으로 구별하기</div></p>
 <figure class="fig">
-<img class="tikz" src="img/ch03/fig07.svg" alt="figure">
+<img class="tikz" src="img/ch03/fig08.svg" alt="figure">
 <p><figcaption>그림 3.7: 특별한 행렬들의 모양 (진한 칸이 0이 아닌 성분)</figcaption></figure></p>
 <p>그림 3.7처럼 행렬을 색으로 보면 구조가 즉시 눈에 들어온다. 숫자를 하나하나 확인할 필요가 없다. 이 방식은 큰 행렬을 다룰 때 특히 위력적이어서, 앞으로 소거법의 진행 과정이나 특이값 분해의 결과를 확인할 때 계속 사용한다.</p>
 <div class="center"><div class="table-wrap"><table><tr><th> 이름</th><th> 조건</th><th> 왜 중요한가 (다루는 장)</th></tr><tr><td>정방행렬</td><td>\(m = n\)</td><td>역행렬·행렬식·고유값을 논할 수 있다 (6–9장)</td></tr><tr><td>전치행렬</td><td>\((\mm{A}\tp)_{ij} = a_{ji}\)</td><td>내적과 최소제곱의 필수 도구 (4, 12장)</td></tr><tr><td>단위행렬</td><td>\(a_{ii}=1\), 나머지 0</td><td>곱셈의 항등원, 역행렬의 정의 (5–6장)</td></tr><tr><td>대각행렬</td><td>\(i \neq j\)면 \(a_{ij}=0\)</td><td>계산이 가장 쉬운 형태, 대각화의 목표 (10장)</td></tr><tr><td>상삼각행렬</td><td>대각선 아래가 0</td><td>소거법의 결과, 역대입으로 풀린다 (8, 12장)</td></tr><tr><td>대칭행렬</td><td>\(\mm{A}\tp = \mm{A}\)</td><td>고유벡터가 직교한다, 공분산행렬 (10–11장)</td></tr></table></div></div>
@@ -409,7 +410,7 @@ print(np.allclose(S.T, S))       # True
 print(np.allclose(K.T, -K))      # True</code></pre></p></div>
 <p><span id="labs"></span><div class="box lab"><div class="lab-title">LAB: 벡터와 행렬 데이터 가시화</div><ol>
 <li><strong>벡터를 두 얼굴로 보자.</strong> 여섯 개의 2차원 벡터를 화살표와 점으로 각각 그려 나란히 비교하시오.
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 V = np.array([[3., 1.], [1., 3.], [-2., 2.],
@@ -419,9 +420,10 @@ fig, (ax1, ax2) = new_axes(xlim=(-4, 4), ylim=(-4, 4), ncols=2)
 
 draw_vectors(ax1, V); ax1.set_title('vectors as arrows')
 draw_points(ax2, V, color='crimson', s=60); ax2.set_title('vectors as points')
-fig.show()</code></pre></li>
-<li><strong>성분 분해를 그림으로 확인하자.</strong> 벡터 \((4,3)\)이 \(4\vv{e}_1 + 3\vv{e}_2\)임을 화살표를 이어 붙여 보이시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch03/fig09.svg" alt="figure"></p></div></li>
+<li><strong>성분 분해를 그림으로 확인하자.</strong> 벡터 \((4,3)\)이 \(4\vv{e}_1 + 3\vv{e}_2\)임을 화살표를 이어 붙여 보이시오.
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 v = np.array([4., 3.])
@@ -436,8 +438,9 @@ for k in range(4):
 for k in range(3):
     draw_vector(ax, e2, origin=4 * e1 + k * e2, color='royalblue', width=0.008)
 draw_vector(ax, v, color='seagreen', label='v = 4e1 + 3e2')
-fig.show()</code></pre></li>
-<li><strong>데이터 행렬을 산점도로 그리자.</strong> 열 명의 (키, 몸무게)를 만들고 산점도로 그린 뒤, 평균 지점을 별표로 표시하시오.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch03/fig10.svg" alt="figure"></p></div></li>
+<li><strong>데이터 행렬을 산점도로 그리자.</strong> 열 명의 (키, 몸무게)를 만들고 산점도로 그린 뒤, 평균 지점을 별표로 표시하시오.
 <pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
@@ -455,9 +458,10 @@ draw_points(ax, X, color='steelblue', s=50, label='people')
 draw_points(ax, X.mean(axis=0).reshape(1, 2), color='crimson',
             s=200, label='mean')
 fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch03/fig11.svg" alt="figure"></p></div>
 <p><code>np.column_stack()</code>은 여러 1차원 배열을 열로 세워 행렬을 만든다. 데이터를 모을 때 자주 쓰는 함수다.</li>
 <li><strong>전치가 무슨 일을 하는지 눈으로 보자.</strong> \(3 \times 5\) 행렬과 그 전치를 나란히 그리고, 특정 성분이 어디로 옮겨 갔는지 확인하시오.</p>
-<p><pre class="line-numbers"><code class="language-python">import numpy as np
+<pre class="line-numbers"><code class="language-python">import numpy as np
 from tuvis import *
 
 A = np.arange(15).reshape(3, 5).astype(float)
@@ -468,8 +472,9 @@ show_matrix(ax2, A.T, fmt='{:.0f}', title='A.T (5x3)')
 
 print('A[1, 3]   =', A[1, 3])
 print('A.T[3, 1] =', A.T[3, 1])    # 같은 값
-fig.show()</code></pre></li>
-<li><strong>특별한 행렬을 만들어 보자.</strong> 다음을 각각 한 줄로 생성하시오.</p>
+fig.show()</code></pre>
+<div class="center"><p>&gt;!<img class="tikz" src="img/ch03/fig12.svg" alt="figure"></p></div></li>
+<li><strong>특별한 행렬을 만들어 보자.</strong> 다음을 각각 한 줄로 생성하시오.
 <p><pre class="line-numbers"><code class="language-python">import numpy as np
 
 print('단위행렬:\n', np.eye(4))
