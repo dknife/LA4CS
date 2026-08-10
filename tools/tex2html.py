@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""쓸모 있는 선형대수 LaTeX -> HTML converter (web edition).
+"""알짜 선형대수 LaTeX -> HTML converter (web edition).
 
 Reads ExpressLaTeX/chapters/chNN, emits docs/book/chNN.html with a fixed
 left-sidebar TOC and a rendered content pane. Verbatim code environments
@@ -967,7 +967,7 @@ def render_page(ch, body, all_meta):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{ch.num}장 {ch.title} — 쓸모 있는 선형대수</title>
+<title>{ch.num}장 {ch.title} — 알짜 선형대수</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -980,7 +980,7 @@ def render_page(ch, body, all_meta):
 <body>
 <header class="topbar">
   <a class="home" href="../index.html">&#8962; 홈</a>
-  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="book-title">알짜 선형대수</span>
   <span class="ch-indicator">{ch.num}장 {ch.title}</span>
   <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
 </header>
@@ -1067,7 +1067,7 @@ def render_appendix(idx, ch, body, all_meta):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>부록 {letter} {ch.title} — 쓸모 있는 선형대수</title>
+<title>부록 {letter} {ch.title} — 알짜 선형대수</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -1080,7 +1080,7 @@ def render_appendix(idx, ch, body, all_meta):
 <body>
 <header class="topbar">
   <a class="home" href="../index.html">&#8962; 홈</a>
-  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="book-title">알짜 선형대수</span>
   <span class="ch-indicator">부록 {letter} {ch.title}</span>
   <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
 </header>
@@ -1140,7 +1140,7 @@ def render_front(preface_html, 구성_html, all_meta):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>표지·머릿말 — 쓸모 있는 선형대수</title>
+<title>표지·머릿말 — 알짜 선형대수</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700;800&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -1151,7 +1151,7 @@ def render_front(preface_html, 구성_html, all_meta):
 <body>
 <header class="topbar">
   <a class="home" href="../index.html">&#8962; 홈</a>
-  <span class="book-title">쓸모 있는 선형대수</span>
+  <span class="book-title">알짜 선형대수</span>
   <span class="ch-indicator">표지·머릿말</span>
   <button class="nav-toggle" onclick="document.body.classList.toggle('nav-open')">목차</button>
 </header>
@@ -1161,7 +1161,7 @@ def render_front(preface_html, 구성_html, all_meta):
 </nav>
 <main class="content">
 <div class="cover-wrap">
-  <img class="cover" src="img/cover.png" alt="쓸모 있는 선형대수 표지">
+  <img class="cover" src="img/cover.png" alt="알짜 선형대수 표지">
 </div>
 <div class="chapter-head">
   <div class="ch-label">PREFACE</div>

@@ -1,4 +1,4 @@
-// 쓸모 있는 선형대수 — 코드 실행 워커 (Pyodide / CPython WebAssembly)
+// 알짜 선형대수 — 코드 실행 워커 (Pyodide / CPython WebAssembly)
 //
 // 메인 스레드가 아니라 워커에서 돌리는 이유:
 //   1) 무한 루프를 만들어도 페이지가 얼지 않는다

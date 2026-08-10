@@ -1,6 +1,6 @@
-# 쓸모 있는 선형대수 with NumPy — 웹북
+# 인공지능 시대의 알짜 선형대수 — 웹북
 
-『쓸모 있는 선형대수 with NumPy』(강영민, 박동규 지음 / (주)생능출판사)의 웹 에디션 저장소.
+『인공지능 시대의 알짜 선형대수』(강영민, 박동규 지음 / (주)생능출판사)의 웹 에디션 저장소.
 GitHub Pages로 `docs/`를 서비스한다. → https://dknife.github.io/LA4CS/
 
     docs/index.html          랜딩 페이지
