@@ -484,11 +484,11 @@
 <section class="lab" id="lab">
   <div class="lab-inner">
     <div class="lab-head reveal">
-      <span class="lab-eyebrow">Live Coding · No Install</span>
-      <h2>설치가 필요 없는 실습 환경</h2>
+      <span class="lab-eyebrow">홈페이지에서 바로 실행</span>
+      <h2>최적의 실습 환경을 그대로 제공합니다</h2>
       <p class="lab-lead">
-        파이썬도, 회원가입도, 서버도 필요 없습니다. <strong>Pyodide로 진짜 파이썬을
-        브라우저에서 즉시 실행</strong>하고, 그 결과를 <strong>마우스로 돌려 보는
+        설치도, 회원가입도, 서버도 필요 없습니다. <strong>이 홈페이지에서 예제를
+        고쳐 그 자리에서 바로 실행</strong>하고, 그 결과를 <strong>마우스로 돌려 보는
         3차원 그림</strong>으로 확인합니다. 본문의 모든 예제 옆에 [실행] 버튼이 있습니다.
       </p>
     </div>
@@ -496,12 +496,12 @@
     <div class="lab-grid">
       <a class="lab-card reveal" href="book/ch02.html">
         <div class="lab-ic">▶</div>
-        <h3>Pyodide 즉각 실행</h3>
-        <p>WebAssembly로 포팅된 <b>진짜 CPython</b>이 브라우저 안에서 돌아갑니다.
-          예제를 고쳐 그 자리에서 다시 실행 — <b>넘파이·맷플롯립·plotly</b>가
-          그대로 동작합니다.</p>
+        <h3>홈페이지에서 직접 실행</h3>
+        <p>책에 실린 코드가 <b>있는 그대로</b> 돌아갑니다. 숫자를 바꾸고 행렬을 바꿔
+          그 자리에서 다시 실행하며, 결과가 어떻게 달라지는지 눈으로 확인하세요.
+          준비할 것은 아무것도 없습니다.</p>
         <div class="lab-chips">
-          <span>numpy</span><span>plotly</span><span>matplotlib</span><span>tuvis</span>
+          <span>무설치</span><span>무회원가입</span><span>즉시 실행</span><span>결과 그림까지</span>
         </div>
       </a>
       <a class="lab-card reveal" href="book/apxb.html">
@@ -561,7 +561,7 @@ fig.show()
 print('det(A) =', round(float(np.linalg.det(A)), 4))</textarea>
       <div class="demo-bar">
         <button id="demo-run" type="button">▶ 실행</button>
-        <span id="demo-status">브라우저 안에서 실행됩니다. 설치는 필요 없습니다.</span>
+        <span id="demo-status">이 홈페이지에서 바로 실행됩니다. 설치는 필요 없습니다.</span>
       </div>
       <pre id="demo-out" hidden></pre>
       <div id="demo-figs"></div>
@@ -584,7 +584,7 @@ print('det(A) =', round(float(np.linalg.det(A)), 4))</textarea>
       임베딩의 유사도는 내적이며, 차원 축소는 특이값 분해입니다. 각 장의 끝에서 그 연결을 짚습니다.
     </p>
     <p>
-      도구는 최소한으로 유지했습니다. 계산은 넘파이, 그림은 plotly뿐입니다. 반복해서 쓰는
+      도구는 최소한으로 유지했습니다. 계산은 넘파이, 그림은 이 책이 만든 도구 하나뿐입니다. 반복해서 쓰는
       그리기 코드는 <code>tuvis.py</code>라는 작은 모듈 하나로 모아 두었고, 이 모듈은
       2장에서 독자가 직접 만들어 책 끝까지 함께 사용합니다. 남이 만든 라이브러리로
       그림만 받아 보는 대신, 화살표 하나·격자 한 칸까지 자기 손으로 그려 봅니다.
@@ -818,18 +818,18 @@ async function ensurePyodide() {
   py.setStdout({ batched: (t) => appendOut(t + '\n') });
   py.setStderr({ batched: (t) => appendOut(t + '\n') });
 
-  status('넘파이와 맷플롯립을 준비하는 중입니다');
+  status('실습 환경을 준비하는 중입니다');
   await py.loadPackage(['numpy', 'matplotlib']);
   // 브라우저에는 화면이 없다. pyplot 을 부르기 전에 Agg 로 정해 두어야 한다.
   py.runPython('import matplotlib\nmatplotlib.use("Agg")');
 
   // tuvis 는 plotly 로 그린다. Pyodide 기본 배포에 없으므로 micropip 으로 받는다.
-  status('plotly 를 내려받는 중입니다 (처음 한 번만, 10초쯤)');
+  status('실습 환경을 준비하는 중입니다 — 처음 한 번만 잠시 걸립니다');
   await py.loadPackage('micropip');
   await py.runPythonAsync('import micropip\nawait micropip.install("plotly")');
 
   // 이 책의 시각화 모듈을 파이썬 파일시스템에 심는다
-  status('시각화 모듈을 준비하는 중입니다');
+  status('그리기 도구를 준비하는 중입니다');
   for (const name of ['tuvis.py']) {
     const r = await fetch('book/' + name);
     if (r.ok) py.FS.writeFile(name, await r.text());
